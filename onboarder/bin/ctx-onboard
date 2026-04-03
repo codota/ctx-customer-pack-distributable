@@ -19812,8 +19812,9 @@ async function executeStep2(options) {
   if (!state) {
     throw new Error("Onboarding not initialized. Run step-0 first.");
   }
+  const resolvedManifestPath = options.manifestPath ? (0, import_node_path5.resolve)(options.manifestPath) : state.steps[2]?.output?.manifestPath ?? (0, import_node_path5.resolve)("ctx-loader.yaml");
   await stateManager.markStepStarted(state, 2);
-  let manifestPath = (0, import_node_path5.resolve)(options.manifestPath);
+  let manifestPath = resolvedManifestPath;
   if (options.dataVolume) {
     manifestPath = patchManifestWithVolume(manifestPath, options.dataVolume, options.baseDir);
   }
@@ -19852,7 +19853,7 @@ async function executeStep2(options) {
       { details: { exitCode, stdout: stdout.slice(0, 500), stderr: stderr.slice(0, 500) } }
     );
   }
-  await stateManager.markStepCompleted(state, 2, { loaderExitCode: exitCode });
+  await stateManager.markStepCompleted(state, 2, { loaderExitCode: exitCode, manifestPath: resolvedManifestPath });
   return { loaderExitCode: exitCode, loaderOutput: stdout };
 }
 function patchManifestWithVolume(originalPath, volume, baseDir) {
@@ -20759,12 +20760,12 @@ program2.command("step-1").description("Build testing lab: analyze repo and gene
     process.exit(1);
   }
 });
-program2.command("step-2").description("Load project data (wraps ctx-loader)").requiredOption("--manifest <path>", "Path to ctx-loader manifest").option("--json", "Output as JSON").action(async (opts) => {
+program2.command("step-2").description("Load project data (wraps ctx-loader)").option("--manifest <path>", "Path to ctx-loader manifest (optional on retry)").option("--json", "Output as JSON").action(async (opts) => {
   try {
     const { executeStep2: executeStep22 } = await Promise.resolve().then(() => (init_step_2_load_project(), step_2_load_project_exports));
     const settings = requireSettings(opts.json);
     const result = await executeStep22({
-      manifestPath: (0, import_node_path8.resolve)(opts.manifest),
+      manifestPath: opts.manifest ? (0, import_node_path8.resolve)(opts.manifest) : void 0,
       baseDir: process.cwd(),
       dataVolume: settings.dataVolume
     });
