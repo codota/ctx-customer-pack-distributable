@@ -226,7 +226,28 @@ echo ""
 if [[ "$packages" == *"loader"* || "$packages" == *"onboarder"* ]]; then
   abs_bin=$(cd "$BIN_DIR" 2>/dev/null && pwd || echo "$BIN_DIR")
   if [[ ":$PATH:" != *":${abs_bin}:"* ]]; then
-    echo "Add to PATH: export PATH=\"${abs_bin}:\$PATH\""
+    export_line="export PATH=\"${abs_bin}:\$PATH\""
+
+    # Detect the user's shell rc file
+    shell_name=$(basename "${SHELL:-/bin/bash}")
+    case $shell_name in
+      zsh)  rc_file="${HOME}/.zshrc" ;;
+      bash)
+        if [ "$(uname -s)" = "Darwin" ]; then
+          rc_file="${HOME}/.bash_profile"
+        else
+          rc_file="${HOME}/.bashrc"
+        fi
+        ;;
+      fish) rc_file="${HOME}/.config/fish/config.fish"; export_line="fish_add_path ${abs_bin}" ;;
+      *)    rc_file="${HOME}/.profile" ;;
+    esac
+
+    echo "To add to PATH permanently, run:"
+    echo ""
+    echo "  echo '${export_line}' >> ${rc_file}"
+    echo ""
+    echo "Then restart your shell or run: source ${rc_file}"
   fi
 fi
 echo "Set CTX_API_URL and CTX_API_KEY to connect."
