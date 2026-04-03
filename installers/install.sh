@@ -21,7 +21,38 @@ API_BASE="https://api.github.com/repos/${REPO}/contents"
 PACKAGE=""
 AGENT=""
 NON_INTERACTIVE=false
-BIN_DIR="${HOME}/bin"
+BIN_DIR=""
+
+# Detect a user-writable directory already in PATH
+detect_bin_dir() {
+  # Check common user-writable locations that are typically in PATH
+  for candidate in "${HOME}/.local/bin" "/usr/local/bin"; do
+    if [ -d "$candidate" ] && [ -w "$candidate" ]; then
+      # Verify it's actually in PATH
+      if [[ ":$PATH:" == *":${candidate}:"* ]]; then
+        echo "$candidate"
+        return
+      fi
+    fi
+  done
+
+  # macOS: ~/.local/bin is standard per XDG but often missing; create if on macOS
+  if [ "$(uname -s)" = "Darwin" ] && [ -d "${HOME}/.local" ] && [ -w "${HOME}/.local" ]; then
+    mkdir -p "${HOME}/.local/bin"
+    echo "${HOME}/.local/bin"
+    return
+  fi
+
+  # Linux: ~/.local/bin is XDG standard, many distros add it to PATH
+  if [ "$(uname -s)" = "Linux" ]; then
+    mkdir -p "${HOME}/.local/bin"
+    echo "${HOME}/.local/bin"
+    return
+  fi
+
+  # Fallback: current directory
+  echo "."
+}
 
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -178,6 +209,11 @@ fi
 
 packages=$(resolve_packages "$PACKAGE")
 
+# Resolve BIN_DIR if not set via --bin-dir
+if [ -z "$BIN_DIR" ]; then
+  BIN_DIR=$(detect_bin_dir)
+fi
+
 for pkg in $packages; do
   case $pkg in
     core) install_core "$AGENT" ;;
@@ -187,7 +223,10 @@ for pkg in $packages; do
 done
 
 echo ""
-if [[ ":$PATH:" != *":${BIN_DIR}:"* ]] && [[ "$packages" == *"loader"* || "$packages" == *"onboarder"* ]]; then
-  echo "Add to PATH: export PATH=\"${BIN_DIR}:\$PATH\""
+if [[ "$packages" == *"loader"* || "$packages" == *"onboarder"* ]]; then
+  abs_bin=$(cd "$BIN_DIR" 2>/dev/null && pwd || echo "$BIN_DIR")
+  if [[ ":$PATH:" != *":${abs_bin}:"* ]]; then
+    echo "Add to PATH: export PATH=\"${abs_bin}:\$PATH\""
+  fi
 fi
 echo "Set CTX_API_URL and CTX_API_KEY to connect."
