@@ -80,6 +80,16 @@ curl -fsSL https://raw.githubusercontent.com/codota/ctx-customer-pack-distributa
 
 ## The 7 Steps
 
+## Checking Progress
+
+Use `ctx-onboard status` (without --json) for a readable summary:
+```bash
+ctx-onboard status
+```
+This shows each step's status. Do NOT pipe through python or jq — the plain output is already formatted.
+
+## The 7 Steps
+
 ### Step 0: Initialize
 
 Validate connectivity to the Context Engine and detect server capabilities.
@@ -106,25 +116,19 @@ Produces `test-plan.yaml` with 5-10 test cases covering architecture, incident r
 
 ### Step 2: Load Project Data
 
-**Before starting:** Check `ctx-onboard status --json` to see if step 2 has a previous attempt (status `in_progress` or `failed`). If so, ask the user:
+**Before starting:** Check `ctx-onboard status` (no --json) to see the current progress. If step 2 shows `in_progress` or `failed`, ask the user:
 
 > "Step 2 has a previous attempt that [failed/is stale]. Would you like to:
-> 1. **Retry** — try loading again with the existing data source
-> 2. **Reset and retry** — delete the previously created data source and credential, then start fresh"
+> 1. **Retry** — try loading again (the server will reuse the existing data source)
+> 2. **Reset and retry** — clean up local state and start fresh"
 
-If the user chooses reset, run the rollback first:
+If the user chooses reset:
 ```bash
-ctx-loader rollback --json
+rm -rf .ctx-loader .ctx-onboarding
 ```
-Then delete the `.ctx-loader` state directory to ensure a clean start:
-```bash
-rm -rf .ctx-loader
-```
-And reset the onboarding state:
-```bash
-ctx-onboard reset --confirm
-```
-Then re-run steps 0 and 1 before proceeding to step 2.
+Then re-run from step 0. The server-side data source will be reused automatically (lookup-then-create).
+
+Do NOT use `ctx-loader rollback` for reset — it requires the manifest to be re-parsed which may fail if env vars aren't set.
 
 **Loading data:**
 
@@ -207,14 +211,9 @@ Produces a rollout plan with phases (pilot → early adopters → GA), risk asse
 - **Path A (Quick evaluation)**: Steps 0–4, then Step 7
 - **Path B (Full evaluation)**: Steps 0–7 including domain enrichment
 
-## Check Progress
-
-```bash
-ctx-onboard status --json
-```
-
 ## Start Over
 
+To reset all local state and start fresh:
 ```bash
-ctx-onboard reset --confirm
+rm -rf .ctx-loader .ctx-onboarding
 ```
