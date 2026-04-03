@@ -1,0 +1,6 @@
+---
+description: _builtin tools: get_coding_guidelines, get_cve_resolution_status, query_entities, query_symbols, search_knowledge, search_skills
+alwaysApply: true
+---
+
+When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `_builtin-tools` skill for detailed commands.

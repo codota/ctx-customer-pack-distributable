@@ -1,0 +1,6 @@
+---
+description: Check dependency health, find vulnerabilities, plan migrations.
+alwaysApply: true
+---
+
+When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `dependency-check` skill for detailed commands.

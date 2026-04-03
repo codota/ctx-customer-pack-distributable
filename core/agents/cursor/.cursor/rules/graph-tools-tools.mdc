@@ -1,0 +1,6 @@
+---
+description: Graph tools tools: find_entities, get_entity_by_id, traverse_edges
+alwaysApply: true
+---
+
+When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `graph-tools-tools` skill for detailed commands.

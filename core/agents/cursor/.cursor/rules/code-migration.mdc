@@ -1,0 +1,6 @@
+---
+description: Plan and execute code migrations — find equivalent fields, get migration examples.
+alwaysApply: true
+---
+
+When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `code-migration` skill for detailed commands.

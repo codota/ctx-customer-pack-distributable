@@ -1,0 +1,6 @@
+---
+description: Services tools: get_service_context, get_service_dependencies, get_service_dependents, get_service, list_services
+alwaysApply: true
+---
+
+When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `services-tools` skill for detailed commands.

@@ -1,0 +1,6 @@
+---
+description: Agent orchestration tools: get_agent_run_output, get_agent_run_status, invoke_agent, list_agent_kinds
+alwaysApply: true
+---
+
+When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `agent-orchestration-tools` skill for detailed commands.

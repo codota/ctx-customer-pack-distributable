@@ -1,0 +1,6 @@
+---
+description: Lspmcp tools: semantic_find_referencing_symbols, semantic_find_symbol, semantic_get_symbols_overview, semantic_insert_after_symbol, semantic_list_dir, semantic_read_file, semantic_replace_symbol_body, semantic_search_for_pattern
+alwaysApply: true
+---
+
+When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `lspmcp-tools` skill for detailed commands.

@@ -1,0 +1,6 @@
+---
+description: Gitlab tools: add_gitlab_mr_comment, create_gitlab_merge_request, search_gitlab_issues
+alwaysApply: true
+---
+
+When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `gitlab-tools` skill for detailed commands.

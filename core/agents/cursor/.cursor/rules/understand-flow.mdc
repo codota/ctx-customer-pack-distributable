@@ -1,0 +1,6 @@
+---
+description: Understand a business flow end-to-end — services involved, ADRs, incidents.
+alwaysApply: true
+---
+
+When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `understand-flow` skill for detailed commands.

@@ -1,0 +1,41 @@
+version: '1.0'
+metadata:
+  name: ${PROJECT_NAME:-my-project}
+  environment: production
+ctx:
+  apiUrl: ${CTX_API_URL}
+  apiKey: ${CTX_API_KEY}
+credentials:
+  gitlab:
+    type: gitlab
+    data:
+      token: ${GITLAB_TOKEN}
+      baseUrl: ${GITLAB_URL:-https://gitlab.com}
+  linear:
+    type: linear
+    data:
+      apiKey: ${LINEAR_API_KEY}
+  pagerduty:
+    type: pagerduty
+    data:
+      apiKey: ${PAGERDUTY_API_KEY}
+workspaces:
+  platform:
+    sources:
+      - name: code
+        type: gitlab
+        credential: gitlab
+        config:
+          owner: ${GITLAB_GROUP}
+          repo: ${GITLAB_PROJECT}
+        agents: [context-ingestor, dependency-mapper]
+      - name: issues
+        type: linear
+        credential: linear
+        config:
+          teamId: ${LINEAR_TEAM_ID}
+      - name: oncall
+        type: pagerduty
+        credential: pagerduty
+        config:
+          serviceIds: ${PAGERDUTY_SERVICE_IDS}

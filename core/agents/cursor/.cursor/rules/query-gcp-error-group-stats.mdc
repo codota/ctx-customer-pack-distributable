@@ -1,0 +1,6 @@
+---
+description: Query GCP Error Reporting API for error group statistics with time-windowed counts. Returns timedCounts arrays for spike detection. Requires a connected and enabled gcp_monitoring data source.
+alwaysApply: true
+---
+
+When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `query-gcp-error-group-stats` skill for detailed commands.

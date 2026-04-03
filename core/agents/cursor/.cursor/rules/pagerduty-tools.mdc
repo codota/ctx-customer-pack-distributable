@@ -1,0 +1,6 @@
+---
+description: Pagerduty tools: acknowledge_pagerduty_incident, add_pagerduty_note, resolve_pagerduty_incident
+alwaysApply: true
+---
+
+When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `pagerduty-tools` skill for detailed commands.

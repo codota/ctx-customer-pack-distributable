@@ -1,0 +1,6 @@
+---
+description: Development tools: create_feature_pr, get_feature, merge_feature_pr, start_new_feature, update_feature_decisions
+alwaysApply: true
+---
+
+When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `development-tools` skill for detailed commands.

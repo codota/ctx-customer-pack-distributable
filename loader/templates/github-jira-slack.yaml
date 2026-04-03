@@ -1,0 +1,52 @@
+version: '1.0'
+metadata:
+  name: ${PROJECT_NAME:-my-project}
+  environment: production
+ctx:
+  apiUrl: ${CTX_API_URL}
+  apiKey: ${CTX_API_KEY}
+networking:
+  proxy: ${HTTPS_PROXY:-}
+  caCertPath: ${CA_CERT_PATH:-}
+defaults:
+  concurrency: 4
+  sinceDays: 30
+credentials:
+  github:
+    type: github
+    data:
+      token: ${GITHUB_TOKEN}
+  jira:
+    type: jira
+    data:
+      baseUrl: ${JIRA_URL}
+      email: ${JIRA_EMAIL}
+      apiToken: ${JIRA_API_TOKEN}
+  slack:
+    type: slack
+    data:
+      token: ${SLACK_BOT_TOKEN}
+workspaces:
+  engineering:
+    sources:
+      - name: code
+        type: github
+        credential: github
+        config:
+          owner: ${GITHUB_ORG}
+          repo: ${GITHUB_REPO}
+        agents: [context-ingestor, dependency-mapper]
+      - name: issues
+        type: jira
+        credential: jira
+        config:
+          projects: ${JIRA_PROJECTS}
+      - name: comms
+        type: slack
+        credential: slack
+        config:
+          channels: ${SLACK_CHANNELS:-engineering,incidents}
+schedule:
+  incremental:
+    cron: '0 2 * * *'
+    mode: delta

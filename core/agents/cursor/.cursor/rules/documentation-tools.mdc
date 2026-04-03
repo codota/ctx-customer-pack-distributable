@@ -1,0 +1,6 @@
+---
+description: Documentation tools: get_service_documentation, list_documentation, search_all_documentation
+alwaysApply: true
+---
+
+When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `documentation-tools` skill for detailed commands.

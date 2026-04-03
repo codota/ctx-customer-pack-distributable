@@ -1,0 +1,6 @@
+---
+description: Assess the blast radius of a change — what services, flows, and teams are affected.
+alwaysApply: true
+---
+
+When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `blast-radius` skill for detailed commands.

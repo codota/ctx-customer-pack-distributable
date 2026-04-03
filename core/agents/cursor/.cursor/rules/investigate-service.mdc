@@ -1,0 +1,6 @@
+---
+description: Deep-dive investigation of a service — dependencies, dependents, ownership, ADRs, incidents.
+alwaysApply: true
+---
+
+When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `investigate-service` skill for detailed commands.

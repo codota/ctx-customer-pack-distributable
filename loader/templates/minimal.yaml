@@ -1,0 +1,21 @@
+version: '1.0'
+metadata:
+  name: ${PROJECT_NAME:-my-project}
+  environment: development
+ctx:
+  apiUrl: ${CTX_API_URL}
+  apiKey: ${CTX_API_KEY}
+credentials:
+  github:
+    type: github
+    data:
+      token: ${GITHUB_TOKEN}
+workspaces:
+  main:
+    sources:
+      - name: code
+        type: github
+        credential: github
+        config:
+          owner: ${GITHUB_ORG}
+          repo: ${GITHUB_REPO}

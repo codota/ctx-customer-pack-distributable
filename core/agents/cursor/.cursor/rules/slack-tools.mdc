@@ -1,0 +1,6 @@
+---
+description: Slack tools: post_slack_message, update_slack_message
+alwaysApply: true
+---
+
+When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `slack-tools` skill for detailed commands.

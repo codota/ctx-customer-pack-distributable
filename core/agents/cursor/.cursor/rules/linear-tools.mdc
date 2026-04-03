@@ -1,0 +1,6 @@
+---
+description: Linear tools: add_linear_comment, create_linear_issue, list_linear_issues, list_linear_teams, transition_linear_issue, update_linear_issue
+alwaysApply: true
+---
+
+When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `linear-tools` skill for detailed commands.

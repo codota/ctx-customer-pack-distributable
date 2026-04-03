@@ -1,0 +1,6 @@
+---
+description: Servicenow tools: add_servicenow_work_note, create_servicenow_change_request, create_servicenow_incident, list_servicenow_incidents, update_servicenow_incident
+alwaysApply: true
+---
+
+When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `servicenow-tools` skill for detailed commands.

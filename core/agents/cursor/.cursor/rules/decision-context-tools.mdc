@@ -1,0 +1,6 @@
+---
+description: Decision context tools: create_code_module, get_file_context, list_code_modules, resolve_file_to_service
+alwaysApply: true
+---
+
+When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `decision-context-tools` skill for detailed commands.

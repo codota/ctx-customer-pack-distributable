@@ -1,0 +1,6 @@
+---
+description: Search the knowledge graph for entities, documentation, and patterns.
+alwaysApply: true
+---
+
+When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `search-knowledge` skill for detailed commands.

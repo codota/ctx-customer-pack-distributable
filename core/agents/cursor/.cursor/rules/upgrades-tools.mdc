@@ -1,0 +1,6 @@
+---
+description: Upgrades tools: get_major_upgrades, get_package_upgrade_history, get_upgrade_summary, get_upgrades_with_code_changes, get_upgrades_without_code_changes, list_upgrades
+alwaysApply: true
+---
+
+When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `upgrades-tools` skill for detailed commands.

@@ -1,0 +1,6 @@
+---
+description: Ai readiness tools: get_ai_readiness_history, get_ai_readiness
+alwaysApply: true
+---
+
+When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `ai-readiness-tools` skill for detailed commands.

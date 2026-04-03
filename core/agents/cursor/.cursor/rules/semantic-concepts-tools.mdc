@@ -1,0 +1,6 @@
+---
+description: Semantic concepts tools: find_equivalent_fields, get_concept_implementations, get_domain_concepts, list_semantic_domains, search_concepts
+alwaysApply: true
+---
+
+When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `semantic-concepts-tools` skill for detailed commands.

@@ -1,0 +1,6 @@
+---
+description: Git insights tools: get_author_expertise, get_codebase_hotspots, get_coupling_issues, get_file_experts, get_file_risk, get_git_insights_summary, get_module_boundaries, get_recent_activity, get_related_files
+alwaysApply: true
+---
+
+When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `git-insights-tools` skill for detailed commands.

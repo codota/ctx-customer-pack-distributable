@@ -1,0 +1,6 @@
+---
+description: Composite skills tools: blast_radius, code_migration, dependency_check, incident_response, investigate_service, understand_flow
+alwaysApply: true
+---
+
+When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `composite-skills-tools` skill for detailed commands.

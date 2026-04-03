@@ -1,0 +1,6 @@
+---
+description: Change confidence tools: get_change_confidence, get_file_risk_factors
+alwaysApply: true
+---
+
+When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `change-confidence-tools` skill for detailed commands.

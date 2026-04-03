@@ -1,0 +1,6 @@
+---
+description: Manage Jira issues — get, create, transition, and comment on issues.
+alwaysApply: true
+---
+
+When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `jira-tools` skill for detailed commands.

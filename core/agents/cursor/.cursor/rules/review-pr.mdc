@@ -1,0 +1,6 @@
+---
+description: Review pull requests with architectural context — risk scores, ADRs, hotspots, ownership.
+alwaysApply: true
+---
+
+When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `review-pr` skill for detailed commands.

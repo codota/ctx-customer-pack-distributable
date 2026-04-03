@@ -1,0 +1,6 @@
+---
+description: Confluence tools: add_confluence_comment, create_confluence_page, get_confluence_page, search_confluence_pages, update_confluence_page
+alwaysApply: true
+---
+
+When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `confluence-tools` skill for detailed commands.

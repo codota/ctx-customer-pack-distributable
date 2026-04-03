@@ -1,0 +1,6 @@
+---
+description: Architecture tools: get_runbook, get_security_patterns, search_adrs, search_flows, search_incidents
+alwaysApply: true
+---
+
+When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `architecture-tools` skill for detailed commands.

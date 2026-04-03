@@ -1,0 +1,6 @@
+---
+description: Opsgenie tools: acknowledge_opsgenie_alert, add_opsgenie_note, close_opsgenie_alert, escalate_opsgenie_alert, get_opsgenie_alert
+alwaysApply: true
+---
+
+When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `opsgenie-tools` skill for detailed commands.

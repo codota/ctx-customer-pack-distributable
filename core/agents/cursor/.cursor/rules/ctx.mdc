@@ -1,0 +1,6 @@
+---
+description: Query the Context Engine knowledge graph — investigate services, check blast radius, search entities, manage issues, and assess change risk.
+alwaysApply: true
+---
+
+When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `ctx` skill for detailed commands.

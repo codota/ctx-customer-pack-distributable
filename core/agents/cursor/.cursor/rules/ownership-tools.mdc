@@ -1,0 +1,6 @@
+---
+description: Ownership tools: get_all_teams, get_code_reviewers, get_incident_contacts, get_service_ownership, get_team_services
+alwaysApply: true
+---
+
+When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `ownership-tools` skill for detailed commands.

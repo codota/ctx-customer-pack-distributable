@@ -1,0 +1,6 @@
+---
+description: Get incident response context — runbooks, escalation contacts, recent incidents for a service.
+alwaysApply: true
+---
+
+When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `incident-response` skill for detailed commands.

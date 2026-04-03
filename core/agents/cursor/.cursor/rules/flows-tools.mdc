@@ -1,0 +1,6 @@
+---
+description: Flows tools: get_flow_services, get_flow, get_service_flows, list_flows
+alwaysApply: true
+---
+
+When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `flows-tools` skill for detailed commands.

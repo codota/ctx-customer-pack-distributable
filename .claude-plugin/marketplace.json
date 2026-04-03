@@ -1,0 +1,20 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "ctx-customer-pack-distributable",
+  "description": "Context Engine skills, hooks, and MCP integration for customer Claude Code installs.",
+  "owner": {
+    "name": "Tabnine"
+  },
+  "plugins": [
+    {
+      "name": "ctx-customer-pack",
+      "description": "Context Engine skills, hooks, and MCP bridge for Claude Code.",
+      "author": {
+        "name": "Tabnine"
+      },
+      "source": "./core/agents/claude",
+      "category": "development",
+      "homepage": "https://github.com/codota/ctx-customer-pack-distributable"
+    }
+  ]
+}
