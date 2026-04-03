@@ -20405,6 +20405,67 @@ init_parser();
 init_orchestrator();
 var program2 = new Command();
 program2.name("ctx-loader").description("Bulk data loader for Context Engine").version("0.1.0");
+program2.command("init").description("Generate a manifest from a template").option("--template <name>", "Template name (minimal, github-jira-slack, gitlab-linear-pagerduty)", "minimal").option("--output <path>", "Output file path", "ctx-loader.yaml").option("--json", "Output as JSON").action(async (opts) => {
+  try {
+    const { readFileSync: readFileSync3, writeFileSync: writeFileSync2, existsSync: existsSync3 } = await import("node:fs");
+    const { dirname, join: join4 } = await import("node:path");
+    const templateName = opts.template.endsWith(".yaml") ? opts.template : `${opts.template}.yaml`;
+    const binDir = dirname(process.argv[1] || ".");
+    const candidates = [
+      // Bundled with the CLI (distributable layout: loader/bin/ctx-loader → loader/templates/)
+      join4(binDir, "..", "templates", templateName),
+      // Relative to cwd
+      join4(process.cwd(), "templates", templateName)
+    ];
+    let templateContent = null;
+    for (const candidate of candidates) {
+      if (existsSync3(candidate)) {
+        templateContent = readFileSync3(candidate, "utf-8");
+        break;
+      }
+    }
+    if (!templateContent) {
+      templateContent = `version: '1.0'
+metadata:
+  name: \${PROJECT_NAME:-my-project}
+  environment: development
+ctx:
+  apiUrl: \${CTX_API_URL}
+  apiKey: \${CTX_API_KEY}
+credentials:
+  github:
+    type: github
+    data:
+      token: \${GITHUB_TOKEN}
+workspaces:
+  main:
+    sources:
+      - name: code
+        type: github
+        credential: github
+        config:
+          owner: \${GITHUB_ORG}
+          repo: \${GITHUB_REPO}
+`;
+    }
+    const outputPath = (0, import_node_path4.resolve)(opts.output);
+    writeFileSync2(outputPath, templateContent, "utf-8");
+    if (opts.json) {
+      console.log(JSON.stringify({ template: opts.template, output: outputPath }));
+    } else {
+      console.log(`Created ${outputPath} from template '${opts.template}'`);
+      console.log("Edit the file and set the required environment variables, then run:");
+      console.log(`  ctx-loader validate --manifest ${opts.output} --json`);
+    }
+  } catch (err) {
+    if (opts.json) {
+      console.error(JSON.stringify({ error: err instanceof Error ? err.message : String(err) }));
+    } else {
+      console.error(`Init failed: ${err instanceof Error ? err.message : String(err)}`);
+    }
+    process.exit(1);
+  }
+});
 program2.command("validate").description("Validate manifest (schema + CTX connectivity)").option("--manifest <path>", "Manifest file path", "ctx-loader.yaml").option("--json", "Output as JSON").action(async (opts) => {
   try {
     const { manifest, fingerprint } = parseManifest((0, import_node_path4.resolve)(opts.manifest));
