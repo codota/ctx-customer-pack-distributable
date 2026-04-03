@@ -19,3 +19,7 @@ workspaces:
         config:
           owner: ${GITHUB_ORG}
           repo: ${GITHUB_REPO}
+          events:
+            - push
+            - pull_request
+            - issues

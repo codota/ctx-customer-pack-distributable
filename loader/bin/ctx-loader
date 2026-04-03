@@ -19082,7 +19082,8 @@ var init_schema = __esm({
       name: external_exports.string().min(1),
       type: external_exports.string().min(1),
       credential: external_exports.string().min(1),
-      config: external_exports.record(external_exports.string(), external_exports.string()),
+      config: external_exports.record(external_exports.string(), external_exports.unknown()),
+      // Passed through to CTX API; validated server-side per source type
       agents: external_exports.array(external_exports.string()).optional(),
       analysis: external_exports.enum(["default", "deep", "none"]).optional(),
       priority: external_exports.enum(["critical", "high", "normal", "low"]).optional(),
@@ -20439,6 +20440,10 @@ workspaces:
         config:
           owner: \${GITHUB_ORG}
           repo: \${GITHUB_REPO}
+          events:
+            - push
+            - pull_request
+            - issues
 `;
     }
     const outputPath = (0, import_node_path4.resolve)(opts.output);
@@ -20506,12 +20511,31 @@ program2.command("load").description("Execute full data load pipeline").option("
       baseDir: process.cwd()
     });
     const { run, warnings } = await orchestrator.execute();
+    const sourceErrors = [];
+    for (const [wsName, ws] of Object.entries(run.workspaces)) {
+      for (const [srcName, src] of Object.entries(ws.sources)) {
+        if (src.error) {
+          sourceErrors.push({ workspace: wsName, source: srcName, error: src.error });
+        }
+      }
+    }
     if (opts.json) {
-      console.log(JSON.stringify({ status: run.status, warnings, runId: run.id }, null, 2));
+      console.log(JSON.stringify({
+        status: run.status,
+        runId: run.id,
+        warnings,
+        errors: sourceErrors
+      }, null, 2));
     } else {
       console.log(`Load ${run.status} (run: ${run.id})`);
+      if (sourceErrors.length > 0) {
+        console.log("Errors:");
+        for (const e of sourceErrors) {
+          console.log(`  ${e.workspace}/${e.source}: ${e.error}`);
+        }
+      }
       if (warnings.length > 0) {
-        console.log(`Warnings:`);
+        console.log("Warnings:");
         for (const w of warnings) {
           console.log(`  - ${w}`);
         }
