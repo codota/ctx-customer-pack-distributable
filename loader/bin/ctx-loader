@@ -19939,7 +19939,7 @@ var init_orchestrator = __esm({
       }
       /** Checkpoint state and notify progress callback */
       async checkpoint() {
-        await this.checkpoint();
+        await this.checkpointStore.checkpoint(this.run);
         this.options.onProgress?.(this.run);
       }
       /**
