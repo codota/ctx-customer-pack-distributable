@@ -225,10 +225,12 @@ done
 echo ""
 if [[ "$packages" == *"loader"* || "$packages" == *"onboarder"* ]]; then
   abs_bin=$(cd "$BIN_DIR" 2>/dev/null && pwd || echo "$BIN_DIR")
-  if [[ ":$PATH:" != *":${abs_bin}:"* ]]; then
-    export_line="export PATH=\"${abs_bin}:\$PATH\""
 
-    # Detect the user's shell rc file
+  # Check if a login shell would have this dir in PATH.
+  # Don't trust the current PATH — it may differ from the user's normal shell.
+  login_path=$("${SHELL:-/bin/bash}" -l -c 'echo $PATH' 2>/dev/null || echo "$PATH")
+
+  if [[ ":${login_path}:" != *":${abs_bin}:"* ]]; then
     shell_name=$(basename "${SHELL:-/bin/bash}")
     case $shell_name in
       zsh)  rc_file="${HOME}/.zshrc" ;;
@@ -239,9 +241,15 @@ if [[ "$packages" == *"loader"* || "$packages" == *"onboarder"* ]]; then
           rc_file="${HOME}/.bashrc"
         fi
         ;;
-      fish) rc_file="${HOME}/.config/fish/config.fish"; export_line="fish_add_path ${abs_bin}" ;;
+      fish) rc_file="${HOME}/.config/fish/config.fish" ;;
       *)    rc_file="${HOME}/.profile" ;;
     esac
+
+    if [ "$shell_name" = "fish" ]; then
+      export_line="fish_add_path ${abs_bin}"
+    else
+      export_line="export PATH=\"${abs_bin}:\$PATH\""
+    fi
 
     echo "To add to PATH permanently, run:"
     echo ""
