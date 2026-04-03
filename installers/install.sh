@@ -28,7 +28,7 @@ while [[ $# -gt 0 ]]; do
     --package) PACKAGE="$2"; shift 2 ;;
     --agent) AGENT="$2"; shift 2 ;;
     --bin-dir) BIN_DIR="$2"; shift 2 ;;
-    --branch) BRANCH="$2"; RAW_BASE="https://raw.githubusercontent.com/${REPO}/${BRANCH}"; API_BASE="https://api.github.com/repos/${REPO}/contents"; shift 2 ;;
+    --branch) BRANCH="$2"; RAW_BASE="https://raw.githubusercontent.com/${REPO}/${BRANCH}"; shift 2 ;;
     --non-interactive) NON_INTERACTIVE=true; shift ;;
     --help|-h)
       echo "Usage: curl -fsSL ...install.sh | bash -s -- [OPTIONS]"
@@ -47,7 +47,6 @@ fetch() {
   curl -fsSL "$1" -o "$2" 2>/dev/null
 }
 
-# List directory entries from GitHub API
 list_github_dir() {
   curl -fsSL "${API_BASE}/$1?ref=${BRANCH}" 2>/dev/null \
     | grep '"name"' \
@@ -63,14 +62,13 @@ resolve_packages() {
   esac
 }
 
-# ── Install core skills ─────────────────────────────────────────
+# ── Install functions ────────────────────────────────────────────
 
 install_core() {
   local agent=$1
-  echo "  Installing core skills for ${agent}..."
+  local skills count=0
 
-  local skills
-  local count=0
+  echo "[core] Downloading skills for ${agent}..."
 
   case $agent in
     claude)
@@ -78,102 +76,84 @@ install_core() {
       mkdir -p .claude/skills
       for skill in $skills; do
         mkdir -p ".claude/skills/${skill}"
-        if fetch "${RAW_BASE}/core/agents/claude/skills/${skill}/SKILL.md" ".claude/skills/${skill}/SKILL.md"; then
-          count=$((count + 1))
-        fi
+        fetch "${RAW_BASE}/core/agents/claude/skills/${skill}/SKILL.md" ".claude/skills/${skill}/SKILL.md" && count=$((count + 1))
       done
-
-      # Also fetch hooks and MCP proxy
       mkdir -p .claude/hooks .claude/scripts
       fetch "${RAW_BASE}/core/agents/claude/hooks/decision-context.py" ".claude/hooks/decision-context.py" || true
       fetch "${RAW_BASE}/core/agents/claude/hooks/change-confidence.py" ".claude/hooks/change-confidence.py" || true
       fetch "${RAW_BASE}/core/agents/claude/scripts/ctx-mcp-proxy.py" ".claude/scripts/ctx-mcp-proxy.py" || true
+      echo "[core] ${count} skills + 2 hooks + MCP proxy installed."
       ;;
-
     cursor)
       skills=$(list_github_dir "core/agents/cursor/.cursor/skills")
       mkdir -p .cursor/skills .cursor/rules
       for skill in $skills; do
         mkdir -p ".cursor/skills/${skill}"
-        if fetch "${RAW_BASE}/core/agents/cursor/.cursor/skills/${skill}/SKILL.md" ".cursor/skills/${skill}/SKILL.md"; then
-          count=$((count + 1))
-        fi
+        fetch "${RAW_BASE}/core/agents/cursor/.cursor/skills/${skill}/SKILL.md" ".cursor/skills/${skill}/SKILL.md" && count=$((count + 1))
         fetch "${RAW_BASE}/core/agents/cursor/.cursor/rules/${skill}.mdc" ".cursor/rules/${skill}.mdc" 2>/dev/null || true
       done
+      echo "[core] ${count} skills + ${count} rules installed."
       ;;
-
     gemini)
       skills=$(list_github_dir "core/agents/gemini/.gemini/skills")
       mkdir -p .gemini/skills
       for skill in $skills; do
         mkdir -p ".gemini/skills/${skill}"
-        if fetch "${RAW_BASE}/core/agents/gemini/.gemini/skills/${skill}/SKILL.md" ".gemini/skills/${skill}/SKILL.md"; then
-          count=$((count + 1))
-        fi
+        fetch "${RAW_BASE}/core/agents/gemini/.gemini/skills/${skill}/SKILL.md" ".gemini/skills/${skill}/SKILL.md" && count=$((count + 1))
       done
+      echo "[core] ${count} skills installed."
       ;;
-
     tabnine)
       skills=$(list_github_dir "core/agents/tabnine/.tabnine/agent/skills")
       mkdir -p "${HOME}/.tabnine/agent/skills"
       for skill in $skills; do
         mkdir -p "${HOME}/.tabnine/agent/skills/${skill}"
-        if fetch "${RAW_BASE}/core/agents/tabnine/.tabnine/agent/skills/${skill}/SKILL.md" "${HOME}/.tabnine/agent/skills/${skill}/SKILL.md"; then
-          count=$((count + 1))
-        fi
+        fetch "${RAW_BASE}/core/agents/tabnine/.tabnine/agent/skills/${skill}/SKILL.md" "${HOME}/.tabnine/agent/skills/${skill}/SKILL.md" && count=$((count + 1))
       done
+      echo "[core] ${count} skills installed."
       ;;
-
-    *) echo "    Unknown agent: ${agent}"; return ;;
+    *) echo "[core] Unknown agent: ${agent}"; return ;;
   esac
-
-  echo "    ${count} skills installed."
 }
 
-# ── Install loader CLI ───────────────────────────────────────────
-
 install_loader() {
-  echo "  Installing ctx-loader CLI..."
+  echo "[loader] Downloading ctx-loader CLI..."
   mkdir -p "$BIN_DIR"
   if fetch "${RAW_BASE}/loader/bin/ctx-loader" "${BIN_DIR}/ctx-loader"; then
     chmod +x "${BIN_DIR}/ctx-loader"
-    echo "    Installed → ${BIN_DIR}/ctx-loader"
+    echo "[loader] Installed → ${BIN_DIR}/ctx-loader"
   else
-    echo "    Failed to download ctx-loader."
+    echo "[loader] Failed to download."
   fi
 }
 
-# ── Install onboarder CLI + skills ───────────────────────────────
-
 install_onboarder() {
   local agent=$1
-  echo "  Installing ctx-onboard CLI..."
+  echo "[onboarder] Downloading ctx-onboard CLI..."
   mkdir -p "$BIN_DIR"
   if fetch "${RAW_BASE}/onboarder/bin/ctx-onboard" "${BIN_DIR}/ctx-onboard"; then
     chmod +x "${BIN_DIR}/ctx-onboard"
-    echo "    Installed → ${BIN_DIR}/ctx-onboard"
+    echo "[onboarder] Installed → ${BIN_DIR}/ctx-onboard"
   else
-    echo "    Failed to download ctx-onboard."
+    echo "[onboarder] Failed to download."
+    return
   fi
 
-  # Install onboarding skills for the agent
-  local ob_skills="onboard-init onboard-test-lab onboard-load onboard-baseline onboard-domain onboard-measure onboard-rollout"
   local skill_dir=""
   case $agent in
-    claude)  skill_dir=".claude/skills" ;;
-    cursor)  skill_dir=".cursor/skills" ;;
-    gemini)  skill_dir=".gemini/skills" ;;
+    claude) skill_dir=".claude/skills" ;;
+    cursor) skill_dir=".cursor/skills" ;;
+    gemini) skill_dir=".gemini/skills" ;;
     *) return ;;
   esac
 
+  local ob_skills="onboard-init onboard-test-lab onboard-load onboard-baseline onboard-domain onboard-measure onboard-rollout"
   local count=0
   for skill in $ob_skills; do
     mkdir -p "${skill_dir}/${skill}"
-    if fetch "${RAW_BASE}/onboarder/skills/${skill}/SKILL.md" "${skill_dir}/${skill}/SKILL.md"; then
-      count=$((count + 1))
-    fi
+    fetch "${RAW_BASE}/onboarder/skills/${skill}/SKILL.md" "${skill_dir}/${skill}/SKILL.md" && count=$((count + 1))
   done
-  echo "    ${count} onboarding skills installed."
+  echo "[onboarder] ${count} onboarding skills installed."
 }
 
 # ── Main ─────────────────────────────────────────────────────────
@@ -197,8 +177,6 @@ if [ -z "$AGENT" ]; then
 fi
 
 packages=$(resolve_packages "$PACKAGE")
-echo "Installing: ${packages}"
-echo ""
 
 for pkg in $packages; do
   case $pkg in
@@ -208,10 +186,8 @@ for pkg in $packages; do
   esac
 done
 
+echo ""
 if [[ ":$PATH:" != *":${BIN_DIR}:"* ]] && [[ "$packages" == *"loader"* || "$packages" == *"onboarder"* ]]; then
-  echo ""
   echo "Add to PATH: export PATH=\"${BIN_DIR}:\$PATH\""
 fi
-
-echo ""
-echo "Done. Set CTX_API_URL and CTX_API_KEY to connect."
+echo "Set CTX_API_URL and CTX_API_KEY to connect."
