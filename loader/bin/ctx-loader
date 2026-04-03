@@ -19901,7 +19901,13 @@ function applySourceConfigDefaults(type, config) {
   }
   return enriched;
 }
-var import_node_crypto4, import_node_path3, Orchestrator;
+function getAgentsForSource(sourceSpec) {
+  if (sourceSpec.agents && sourceSpec.agents.length > 0) {
+    return sourceSpec.agents;
+  }
+  return DEFAULT_AGENTS[sourceSpec.type] ?? [];
+}
+var import_node_crypto4, import_node_path3, Orchestrator, DEFAULT_AGENTS;
 var init_orchestrator = __esm({
   "loader/src/pipeline/orchestrator.ts"() {
     "use strict";
@@ -20093,11 +20099,12 @@ var init_orchestrator = __esm({
           if (this.pauseController.shouldStop) {
             return this.handlePause(state);
           }
-          if (sourceSpec.agents && sourceSpec.agents.length > 0) {
+          const agents = getAgentsForSource(sourceSpec);
+          if (agents.length > 0) {
             state.status = transition(state.status, "running_agents");
             state.lastProgressAt = (/* @__PURE__ */ new Date()).toISOString();
             await this.checkpoint();
-            for (const agentName of sourceSpec.agents) {
+            for (const agentName of agents) {
               if (this.pauseController.shouldStop) {
                 return this.handlePause(state);
               }
@@ -20262,6 +20269,23 @@ var init_orchestrator = __esm({
           }
         }
       }
+    };
+    DEFAULT_AGENTS = {
+      github: [
+        "context-ingestor",
+        "dependency-mapper",
+        "github-pr-ingestor",
+        "github-issues-ingestor",
+        "git-insights-analyzer"
+      ],
+      gitlab: [
+        "context-ingestor",
+        "dependency-mapper",
+        "gitlab-issues-ingestor",
+        "git-insights-analyzer"
+      ],
+      jira: ["jira-issue-ingestor"],
+      confluence: ["confluence-content-ingestor"]
     };
   }
 });
@@ -20475,6 +20499,12 @@ workspaces:
             - push
             - pull_request
             - issues
+        agents:
+          - context-ingestor
+          - dependency-mapper
+          - github-pr-ingestor
+          - github-issues-ingestor
+          - git-insights-analyzer
 `;
     }
     const outputPath = (0, import_node_path4.resolve)(opts.output);

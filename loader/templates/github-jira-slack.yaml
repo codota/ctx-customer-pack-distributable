@@ -35,17 +35,19 @@ workspaces:
           owner: ${GITHUB_ORG}
           repo: ${GITHUB_REPO}
           events: [push, pull_request, issues]
-        agents: [context-ingestor, dependency-mapper]
+        agents: [context-ingestor, dependency-mapper, github-pr-ingestor, github-issues-ingestor, git-insights-analyzer]
       - name: issues
         type: jira
         credential: jira
         config:
           projects: ${JIRA_PROJECTS}
+        agents: [jira-issue-ingestor]
       - name: comms
         type: slack
         credential: slack
         config:
           channels: ${SLACK_CHANNELS:-engineering,incidents}
+        agents: []
 schedule:
   incremental:
     cron: '0 2 * * *'

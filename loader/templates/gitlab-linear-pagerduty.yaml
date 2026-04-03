@@ -27,12 +27,13 @@ workspaces:
         config:
           owner: ${GITLAB_GROUP}
           repo: ${GITLAB_PROJECT}
-        agents: [context-ingestor, dependency-mapper]
+        agents: [context-ingestor, dependency-mapper, gitlab-issues-ingestor, git-insights-analyzer]
       - name: issues
         type: linear
         credential: linear
         config:
           teamId: ${LINEAR_TEAM_ID}
+        agents: []
       - name: oncall
         type: pagerduty
         credential: pagerduty

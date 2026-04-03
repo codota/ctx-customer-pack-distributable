@@ -23,3 +23,9 @@ workspaces:
             - push
             - pull_request
             - issues
+        agents:
+          - context-ingestor
+          - dependency-mapper
+          - github-pr-ingestor
+          - github-issues-ingestor
+          - git-insights-analyzer
