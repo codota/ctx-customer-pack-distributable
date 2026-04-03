@@ -104,16 +104,17 @@ install_core() {
   case $agent in
     claude)
       skills=$(list_github_dir "core/agents/claude/skills")
-      mkdir -p .claude/skills
+      mkdir -p .claude/skills .claude/commands
       for skill in $skills; do
         mkdir -p ".claude/skills/${skill}"
         fetch "${RAW_BASE}/core/agents/claude/skills/${skill}/SKILL.md" ".claude/skills/${skill}/SKILL.md" && count=$((count + 1))
+        fetch "${RAW_BASE}/core/agents/claude/commands/${skill}.md" ".claude/commands/${skill}.md" 2>/dev/null || true
       done
       mkdir -p .claude/hooks .claude/scripts
       fetch "${RAW_BASE}/core/agents/claude/hooks/decision-context.py" ".claude/hooks/decision-context.py" || true
       fetch "${RAW_BASE}/core/agents/claude/hooks/change-confidence.py" ".claude/hooks/change-confidence.py" || true
       fetch "${RAW_BASE}/core/agents/claude/scripts/ctx-mcp-proxy.py" ".claude/scripts/ctx-mcp-proxy.py" || true
-      echo "[core] ${count} skills + 2 hooks + MCP proxy installed."
+      echo "[core] ${count} skills + ${count} commands + 2 hooks + MCP proxy installed."
       ;;
     cursor)
       skills=$(list_github_dir "core/agents/cursor/.cursor/skills")
