@@ -226,36 +226,36 @@ echo ""
 if [[ "$packages" == *"loader"* || "$packages" == *"onboarder"* ]]; then
   abs_bin=$(cd "$BIN_DIR" 2>/dev/null && pwd || echo "$BIN_DIR")
 
-  # Check if a login shell would have this dir in PATH.
-  # Don't trust the current PATH — it may differ from the user's normal shell.
-  login_path=$("${SHELL:-/bin/bash}" -l -c 'echo $PATH' 2>/dev/null || echo "$PATH")
+  # Detect shell rc file
+  shell_name=$(basename "${SHELL:-/bin/bash}")
+  case $shell_name in
+    zsh)  rc_file="${HOME}/.zshrc" ;;
+    bash)
+      if [ "$(uname -s)" = "Darwin" ]; then
+        rc_file="${HOME}/.bash_profile"
+      else
+        rc_file="${HOME}/.bashrc"
+      fi
+      ;;
+    fish) rc_file="${HOME}/.config/fish/config.fish" ;;
+    *)    rc_file="${HOME}/.profile" ;;
+  esac
 
-  if [[ ":${login_path}:" != *":${abs_bin}:"* ]]; then
-    shell_name=$(basename "${SHELL:-/bin/bash}")
-    case $shell_name in
-      zsh)  rc_file="${HOME}/.zshrc" ;;
-      bash)
-        if [ "$(uname -s)" = "Darwin" ]; then
-          rc_file="${HOME}/.bash_profile"
-        else
-          rc_file="${HOME}/.bashrc"
-        fi
-        ;;
-      fish) rc_file="${HOME}/.config/fish/config.fish" ;;
-      *)    rc_file="${HOME}/.profile" ;;
-    esac
-
-    if [ "$shell_name" = "fish" ]; then
-      export_line="fish_add_path ${abs_bin}"
-    else
-      export_line="export PATH=\"${abs_bin}:\$PATH\""
-    fi
-
-    echo "To add to PATH permanently, run:"
-    echo ""
-    echo "  echo '${export_line}' >> ${rc_file}"
-    echo ""
-    echo "Then restart your shell or run: source ${rc_file}"
+  if [ "$shell_name" = "fish" ]; then
+    export_line="fish_add_path ${abs_bin}"
+  else
+    export_line="export PATH=\"${abs_bin}:\$PATH\""
   fi
+
+  echo "CLIs installed to: ${abs_bin}"
+  echo ""
+  echo "If not already in your PATH, add it permanently:"
+  echo ""
+  echo "  echo '${export_line}' >> ${rc_file} && source ${rc_file}"
+  echo ""
+  echo "Verify:"
+  [[ "$packages" == *"loader"* ]] && echo "  ctx-loader --version"
+  [[ "$packages" == *"onboarder"* ]] && echo "  ctx-onboard --version"
 fi
-echo "Set CTX_API_URL and CTX_API_KEY to connect."
+echo ""
+echo "Set CTX_API_URL and CTX_API_KEY environment variables to connect."
