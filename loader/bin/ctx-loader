@@ -19886,6 +19886,22 @@ var orchestrator_exports = {};
 __export(orchestrator_exports, {
   Orchestrator: () => Orchestrator
 });
+function applySourceConfigDefaults(type, config) {
+  const enriched = { ...config };
+  switch (type) {
+    case "github":
+      if (!enriched.events) {
+        enriched.events = ["push", "pull_request", "issues"];
+      }
+      break;
+    case "gitlab":
+      if (!enriched.events) {
+        enriched.events = ["push", "merge_request", "issue", "tag_push"];
+      }
+      break;
+  }
+  return enriched;
+}
 var import_node_crypto4, import_node_path3, Orchestrator;
 var init_orchestrator = __esm({
   "loader/src/pipeline/orchestrator.ts"() {
@@ -20174,7 +20190,8 @@ var init_orchestrator = __esm({
           await this.client.syncDataSource(found.id);
           return { id: found.id, name, createdByThisRun: false };
         }
-        const { id } = await this.client.createDataSource({ name, type, credentialId, config });
+        const enrichedConfig = applySourceConfigDefaults(type, config);
+        const { id } = await this.client.createDataSource({ name, type, credentialId, config: enrichedConfig });
         return { id, name, createdByThisRun: true };
       }
       async resolveWorkspace(name) {
