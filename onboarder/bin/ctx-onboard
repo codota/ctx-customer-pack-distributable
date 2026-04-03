@@ -19166,8 +19166,8 @@ var init_api_client = __esm({
       }
       // ─── Credentials ────────────────────────────────────────
       async listCredentials(type) {
-        const query = type ? `?type=${encodeURIComponent(type)}` : "";
-        const resp = await this.get(`/api/credentials${query}`);
+        const query2 = type ? `?type=${encodeURIComponent(type)}` : "";
+        const resp = await this.get(`/api/credentials${query2}`);
         return resp.data;
       }
       async createCredential(body) {
@@ -21453,5 +21453,41 @@ program2.command("reset").description("Reset onboarding state (start over)").opt
     }
     process.exit(1);
   }
+});
+var query = program2.command("query").description("Query the Context Engine knowledge graph");
+query.command("search <terms>").description("Semantic search across the knowledge graph").option("--limit <n>", "Max results", "10").option("--types <types>", "Comma-separated entity types to filter").action(async (terms, opts) => {
+  const settings = requireSettings(true);
+  const body = { query: terms, limit: parseInt(opts.limit, 10) };
+  if (opts.types) {
+    body.entityTypes = opts.types.split(",");
+  }
+  const resp = await fetch(`${settings.apiUrl}/api/search`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${settings.apiKey}` },
+    body: JSON.stringify(body)
+  });
+  console.log(JSON.stringify(await resp.json(), null, 2));
+});
+query.command("entities").description("List or search entities").option("--type <type>", "Entity type (e.g. Service, CodeClass, Library)").option("--search <term>", "Search by name").option("--limit <n>", "Max results", "20").action(async (opts) => {
+  const settings = requireSettings(true);
+  const params = new URLSearchParams();
+  if (opts.type) {
+    params.set("types", opts.type);
+  }
+  if (opts.search) {
+    params.set("search", opts.search);
+  }
+  params.set("limit", opts.limit);
+  const resp = await fetch(`${settings.apiUrl}/api/entities?${params}`, {
+    headers: { Authorization: `Bearer ${settings.apiKey}` }
+  });
+  console.log(JSON.stringify(await resp.json(), null, 2));
+});
+query.command("entity <id>").description("Get a specific entity by ID").action(async (id) => {
+  const settings = requireSettings(true);
+  const resp = await fetch(`${settings.apiUrl}/api/entities/${id}`, {
+    headers: { Authorization: `Bearer ${settings.apiKey}` }
+  });
+  console.log(JSON.stringify(await resp.json(), null, 2));
 });
 program2.parse();

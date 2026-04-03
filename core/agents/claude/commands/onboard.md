@@ -181,22 +181,23 @@ Same as step 3, but this time **query the Context Engine** to answer.
 ctx-onboard step-4 --json
 ```
 
-2. Answer each question by querying the Context Engine API. Read `CTX_API_URL` and `CTX_API_KEY` from `ctx-settings.yaml`. Use these curl patterns to get information:
+2. Answer each question by querying the Context Engine using `ctx-onboard query`:
 
 ```bash
-# Search the knowledge graph
-curl -s -H "Authorization: Bearer $CTX_API_KEY" "$CTX_API_URL/api/search" \
-  -X POST -H "Content-Type: application/json" \
-  -d '{"query": "your search query", "limit": 10}'
+# Search the knowledge graph (semantic search)
+ctx-onboard query search "services architecture dependencies"
 
 # List entities by type
-curl -s -H "Authorization: Bearer $CTX_API_KEY" "$CTX_API_URL/api/entities?types=Service&limit=20"
+ctx-onboard query entities --type Service --limit 20
 
-# Search entities
-curl -s -H "Authorization: Bearer $CTX_API_KEY" "$CTX_API_URL/api/entities?search=typescript&limit=10"
+# Search entities by name
+ctx-onboard query entities --search "typescript" --limit 10
+
+# Get a specific entity by ID
+ctx-onboard query entity <entity-id>
 ```
 
-Use the search results to build comprehensive answers. The key difference from step 3 is that you now have access to real project data from the knowledge graph.
+These commands are auto-approved (no user confirmation needed). Use the search results to build comprehensive answers. The key difference from step 3 is that you now have access to real project data from the knowledge graph.
 
 3. Save answers the same way and submit for scoring:
 ```bash
