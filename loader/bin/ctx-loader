@@ -20536,7 +20536,7 @@ program2.command("load").description("Execute full data load pipeline").option("
       manifestPath: (0, import_node_path4.resolve)(opts.manifest),
       mode: opts.mode,
       baseDir: process.cwd(),
-      onProgress: isJson ? void 0 : (run2) => {
+      onProgress: (run2) => {
         for (const [wsName, ws] of Object.entries(run2.workspaces)) {
           for (const [srcName, src] of Object.entries(ws.sources)) {
             const status = src.status;
