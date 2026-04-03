@@ -1,15 +1,6 @@
 ---
 name: flows-tools
 description: 'Flows tools: get_flow_services, get_flow, get_service_flows, list_flows'
-tags:
-  - flows
-  - auto-generated
-group: flows
-mcp-tools:
-  - get_flow_services
-  - get_flow
-  - get_service_flows
-  - list_flows
 allowed-tools: 'Bash(ctx-cli:*)'
 ---
 # Flows Tools

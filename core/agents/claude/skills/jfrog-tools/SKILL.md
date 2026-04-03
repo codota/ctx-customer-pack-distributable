@@ -7,27 +7,6 @@ description: >-
   get_recommended_packages, get_transitive_dependents, list_all_packages,
   list_all_vulnerabilities, search_internal_packages, test_cypher_tenant,
   test_cypher_type, test_cypher
-tags:
-  - jfrog
-  - auto-generated
-group: jfrog
-mcp-tools:
-  - check_dependency_health
-  - get_adoption_status
-  - get_cve_blast_radius
-  - get_migration_examples
-  - get_migration_path
-  - get_migration_status
-  - get_package_usage_patterns
-  - get_package_vulnerabilities
-  - get_recommended_packages
-  - get_transitive_dependents
-  - list_all_packages
-  - list_all_vulnerabilities
-  - search_internal_packages
-  - test_cypher_tenant
-  - test_cypher_type
-  - test_cypher
 allowed-tools: 'Bash(ctx-cli:*)'
 ---
 # Jfrog Tools

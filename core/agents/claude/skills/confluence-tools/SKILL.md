@@ -3,16 +3,6 @@ name: confluence-tools
 description: >-
   Confluence tools: add_confluence_comment, create_confluence_page,
   get_confluence_page, search_confluence_pages, update_confluence_page
-tags:
-  - confluence
-  - auto-generated
-group: confluence
-mcp-tools:
-  - add_confluence_comment
-  - create_confluence_page
-  - get_confluence_page
-  - search_confluence_pages
-  - update_confluence_page
 allowed-tools: 'Bash(ctx-cli:*)'
 ---
 # Confluence Tools

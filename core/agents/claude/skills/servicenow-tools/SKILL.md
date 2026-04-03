@@ -4,16 +4,6 @@ description: >-
   Servicenow tools: add_servicenow_work_note, create_servicenow_change_request,
   create_servicenow_incident, list_servicenow_incidents,
   update_servicenow_incident
-tags:
-  - servicenow
-  - auto-generated
-group: servicenow
-mcp-tools:
-  - add_servicenow_work_note
-  - create_servicenow_change_request
-  - create_servicenow_incident
-  - list_servicenow_incidents
-  - update_servicenow_incident
 allowed-tools: 'Bash(ctx-cli:*)'
 ---
 # Servicenow Tools

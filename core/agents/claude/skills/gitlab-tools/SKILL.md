@@ -3,14 +3,6 @@ name: gitlab-tools
 description: >-
   Gitlab tools: add_gitlab_mr_comment, create_gitlab_merge_request,
   search_gitlab_issues
-tags:
-  - gitlab
-  - auto-generated
-group: gitlab
-mcp-tools:
-  - add_gitlab_mr_comment
-  - create_gitlab_merge_request
-  - search_gitlab_issues
 allowed-tools: 'Bash(ctx-cli:*)'
 ---
 # Gitlab Tools

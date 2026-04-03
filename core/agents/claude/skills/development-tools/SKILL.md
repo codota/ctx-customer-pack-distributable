@@ -3,16 +3,6 @@ name: development-tools
 description: >-
   Development tools: create_feature_pr, get_feature, merge_feature_pr,
   start_new_feature, update_feature_decisions
-tags:
-  - development
-  - auto-generated
-group: development
-mcp-tools:
-  - create_feature_pr
-  - get_feature
-  - merge_feature_pr
-  - start_new_feature
-  - update_feature_decisions
 allowed-tools: 'Bash(ctx-cli:*)'
 ---
 # Development Tools

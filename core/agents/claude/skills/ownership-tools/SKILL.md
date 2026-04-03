@@ -3,16 +3,6 @@ name: ownership-tools
 description: >-
   Ownership tools: get_all_teams, get_code_reviewers, get_incident_contacts,
   get_service_ownership, get_team_services
-tags:
-  - ownership
-  - auto-generated
-group: ownership
-mcp-tools:
-  - get_all_teams
-  - get_code_reviewers
-  - get_incident_contacts
-  - get_service_ownership
-  - get_team_services
 allowed-tools: 'Bash(ctx-cli:*)'
 ---
 # Ownership Tools

@@ -3,12 +3,6 @@ name: code-migration
 description: >-
   Plan and execute code migrations — find equivalent fields, get migration
   examples.
-tags:
-  - migration
-  - refactoring
-group: composite
-mcp-tools:
-  - code_migration
 allowed-tools: 'Bash(ctx-cli:*)'
 ---
 # Code Migration

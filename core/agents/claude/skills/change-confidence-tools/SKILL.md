@@ -1,13 +1,6 @@
 ---
 name: change-confidence-tools
 description: 'Change confidence tools: get_change_confidence, get_file_risk_factors'
-tags:
-  - change-confidence
-  - auto-generated
-group: change-confidence
-mcp-tools:
-  - get_change_confidence
-  - get_file_risk_factors
 allowed-tools: 'Bash(ctx-cli:*)'
 ---
 # Change confidence Tools

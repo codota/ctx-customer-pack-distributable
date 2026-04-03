@@ -3,17 +3,6 @@ name: composite-skills-tools
 description: >-
   Composite skills tools: blast_radius, code_migration, dependency_check,
   incident_response, investigate_service, understand_flow
-tags:
-  - composite-skills
-  - auto-generated
-group: composite-skills
-mcp-tools:
-  - blast_radius
-  - code_migration
-  - dependency_check
-  - incident_response
-  - investigate_service
-  - understand_flow
 allowed-tools: 'Bash(ctx-cli:*)'
 ---
 # Composite skills Tools

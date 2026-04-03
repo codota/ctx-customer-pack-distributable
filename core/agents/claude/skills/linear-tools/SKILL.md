@@ -3,17 +3,6 @@ name: linear-tools
 description: >-
   Linear tools: add_linear_comment, create_linear_issue, list_linear_issues,
   list_linear_teams, transition_linear_issue, update_linear_issue
-tags:
-  - linear
-  - auto-generated
-group: linear
-mcp-tools:
-  - add_linear_comment
-  - create_linear_issue
-  - list_linear_issues
-  - list_linear_teams
-  - transition_linear_issue
-  - update_linear_issue
 allowed-tools: 'Bash(ctx-cli:*)'
 ---
 # Linear Tools

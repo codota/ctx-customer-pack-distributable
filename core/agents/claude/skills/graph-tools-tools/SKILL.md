@@ -1,14 +1,6 @@
 ---
 name: graph-tools-tools
 description: 'Graph tools tools: find_entities, get_entity_by_id, traverse_edges'
-tags:
-  - graph-tools
-  - auto-generated
-group: graph-tools
-mcp-tools:
-  - find_entities
-  - get_entity_by_id
-  - traverse_edges
 allowed-tools: 'Bash(ctx-cli:*)'
 ---
 # Graph tools Tools

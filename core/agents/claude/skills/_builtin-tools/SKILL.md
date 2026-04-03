@@ -3,17 +3,6 @@ name: _builtin-tools
 description: >-
   _builtin tools: get_coding_guidelines, get_cve_resolution_status,
   query_entities, query_symbols, search_knowledge, search_skills
-tags:
-  - _builtin
-  - auto-generated
-group: _builtin
-mcp-tools:
-  - get_coding_guidelines
-  - get_cve_resolution_status
-  - query_entities
-  - query_symbols
-  - search_knowledge
-  - search_skills
 allowed-tools: 'Bash(ctx-cli:*)'
 ---
 # _builtin Tools

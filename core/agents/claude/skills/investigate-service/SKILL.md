@@ -3,12 +3,6 @@ name: investigate-service
 description: >-
   Deep-dive investigation of a service — dependencies, dependents, ownership,
   ADRs, incidents.
-tags:
-  - architecture
-  - investigation
-group: composite
-mcp-tools:
-  - investigate_service
 allowed-tools: 'Bash(ctx-cli:*)'
 ---
 # Investigate Service

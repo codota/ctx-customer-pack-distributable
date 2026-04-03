@@ -1,13 +1,6 @@
 ---
 name: ai-readiness-tools
 description: 'Ai readiness tools: get_ai_readiness_history, get_ai_readiness'
-tags:
-  - ai-readiness
-  - auto-generated
-group: ai-readiness
-mcp-tools:
-  - get_ai_readiness_history
-  - get_ai_readiness
 allowed-tools: 'Bash(ctx-cli:*)'
 ---
 # Ai readiness Tools

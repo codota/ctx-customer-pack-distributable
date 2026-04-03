@@ -1,13 +1,6 @@
 ---
 name: slack-tools
 description: 'Slack tools: post_slack_message, update_slack_message'
-tags:
-  - slack
-  - auto-generated
-group: slack
-mcp-tools:
-  - post_slack_message
-  - update_slack_message
 allowed-tools: 'Bash(ctx-cli:*)'
 ---
 # Slack Tools

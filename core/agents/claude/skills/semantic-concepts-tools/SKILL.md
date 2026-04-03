@@ -3,16 +3,6 @@ name: semantic-concepts-tools
 description: >-
   Semantic concepts tools: find_equivalent_fields, get_concept_implementations,
   get_domain_concepts, list_semantic_domains, search_concepts
-tags:
-  - semantic-concepts
-  - auto-generated
-group: semantic-concepts
-mcp-tools:
-  - find_equivalent_fields
-  - get_concept_implementations
-  - get_domain_concepts
-  - list_semantic_domains
-  - search_concepts
 allowed-tools: 'Bash(ctx-cli:*)'
 ---
 # Semantic concepts Tools

@@ -1,12 +1,6 @@
 ---
 name: understand-flow
 description: 'Understand a business flow end-to-end — services involved, ADRs, incidents.'
-tags:
-  - architecture
-  - flows
-group: composite
-mcp-tools:
-  - understand_flow
 allowed-tools: 'Bash(ctx-cli:*)'
 ---
 # Understand Flow

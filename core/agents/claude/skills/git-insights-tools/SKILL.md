@@ -5,20 +5,6 @@ description: >-
   get_coupling_issues, get_file_experts, get_file_risk,
   get_git_insights_summary, get_module_boundaries, get_recent_activity,
   get_related_files
-tags:
-  - git-insights
-  - auto-generated
-group: git-insights
-mcp-tools:
-  - get_author_expertise
-  - get_codebase_hotspots
-  - get_coupling_issues
-  - get_file_experts
-  - get_file_risk
-  - get_git_insights_summary
-  - get_module_boundaries
-  - get_recent_activity
-  - get_related_files
 allowed-tools: 'Bash(ctx-cli:*)'
 ---
 # Git insights Tools

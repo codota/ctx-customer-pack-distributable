@@ -4,17 +4,6 @@ description: >-
   Upgrades tools: get_major_upgrades, get_package_upgrade_history,
   get_upgrade_summary, get_upgrades_with_code_changes,
   get_upgrades_without_code_changes, list_upgrades
-tags:
-  - upgrades
-  - auto-generated
-group: upgrades
-mcp-tools:
-  - get_major_upgrades
-  - get_package_upgrade_history
-  - get_upgrade_summary
-  - get_upgrades_with_code_changes
-  - get_upgrades_without_code_changes
-  - list_upgrades
 allowed-tools: 'Bash(ctx-cli:*)'
 ---
 # Upgrades Tools

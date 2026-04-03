@@ -3,14 +3,6 @@ name: documentation-tools
 description: >-
   Documentation tools: get_service_documentation, list_documentation,
   search_all_documentation
-tags:
-  - documentation
-  - auto-generated
-group: documentation
-mcp-tools:
-  - get_service_documentation
-  - list_documentation
-  - search_all_documentation
 allowed-tools: 'Bash(ctx-cli:*)'
 ---
 # Documentation Tools

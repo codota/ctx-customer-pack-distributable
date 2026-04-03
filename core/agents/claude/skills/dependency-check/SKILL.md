@@ -1,12 +1,6 @@
 ---
 name: dependency-check
 description: 'Check dependency health, find vulnerabilities, plan migrations.'
-tags:
-  - dependencies
-  - security
-group: composite
-mcp-tools:
-  - dependency_check
 allowed-tools: 'Bash(ctx-cli:*)'
 ---
 # Dependency Check

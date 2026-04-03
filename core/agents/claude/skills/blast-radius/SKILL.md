@@ -3,12 +3,6 @@ name: blast-radius
 description: >-
   Assess the blast radius of a change — what services, flows, and teams are
   affected.
-tags:
-  - architecture
-  - risk
-group: composite
-mcp-tools:
-  - blast_radius
 allowed-tools: 'Bash(ctx-cli:*)'
 ---
 # Blast Radius

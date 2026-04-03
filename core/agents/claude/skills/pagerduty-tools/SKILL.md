@@ -3,14 +3,6 @@ name: pagerduty-tools
 description: >-
   Pagerduty tools: acknowledge_pagerduty_incident, add_pagerduty_note,
   resolve_pagerduty_incident
-tags:
-  - pagerduty
-  - auto-generated
-group: pagerduty
-mcp-tools:
-  - acknowledge_pagerduty_incident
-  - add_pagerduty_note
-  - resolve_pagerduty_incident
 allowed-tools: 'Bash(ctx-cli:*)'
 ---
 # Pagerduty Tools

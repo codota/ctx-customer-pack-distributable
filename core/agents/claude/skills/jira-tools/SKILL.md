@@ -1,15 +1,6 @@
 ---
 name: jira-tools
 description: 'Manage Jira issues — get, create, transition, and comment on issues.'
-tags:
-  - jira
-  - project-management
-group: integrations
-mcp-tools:
-  - get_jira_issue
-  - create_jira_issue
-  - transition_jira_issue
-  - add_jira_comment
 allowed-tools: 'Bash(ctx-cli:*)'
 ---
 # Jira Tools

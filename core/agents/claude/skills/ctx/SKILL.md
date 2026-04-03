@@ -3,16 +3,6 @@ name: ctx
 description: >-
   Query the Context Engine knowledge graph — investigate services, check blast
   radius, search entities, manage issues, and assess change risk.
-tags:
-  - context-engine
-  - knowledge-graph
-group: core
-mcp-tools:
-  - investigate_service
-  - blast_radius
-  - find_entities
-  - get_change_confidence
-  - search_knowledge
 allowed-tools: 'Bash(ctx-cli:*)'
 ---
 # Context Engine (ctx)

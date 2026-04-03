@@ -3,16 +3,6 @@ name: services-tools
 description: >-
   Services tools: get_service_context, get_service_dependencies,
   get_service_dependents, get_service, list_services
-tags:
-  - services
-  - auto-generated
-group: services
-mcp-tools:
-  - get_service_context
-  - get_service_dependencies
-  - get_service_dependents
-  - get_service
-  - list_services
 allowed-tools: 'Bash(ctx-cli:*)'
 ---
 # Services Tools

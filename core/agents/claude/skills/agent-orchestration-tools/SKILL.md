@@ -3,15 +3,6 @@ name: agent-orchestration-tools
 description: >-
   Agent orchestration tools: get_agent_run_output, get_agent_run_status,
   invoke_agent, list_agent_kinds
-tags:
-  - agent-orchestration
-  - auto-generated
-group: agent-orchestration
-mcp-tools:
-  - get_agent_run_output
-  - get_agent_run_status
-  - invoke_agent
-  - list_agent_kinds
 allowed-tools: 'Bash(ctx-cli:*)'
 ---
 # Agent orchestration Tools

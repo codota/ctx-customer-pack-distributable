@@ -6,12 +6,6 @@ description: >-
   like investigating services, responding to incidents, assessing blast radius,
   managing dependencies, and exploring architecture. Returns a comprehensive
   guide covering all major workflows with step-by-step instructions.
-tags:
-  - workflow-guides
-  - auto-generated
-group: workflow-guides
-mcp-tools:
-  - get_workflow_guide
 allowed-tools: 'Bash(ctx-cli:*)'
 ---
 # Workflow guides Tools

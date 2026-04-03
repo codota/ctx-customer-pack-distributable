@@ -3,16 +3,6 @@ name: architecture-tools
 description: >-
   Architecture tools: get_runbook, get_security_patterns, search_adrs,
   search_flows, search_incidents
-tags:
-  - architecture
-  - auto-generated
-group: architecture
-mcp-tools:
-  - get_runbook
-  - get_security_patterns
-  - search_adrs
-  - search_flows
-  - search_incidents
 allowed-tools: 'Bash(ctx-cli:*)'
 ---
 # Architecture Tools

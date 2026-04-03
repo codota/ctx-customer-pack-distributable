@@ -3,14 +3,6 @@ name: review-pr
 description: >-
   Review pull requests with architectural context — risk scores, ADRs, hotspots,
   ownership.
-tags:
-  - code-review
-  - risk
-group: composite
-mcp-tools:
-  - get_change_confidence
-  - get_file_context
-  - blast_radius
 allowed-tools: 'Bash(ctx-cli:*)'
 ---
 # Review PR

@@ -3,15 +3,6 @@ name: decision-context-tools
 description: >-
   Decision context tools: create_code_module, get_file_context,
   list_code_modules, resolve_file_to_service
-tags:
-  - decision-context
-  - auto-generated
-group: decision-context
-mcp-tools:
-  - create_code_module
-  - get_file_context
-  - list_code_modules
-  - resolve_file_to_service
 allowed-tools: 'Bash(ctx-cli:*)'
 ---
 # Decision context Tools

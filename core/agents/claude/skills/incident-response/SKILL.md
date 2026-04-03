@@ -3,12 +3,6 @@ name: incident-response
 description: >-
   Get incident response context — runbooks, escalation contacts, recent
   incidents for a service.
-tags:
-  - operations
-  - incident
-group: composite
-mcp-tools:
-  - incident_response
 allowed-tools: 'Bash(ctx-cli:*)'
 ---
 # Incident Response

@@ -3,16 +3,6 @@ name: opsgenie-tools
 description: >-
   Opsgenie tools: acknowledge_opsgenie_alert, add_opsgenie_note,
   close_opsgenie_alert, escalate_opsgenie_alert, get_opsgenie_alert
-tags:
-  - opsgenie
-  - auto-generated
-group: opsgenie
-mcp-tools:
-  - acknowledge_opsgenie_alert
-  - add_opsgenie_note
-  - close_opsgenie_alert
-  - escalate_opsgenie_alert
-  - get_opsgenie_alert
 allowed-tools: 'Bash(ctx-cli:*)'
 ---
 # Opsgenie Tools

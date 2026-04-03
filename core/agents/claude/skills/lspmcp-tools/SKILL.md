@@ -5,19 +5,6 @@ description: >-
   semantic_get_symbols_overview, semantic_insert_after_symbol,
   semantic_list_dir, semantic_read_file, semantic_replace_symbol_body,
   semantic_search_for_pattern
-tags:
-  - lspmcp
-  - auto-generated
-group: lspmcp
-mcp-tools:
-  - semantic_find_referencing_symbols
-  - semantic_find_symbol
-  - semantic_get_symbols_overview
-  - semantic_insert_after_symbol
-  - semantic_list_dir
-  - semantic_read_file
-  - semantic_replace_symbol_body
-  - semantic_search_for_pattern
 allowed-tools: 'Bash(ctx-cli:*)'
 ---
 # Lspmcp Tools
