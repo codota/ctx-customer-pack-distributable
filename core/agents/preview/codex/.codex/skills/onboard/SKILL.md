@@ -110,7 +110,27 @@ Produces `test-plan.yaml` with 5-10 test cases covering architecture, incident r
 
 ### Step 2: Load Project Data
 
-Load your project's data sources into the Context Engine.
+**Before starting:** Check `ctx-onboard status --json` to see if step 2 has a previous attempt (status `in_progress` or `failed`). If so, ask the user:
+
+> "Step 2 has a previous attempt that [failed/is stale]. Would you like to:
+> 1. **Retry** — try loading again with the existing data source
+> 2. **Reset and retry** — delete the previously created data source and credential, then start fresh"
+
+If the user chooses reset, run the rollback first:
+```bash
+ctx-loader rollback --json
+```
+Then delete the `.ctx-loader` state directory to ensure a clean start:
+```bash
+rm -rf .ctx-loader
+```
+And reset the onboarding state:
+```bash
+ctx-onboard reset --confirm
+```
+Then re-run steps 0 and 1 before proceeding to step 2.
+
+**Loading data:**
 
 Create a `ctx-loader.yaml` manifest first if one doesn't exist:
 ```bash
@@ -122,15 +142,15 @@ Then start the load. This runs in the background — it returns immediately:
 ctx-onboard step-2 --manifest ctx-loader.yaml --json
 ```
 
-Poll for completion (the agent should check every 15-30 seconds):
+Poll for completion (check every 15-30 seconds):
 ```bash
 ctx-onboard step-2 --status --json
 ```
 
 The `--status` response will be one of:
-- `{ "status": "loading", "pid": 1234 }` — still running
+- `{ "status": "loading", "pid": 1234 }` — still running, keep polling
 - `{ "status": "completed" }` — done, move to step 3
-- `{ "status": "failed", "loaderOutput": "..." }` — check the error
+- `{ "status": "failed", "loaderOutput": "..." }` — show the error to the user and offer to retry or reset
 
 **Important:** Step 2 runs in the background because large repos can take minutes.
 Do NOT wait for the initial `step-2` command to finish — it returns immediately.
