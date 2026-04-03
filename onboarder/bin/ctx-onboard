@@ -19820,12 +19820,13 @@ async function executeStep2(options) {
   }
   await stateManager.markStepStarted(state, 2);
   const manifestPath = (0, import_node_path5.resolve)(options.manifestPath);
-  let loaderOutput;
+  let stdout = "";
+  let stderr = "";
   let exitCode;
   try {
-    loaderOutput = (0, import_node_child_process.execFileSync)(
-      "npx",
-      ["ctx-loader", "load", "--manifest", manifestPath, "--json"],
+    stdout = (0, import_node_child_process.execFileSync)(
+      "ctx-loader",
+      ["load", "--manifest", manifestPath, "--json"],
       {
         encoding: "utf-8",
         cwd: options.baseDir,
@@ -19838,23 +19839,25 @@ async function executeStep2(options) {
   } catch (err) {
     const execErr = err;
     exitCode = execErr.status ?? 1;
-    loaderOutput = execErr.stdout ?? execErr.stderr ?? String(err);
-    if (exitCode !== 0) {
-      await stateManager.markStepFailed(state, 2, {
-        code: "ONBOARD_LOAD_001",
-        category: "server_error",
-        message: `ctx-loader exited with code ${exitCode}`,
-        remediation: "Check ctx-loader output for details. Run `ctx-loader status --json` for pipeline state.",
-        retryable: true,
-        cause: loaderOutput.slice(0, 500)
-      });
-      throw catalogError("ONBOARD_LOAD_001", `ctx-loader exited with code ${exitCode}`, {
-        details: { exitCode, output: loaderOutput.slice(0, 1e3) }
-      });
-    }
+    stdout = execErr.stdout ?? "";
+    stderr = execErr.stderr ?? "";
+    const detail = stderr || stdout || execErr.message || "Unknown error";
+    await stateManager.markStepFailed(state, 2, {
+      code: "ONBOARD_LOAD_001",
+      category: "server_error",
+      message: `ctx-loader failed: ${detail.slice(0, 200)}`,
+      remediation: "Run `ctx-loader load --manifest <path> --json` directly to see full output.",
+      retryable: true,
+      cause: detail.slice(0, 500)
+    });
+    throw catalogError(
+      "ONBOARD_LOAD_001",
+      `ctx-loader failed (exit ${exitCode}): ${detail.slice(0, 300)}`,
+      { details: { exitCode, stdout: stdout.slice(0, 500), stderr: stderr.slice(0, 500) } }
+    );
   }
   await stateManager.markStepCompleted(state, 2, { loaderExitCode: exitCode });
-  return { loaderExitCode: exitCode, loaderOutput };
+  return { loaderExitCode: exitCode, loaderOutput: stdout };
 }
 var import_node_child_process, import_node_path5;
 var init_step_2_load_project = __esm({
