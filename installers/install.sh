@@ -107,7 +107,7 @@ install_core() {
       mkdir -p .claude/skills .claude/commands
       for skill in $skills; do
         count=$((count + 1))
-        printf "\r[core] %d/%d %s" "$count" "$total" "$skill"
+        printf "\r\033[K[core] %d/%d %s" "$count" "$total" "$skill"
         mkdir -p ".claude/skills/${skill}"
         fetch "${RAW_BASE}/core/agents/claude/skills/${skill}/SKILL.md" ".claude/skills/${skill}/SKILL.md" || true
         fetch "${RAW_BASE}/core/agents/claude/commands/${skill}.md" ".claude/commands/${skill}.md" 2>/dev/null || true
@@ -127,7 +127,7 @@ install_core() {
       mkdir -p .cursor/skills .cursor/rules
       for skill in $skills; do
         count=$((count + 1))
-        printf "\r[core] %d/%d %s" "$count" "$total" "$skill"
+        printf "\r\033[K[core] %d/%d %s" "$count" "$total" "$skill"
         mkdir -p ".cursor/skills/${skill}"
         fetch "${RAW_BASE}/core/agents/cursor/.cursor/skills/${skill}/SKILL.md" ".cursor/skills/${skill}/SKILL.md" || true
         fetch "${RAW_BASE}/core/agents/cursor/.cursor/rules/${skill}.mdc" ".cursor/rules/${skill}.mdc" 2>/dev/null || true
@@ -142,7 +142,7 @@ install_core() {
       mkdir -p .gemini/skills
       for skill in $skills; do
         count=$((count + 1))
-        printf "\r[core] %d/%d %s" "$count" "$total" "$skill"
+        printf "\r\033[K[core] %d/%d %s" "$count" "$total" "$skill"
         mkdir -p ".gemini/skills/${skill}"
         fetch "${RAW_BASE}/core/agents/gemini/.gemini/skills/${skill}/SKILL.md" ".gemini/skills/${skill}/SKILL.md" || true
       done
@@ -156,7 +156,7 @@ install_core() {
       mkdir -p "${HOME}/.tabnine/agent/skills"
       for skill in $skills; do
         count=$((count + 1))
-        printf "\r[core] %d/%d %s" "$count" "$total" "$skill"
+        printf "\r\033[K[core] %d/%d %s" "$count" "$total" "$skill"
         mkdir -p "${HOME}/.tabnine/agent/skills/${skill}"
         fetch "${RAW_BASE}/core/agents/tabnine/.tabnine/agent/skills/${skill}/SKILL.md" "${HOME}/.tabnine/agent/skills/${skill}/SKILL.md" || true
       done
