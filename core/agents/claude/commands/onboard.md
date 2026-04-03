@@ -5,11 +5,52 @@ Walk through the complete 7-step Context Engine onboarding methodology. Validate
 
 Walk through the complete 7-step onboarding methodology to evaluate and adopt the Context Engine.
 
-## Prerequisites
+## Before You Start
 
-- `ctx-onboard` CLI installed (run the installer with `--package all`)
-- `CTX_API_URL` and `CTX_API_KEY` environment variables set
-- A repository to evaluate
+Check if `ctx-settings.yaml` exists in the project root. If it does, read it to confirm the settings are populated. If it doesn't exist, walk the user through creating it:
+
+1. **Context Engine connection** (required):
+   - Ask for their Context Engine URL (e.g. `https://ctx.your-company.com`)
+   - Ask for their CTX API key
+
+2. **Project info**:
+   - Ask for a project name
+   - Ask which repository they want to evaluate
+
+3. **Source platform credentials** — ask which platforms they use and collect the relevant tokens:
+   - **GitHub**: `GH_PAT` (Personal Access Token)
+   - **GitLab**: `GITLAB_TOKEN` and `GITLAB_URL`
+   - **Bitbucket**: `BITBUCKET_TOKEN` and `BITBUCKET_URL`
+   - **Jira**: `JIRA_URL`, `JIRA_EMAIL`, `JIRA_API_TOKEN`
+   - **Confluence**: `CONFLUENCE_URL`, `CONFLUENCE_EMAIL`, `CONFLUENCE_API_TOKEN`
+   - **Slack**: `SLACK_BOT_TOKEN`
+   - **PagerDuty**: `PAGERDUTY_API_KEY`
+   - **Linear**: `LINEAR_API_KEY`
+
+4. Create `ctx-settings.yaml` with the collected values:
+
+```yaml
+# Context Engine
+CTX_API_URL: <their URL>
+CTX_API_KEY: <their key>
+PROJECT_NAME: <their project name>
+
+# Source platform credentials (only include what they use)
+GH_PAT: <GitHub token>
+JIRA_URL: <Jira URL>
+JIRA_EMAIL: <Jira email>
+JIRA_API_TOKEN: <Jira token>
+# ... etc
+```
+
+Also check if `ctx-onboard` and `ctx-loader` are installed:
+```bash
+which ctx-onboard && which ctx-loader
+```
+If not found, tell the user to install them:
+```bash
+curl -fsSL https://raw.githubusercontent.com/codota/ctx-customer-pack-distributable/main/installers/install.sh | bash -s -- --package all --agent claude
+```
 
 ## The 7 Steps
 

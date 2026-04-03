@@ -10553,11 +10553,11 @@ var init_env_interpolation = __esm({
 });
 
 // shared/dist/config/yaml-loader.js
-var import_yaml;
+var import_yaml2;
 var init_yaml_loader = __esm({
   "shared/dist/config/yaml-loader.js"() {
     "use strict";
-    import_yaml = __toESM(require_dist(), 1);
+    import_yaml2 = __toESM(require_dist(), 1);
     init_categorized_error();
     init_env_interpolation();
   }
@@ -12556,7 +12556,7 @@ var require_thread_stream = __commonJS({
     var { version } = require_package();
     var { EventEmitter } = require("events");
     var { Worker } = require("worker_threads");
-    var { join: join6 } = require("path");
+    var { join: join7 } = require("path");
     var { pathToFileURL } = require("url");
     var { wait } = require_wait();
     var {
@@ -12592,7 +12592,7 @@ var require_thread_stream = __commonJS({
     function createWorker(stream, opts) {
       const { filename, workerData } = opts;
       const bundlerOverrides = "__bundlerPathsOverrides" in globalThis ? globalThis.__bundlerPathsOverrides : {};
-      const toExecute = bundlerOverrides["thread-stream-worker"] || join6(__dirname, "lib", "worker.js");
+      const toExecute = bundlerOverrides["thread-stream-worker"] || join7(__dirname, "lib", "worker.js");
       const worker = new Worker(toExecute, {
         ...opts.workerOpts,
         trackUnmanagedFds: false,
@@ -12978,7 +12978,7 @@ var require_transport = __commonJS({
     "use strict";
     var { createRequire } = require("module");
     var getCallers = require_caller();
-    var { join: join6, isAbsolute, sep } = require("node:path");
+    var { join: join7, isAbsolute, sep } = require("node:path");
     var sleep = require_atomic_sleep();
     var onExit = require_on_exit_leak_free();
     var ThreadStream = require_thread_stream();
@@ -13041,7 +13041,7 @@ var require_transport = __commonJS({
         throw new Error("only one of target or targets can be specified");
       }
       if (targets) {
-        target = bundlerOverrides["pino-worker"] || join6(__dirname, "worker.js");
+        target = bundlerOverrides["pino-worker"] || join7(__dirname, "worker.js");
         options.targets = targets.filter((dest) => dest.target).map((dest) => {
           return {
             ...dest,
@@ -13059,7 +13059,7 @@ var require_transport = __commonJS({
           });
         });
       } else if (pipeline) {
-        target = bundlerOverrides["pino-worker"] || join6(__dirname, "worker.js");
+        target = bundlerOverrides["pino-worker"] || join7(__dirname, "worker.js");
         options.pipelines = [pipeline.map((dest) => {
           return {
             ...dest,
@@ -13081,7 +13081,7 @@ var require_transport = __commonJS({
           return origin;
         }
         if (origin === "pino/file") {
-          return join6(__dirname, "..", "file.js");
+          return join7(__dirname, "..", "file.js");
         }
         let fixTarget2;
         for (const filePath of callers) {
@@ -14070,7 +14070,7 @@ var require_safe_stable_stringify = __commonJS({
               return circularValue;
             }
             let res = "";
-            let join6 = ",";
+            let join7 = ",";
             const originalIndentation = indentation;
             if (Array.isArray(value)) {
               if (value.length === 0) {
@@ -14084,7 +14084,7 @@ var require_safe_stable_stringify = __commonJS({
                 indentation += spacer;
                 res += `
 ${indentation}`;
-                join6 = `,
+                join7 = `,
 ${indentation}`;
               }
               const maximumValuesToStringify = Math.min(value.length, maximumBreadth);
@@ -14092,13 +14092,13 @@ ${indentation}`;
               for (; i < maximumValuesToStringify - 1; i++) {
                 const tmp2 = stringifyFnReplacer(String(i), value, stack, replacer, spacer, indentation);
                 res += tmp2 !== void 0 ? tmp2 : "null";
-                res += join6;
+                res += join7;
               }
               const tmp = stringifyFnReplacer(String(i), value, stack, replacer, spacer, indentation);
               res += tmp !== void 0 ? tmp : "null";
               if (value.length - 1 > maximumBreadth) {
                 const removedKeys = value.length - maximumBreadth - 1;
-                res += `${join6}"... ${getItemCount(removedKeys)} not stringified"`;
+                res += `${join7}"... ${getItemCount(removedKeys)} not stringified"`;
               }
               if (spacer !== "") {
                 res += `
@@ -14119,7 +14119,7 @@ ${originalIndentation}`;
             let separator = "";
             if (spacer !== "") {
               indentation += spacer;
-              join6 = `,
+              join7 = `,
 ${indentation}`;
               whitespace = " ";
             }
@@ -14133,13 +14133,13 @@ ${indentation}`;
               const tmp = stringifyFnReplacer(key2, value, stack, replacer, spacer, indentation);
               if (tmp !== void 0) {
                 res += `${separator}${strEscape(key2)}:${whitespace}${tmp}`;
-                separator = join6;
+                separator = join7;
               }
             }
             if (keyLength > maximumBreadth) {
               const removedKeys = keyLength - maximumBreadth;
               res += `${separator}"...":${whitespace}"${getItemCount(removedKeys)} not stringified"`;
-              separator = join6;
+              separator = join7;
             }
             if (spacer !== "" && separator.length > 1) {
               res = `
@@ -14180,7 +14180,7 @@ ${originalIndentation}`;
             }
             const originalIndentation = indentation;
             let res = "";
-            let join6 = ",";
+            let join7 = ",";
             if (Array.isArray(value)) {
               if (value.length === 0) {
                 return "[]";
@@ -14193,7 +14193,7 @@ ${originalIndentation}`;
                 indentation += spacer;
                 res += `
 ${indentation}`;
-                join6 = `,
+                join7 = `,
 ${indentation}`;
               }
               const maximumValuesToStringify = Math.min(value.length, maximumBreadth);
@@ -14201,13 +14201,13 @@ ${indentation}`;
               for (; i < maximumValuesToStringify - 1; i++) {
                 const tmp2 = stringifyArrayReplacer(String(i), value[i], stack, replacer, spacer, indentation);
                 res += tmp2 !== void 0 ? tmp2 : "null";
-                res += join6;
+                res += join7;
               }
               const tmp = stringifyArrayReplacer(String(i), value[i], stack, replacer, spacer, indentation);
               res += tmp !== void 0 ? tmp : "null";
               if (value.length - 1 > maximumBreadth) {
                 const removedKeys = value.length - maximumBreadth - 1;
-                res += `${join6}"... ${getItemCount(removedKeys)} not stringified"`;
+                res += `${join7}"... ${getItemCount(removedKeys)} not stringified"`;
               }
               if (spacer !== "") {
                 res += `
@@ -14220,7 +14220,7 @@ ${originalIndentation}`;
             let whitespace = "";
             if (spacer !== "") {
               indentation += spacer;
-              join6 = `,
+              join7 = `,
 ${indentation}`;
               whitespace = " ";
             }
@@ -14229,7 +14229,7 @@ ${indentation}`;
               const tmp = stringifyArrayReplacer(key2, value[key2], stack, replacer, spacer, indentation);
               if (tmp !== void 0) {
                 res += `${separator}${strEscape(key2)}:${whitespace}${tmp}`;
-                separator = join6;
+                separator = join7;
               }
             }
             if (spacer !== "" && separator.length > 1) {
@@ -14287,20 +14287,20 @@ ${originalIndentation}`;
               indentation += spacer;
               let res2 = `
 ${indentation}`;
-              const join7 = `,
+              const join8 = `,
 ${indentation}`;
               const maximumValuesToStringify = Math.min(value.length, maximumBreadth);
               let i = 0;
               for (; i < maximumValuesToStringify - 1; i++) {
                 const tmp2 = stringifyIndent(String(i), value[i], stack, spacer, indentation);
                 res2 += tmp2 !== void 0 ? tmp2 : "null";
-                res2 += join7;
+                res2 += join8;
               }
               const tmp = stringifyIndent(String(i), value[i], stack, spacer, indentation);
               res2 += tmp !== void 0 ? tmp : "null";
               if (value.length - 1 > maximumBreadth) {
                 const removedKeys = value.length - maximumBreadth - 1;
-                res2 += `${join7}"... ${getItemCount(removedKeys)} not stringified"`;
+                res2 += `${join8}"... ${getItemCount(removedKeys)} not stringified"`;
               }
               res2 += `
 ${originalIndentation}`;
@@ -14316,16 +14316,16 @@ ${originalIndentation}`;
               return '"[Object]"';
             }
             indentation += spacer;
-            const join6 = `,
+            const join7 = `,
 ${indentation}`;
             let res = "";
             let separator = "";
             let maximumPropertiesToStringify = Math.min(keyLength, maximumBreadth);
             if (isTypedArrayWithEntries(value)) {
-              res += stringifyTypedArray(value, join6, maximumBreadth);
+              res += stringifyTypedArray(value, join7, maximumBreadth);
               keys = keys.slice(value.length);
               maximumPropertiesToStringify -= value.length;
-              separator = join6;
+              separator = join7;
             }
             if (deterministic) {
               keys = sort(keys, comparator);
@@ -14336,13 +14336,13 @@ ${indentation}`;
               const tmp = stringifyIndent(key2, value[key2], stack, spacer, indentation);
               if (tmp !== void 0) {
                 res += `${separator}${strEscape(key2)}: ${tmp}`;
-                separator = join6;
+                separator = join7;
               }
             }
             if (keyLength > maximumBreadth) {
               const removedKeys = keyLength - maximumBreadth;
               res += `${separator}"...": "${getItemCount(removedKeys)} not stringified"`;
-              separator = join6;
+              separator = join7;
             }
             if (separator !== "") {
               res = `
@@ -19124,11 +19124,11 @@ var init_schema = __esm({
 });
 
 // loader/dist/manifest/parser.js
-var import_yaml2;
+var import_yaml3;
 var init_parser = __esm({
   "loader/dist/manifest/parser.js"() {
     "use strict";
-    import_yaml2 = __toESM(require_dist(), 1);
+    import_yaml3 = __toESM(require_dist(), 1);
     init_dist();
     init_schema();
   }
@@ -19442,12 +19442,12 @@ var onboarding_state_exports = {};
 __export(onboarding_state_exports, {
   OnboardingStateManager: () => OnboardingStateManager
 });
-var import_node_fs, import_node_path, import_node_crypto2, STEP_NAMES, PREREQUISITES, OnboardingStateManager;
+var import_node_fs2, import_node_path2, import_node_crypto2, STEP_NAMES, PREREQUISITES, OnboardingStateManager;
 var init_onboarding_state = __esm({
   "onboarder/src/state/onboarding-state.ts"() {
     "use strict";
-    import_node_fs = require("node:fs");
-    import_node_path = require("node:path");
+    import_node_fs2 = require("node:fs");
+    import_node_path2 = require("node:path");
     import_node_crypto2 = require("node:crypto");
     init_dist();
     STEP_NAMES = [
@@ -19475,15 +19475,15 @@ var init_onboarding_state = __esm({
       stateDir;
       stateFile;
       constructor(baseDir) {
-        this.stateDir = (0, import_node_path.join)(baseDir, ".ctx-onboarding");
-        this.stateFile = (0, import_node_path.join)(this.stateDir, "state.json");
+        this.stateDir = (0, import_node_path2.join)(baseDir, ".ctx-onboarding");
+        this.stateFile = (0, import_node_path2.join)(this.stateDir, "state.json");
       }
       async load() {
-        if (!(0, import_node_fs.existsSync)(this.stateFile)) {
+        if (!(0, import_node_fs2.existsSync)(this.stateFile)) {
           return null;
         }
         try {
-          const content = (0, import_node_fs.readFileSync)(this.stateFile, "utf-8");
+          const content = (0, import_node_fs2.readFileSync)(this.stateFile, "utf-8");
           return JSON.parse(content);
         } catch {
           return null;
@@ -19495,14 +19495,14 @@ var init_onboarding_state = __esm({
         await this.writeQueue;
       }
       doSave(state) {
-        (0, import_node_fs.mkdirSync)(this.stateDir, { recursive: true });
+        (0, import_node_fs2.mkdirSync)(this.stateDir, { recursive: true });
         const tempPath = `${this.stateFile}.tmp.${(0, import_node_crypto2.randomUUID)().slice(0, 8)}`;
         const backupPath = `${this.stateFile}.bak`;
-        (0, import_node_fs.writeFileSync)(tempPath, JSON.stringify(state, null, 2), { mode: 384 });
-        if ((0, import_node_fs.existsSync)(this.stateFile)) {
-          (0, import_node_fs.copyFileSync)(this.stateFile, backupPath);
+        (0, import_node_fs2.writeFileSync)(tempPath, JSON.stringify(state, null, 2), { mode: 384 });
+        if ((0, import_node_fs2.existsSync)(this.stateFile)) {
+          (0, import_node_fs2.copyFileSync)(this.stateFile, backupPath);
         }
-        (0, import_node_fs.renameSync)(tempPath, this.stateFile);
+        (0, import_node_fs2.renameSync)(tempPath, this.stateFile);
       }
       async initialize(projectName, apiUrl) {
         const state = {
@@ -19651,7 +19651,7 @@ var init_step_0_init = __esm({
 function buildTestPlan(repoPath, projectName) {
   const testCases = [];
   let caseId = 1;
-  const name = projectName ?? (0, import_node_path2.basename)(repoPath);
+  const name = projectName ?? (0, import_node_path3.basename)(repoPath);
   const services = detectServices(repoPath);
   if (services.length > 0) {
     testCases.push({
@@ -19728,12 +19728,12 @@ function detectServices(repoPath) {
   const serviceDirs = ["services", "packages", "apps", "modules", "src/services"];
   const services = [];
   for (const dir of serviceDirs) {
-    const fullPath = (0, import_node_path2.join)(repoPath, dir);
-    if ((0, import_node_fs2.existsSync)(fullPath) && (0, import_node_fs2.statSync)(fullPath).isDirectory()) {
+    const fullPath = (0, import_node_path3.join)(repoPath, dir);
+    if ((0, import_node_fs3.existsSync)(fullPath) && (0, import_node_fs3.statSync)(fullPath).isDirectory()) {
       try {
-        const entries = (0, import_node_fs2.readdirSync)(fullPath);
+        const entries = (0, import_node_fs3.readdirSync)(fullPath);
         for (const entry of entries) {
-          if ((0, import_node_fs2.statSync)((0, import_node_path2.join)(fullPath, entry)).isDirectory() && !entry.startsWith(".")) {
+          if ((0, import_node_fs3.statSync)((0, import_node_path3.join)(fullPath, entry)).isDirectory() && !entry.startsWith(".")) {
             services.push(entry);
           }
         }
@@ -19742,16 +19742,16 @@ function detectServices(repoPath) {
     }
   }
   if (services.length === 0) {
-    services.push((0, import_node_path2.basename)(repoPath));
+    services.push((0, import_node_path3.basename)(repoPath));
   }
   return services.slice(0, 10);
 }
 function detectDependencies(repoPath) {
   const deps = [];
-  const pkgPath = (0, import_node_path2.join)(repoPath, "package.json");
-  if ((0, import_node_fs2.existsSync)(pkgPath)) {
+  const pkgPath = (0, import_node_path3.join)(repoPath, "package.json");
+  if ((0, import_node_fs3.existsSync)(pkgPath)) {
     try {
-      const pkg = JSON.parse((0, import_node_fs2.readFileSync)(pkgPath, "utf-8"));
+      const pkg = JSON.parse((0, import_node_fs3.readFileSync)(pkgPath, "utf-8"));
       if (pkg.dependencies) {
         deps.push(...Object.keys(pkg.dependencies));
       }
@@ -19760,12 +19760,12 @@ function detectDependencies(repoPath) {
   }
   return deps;
 }
-var import_node_fs2, import_node_path2;
+var import_node_fs3, import_node_path3;
 var init_test_builder = __esm({
   "onboarder/src/testing/test-builder.ts"() {
     "use strict";
-    import_node_fs2 = require("node:fs");
-    import_node_path2 = require("node:path");
+    import_node_fs3 = require("node:fs");
+    import_node_path3 = require("node:path");
   }
 });
 
@@ -19782,8 +19782,8 @@ async function executeStep1(options) {
   }
   await stateManager.markStepStarted(state, 1);
   const testPlan = buildTestPlan(options.repoPath, state.projectName);
-  const testPlanPath = options.outputPath ?? (0, import_node_path3.join)(options.baseDir, ".ctx-onboarding", "test-plan.yaml");
-  (0, import_node_fs3.writeFileSync)(testPlanPath, (0, import_yaml3.stringify)(testPlan), "utf-8");
+  const testPlanPath = options.outputPath ?? (0, import_node_path4.join)(options.baseDir, ".ctx-onboarding", "test-plan.yaml");
+  (0, import_node_fs4.writeFileSync)(testPlanPath, (0, import_yaml4.stringify)(testPlan), "utf-8");
   state.testPlanPath = testPlanPath;
   await stateManager.markStepCompleted(state, 1, {
     testCaseCount: testPlan.testCases.length,
@@ -19795,13 +19795,13 @@ async function executeStep1(options) {
     testCaseCount: testPlan.testCases.length
   };
 }
-var import_node_fs3, import_node_path3, import_yaml3;
+var import_node_fs4, import_node_path4, import_yaml4;
 var init_step_1_testing_lab = __esm({
   "onboarder/src/commands/step-1-testing-lab.ts"() {
     "use strict";
-    import_node_fs3 = require("node:fs");
-    import_node_path3 = require("node:path");
-    import_yaml3 = __toESM(require_dist(), 1);
+    import_node_fs4 = require("node:fs");
+    import_node_path4 = require("node:path");
+    import_yaml4 = __toESM(require_dist(), 1);
     init_onboarding_state();
     init_test_builder();
   }
@@ -19819,7 +19819,7 @@ async function executeStep2(options) {
     throw new Error("Onboarding not initialized. Run step-0 first.");
   }
   await stateManager.markStepStarted(state, 2);
-  const manifestPath = (0, import_node_path4.resolve)(options.manifestPath);
+  const manifestPath = (0, import_node_path5.resolve)(options.manifestPath);
   let loaderOutput;
   let exitCode;
   try {
@@ -19856,12 +19856,12 @@ async function executeStep2(options) {
   await stateManager.markStepCompleted(state, 2, { loaderExitCode: exitCode });
   return { loaderExitCode: exitCode, loaderOutput };
 }
-var import_node_child_process, import_node_path4;
+var import_node_child_process, import_node_path5;
 var init_step_2_load_project = __esm({
   "onboarder/src/commands/step-2-load-project.ts"() {
     "use strict";
     import_node_child_process = require("node:child_process");
-    import_node_path4 = require("node:path");
+    import_node_path5 = require("node:path");
     init_onboarding_state();
     init_dist();
   }
@@ -19881,8 +19881,8 @@ function analyzeRepo(repoPath, options) {
     fileStats: { totalScanned: 0, totalSkipped: 0 }
   };
   for (const hsf of HIGH_SIGNAL_FILES) {
-    const fullPath = (0, import_node_path5.join)(repoPath, hsf);
-    if ((0, import_node_fs4.existsSync)(fullPath)) {
+    const fullPath = (0, import_node_path6.join)(repoPath, hsf);
+    if ((0, import_node_fs5.existsSync)(fullPath)) {
       processHighSignalFile(fullPath, hsf, analysis, repoPath);
       analysis.fileStats.totalScanned++;
     }
@@ -19901,7 +19901,7 @@ function analyzeRepo(repoPath, options) {
 }
 function processHighSignalFile(fullPath, relPath, analysis, _repoPath) {
   try {
-    const content = (0, import_node_fs4.readFileSync)(fullPath, "utf-8");
+    const content = (0, import_node_fs5.readFileSync)(fullPath, "utf-8");
     if (relPath === "package.json") {
       const pkg = JSON.parse(content);
       if (pkg.dependencies) {
@@ -19939,15 +19939,15 @@ function detectServices2(repoPath) {
   const serviceDirs = ["services", "packages", "apps", "modules", "src/services", "microservices"];
   const services = [];
   for (const dir of serviceDirs) {
-    const fullPath = (0, import_node_path5.join)(repoPath, dir);
-    if (!(0, import_node_fs4.existsSync)(fullPath) || !(0, import_node_fs4.statSync)(fullPath).isDirectory()) {
+    const fullPath = (0, import_node_path6.join)(repoPath, dir);
+    if (!(0, import_node_fs5.existsSync)(fullPath) || !(0, import_node_fs5.statSync)(fullPath).isDirectory()) {
       continue;
     }
     try {
-      for (const entry of (0, import_node_fs4.readdirSync)(fullPath)) {
-        const entryPath = (0, import_node_path5.join)(fullPath, entry);
-        if ((0, import_node_fs4.statSync)(entryPath).isDirectory() && !entry.startsWith(".")) {
-          services.push({ name: entry, path: (0, import_node_path5.relative)(repoPath, entryPath) });
+      for (const entry of (0, import_node_fs5.readdirSync)(fullPath)) {
+        const entryPath = (0, import_node_path6.join)(fullPath, entry);
+        if ((0, import_node_fs5.statSync)(entryPath).isDirectory() && !entry.startsWith(".")) {
+          services.push({ name: entry, path: (0, import_node_path6.relative)(repoPath, entryPath) });
         }
       }
     } catch {
@@ -19962,7 +19962,7 @@ function inferArchitecturePattern(services, repoPath) {
   if (services.length >= 1) {
     return "modular-monolith";
   }
-  if ((0, import_node_fs4.existsSync)((0, import_node_path5.join)(repoPath, "src"))) {
+  if ((0, import_node_fs5.existsSync)((0, import_node_path6.join)(repoPath, "src"))) {
     return "monolith";
   }
   return "unknown";
@@ -19978,7 +19978,7 @@ function collectFiles(dir, excludes, maxDepth, maxFiles, smart) {
     }
     let entries;
     try {
-      entries = (0, import_node_fs4.readdirSync)(currentDir);
+      entries = (0, import_node_fs5.readdirSync)(currentDir);
     } catch {
       return;
     }
@@ -19990,17 +19990,17 @@ function collectFiles(dir, excludes, maxDepth, maxFiles, smart) {
         skipped++;
         continue;
       }
-      const fullPath = (0, import_node_path5.join)(currentDir, entry);
+      const fullPath = (0, import_node_path6.join)(currentDir, entry);
       let stat;
       try {
-        stat = (0, import_node_fs4.statSync)(fullPath);
+        stat = (0, import_node_fs5.statSync)(fullPath);
       } catch {
         continue;
       }
       if (stat.isDirectory()) {
         walk(fullPath, depth + 1);
       } else if (stat.isFile()) {
-        const ext = (0, import_node_path5.extname)(entry);
+        const ext = (0, import_node_path6.extname)(entry);
         if (smart && !sourceExts.has(ext)) {
           skipped++;
           continue;
@@ -20019,8 +20019,8 @@ function collectFiles(dir, excludes, maxDepth, maxFiles, smart) {
 }
 function extractDomainConcepts(filePath, repoPath, analysis) {
   try {
-    const content = (0, import_node_fs4.readFileSync)(filePath, "utf-8");
-    const rel = (0, import_node_path5.relative)(repoPath, filePath);
+    const content = (0, import_node_fs5.readFileSync)(filePath, "utf-8");
+    const rel = (0, import_node_path6.relative)(repoPath, filePath);
     const classPattern = /(?:class|interface|type|struct|enum)\s+(\w+)/g;
     let match;
     while ((match = classPattern.exec(content)) !== null) {
@@ -20058,12 +20058,12 @@ function dedup(items, key) {
     return true;
   });
 }
-var import_node_fs4, import_node_path5, DEFAULT_EXCLUDES, HIGH_SIGNAL_FILES;
+var import_node_fs5, import_node_path6, DEFAULT_EXCLUDES, HIGH_SIGNAL_FILES;
 var init_repo_analyzer = __esm({
   "onboarder/src/domain/repo-analyzer.ts"() {
     "use strict";
-    import_node_fs4 = require("node:fs");
-    import_node_path5 = require("node:path");
+    import_node_fs5 = require("node:fs");
+    import_node_path6 = require("node:path");
     DEFAULT_EXCLUDES = [
       "node_modules",
       "dist",
@@ -20405,13 +20405,13 @@ async function executeStep5(options) {
   state.executionPath = "B";
   const analysis = analyzeRepo(options.repoPath);
   const domainModel = buildDomainModel(analysis, state.projectName);
-  const domainModelPath = (0, import_node_path6.join)(options.baseDir, ".ctx-onboarding", "domain-model.yaml");
-  (0, import_node_fs5.writeFileSync)(domainModelPath, (0, import_yaml4.stringify)(domainModel), "utf-8");
+  const domainModelPath = (0, import_node_path7.join)(options.baseDir, ".ctx-onboarding", "domain-model.yaml");
+  (0, import_node_fs6.writeFileSync)(domainModelPath, (0, import_yaml5.stringify)(domainModel), "utf-8");
   state.domainModelPath = domainModelPath;
   const extensionInstallAvailable = state.capabilities?.extensionInstallAvailable ?? false;
   const client = new CtxApiClient({
     apiUrl: state.ctxConfig.apiUrl,
-    apiKey: process.env.CTX_API_KEY ?? ""
+    apiKey: options.ctxApiKey
   });
   const operationalization = await operationalizeDomain(
     domainModel,
@@ -20438,13 +20438,13 @@ async function executeStep5(options) {
     }
   };
 }
-var import_node_fs5, import_node_path6, import_yaml4;
+var import_node_fs6, import_node_path7, import_yaml5;
 var init_step_5_domain = __esm({
   "onboarder/src/commands/step-5-domain.ts"() {
     "use strict";
-    import_node_fs5 = require("node:fs");
-    import_node_path6 = require("node:path");
-    import_yaml4 = __toESM(require_dist(), 1);
+    import_node_fs6 = require("node:fs");
+    import_node_path7 = require("node:path");
+    import_yaml5 = __toESM(require_dist(), 1);
     init_dist2();
     init_onboarding_state();
     init_repo_analyzer();
@@ -20566,34 +20566,82 @@ var {
 } = import_index.default;
 
 // onboarder/src/cli.ts
-var import_node_path7 = require("node:path");
+var import_node_path8 = require("node:path");
+
+// onboarder/src/config/settings.ts
+var import_node_fs = require("node:fs");
+var import_node_path = require("node:path");
+var import_yaml = __toESM(require_dist(), 1);
+function loadSettings(baseDir) {
+  const settingsPath = (0, import_node_path.join)(baseDir, "ctx-settings.yaml");
+  if ((0, import_node_fs.existsSync)(settingsPath)) {
+    try {
+      const raw = (0, import_node_fs.readFileSync)(settingsPath, "utf-8");
+      const parsed = (0, import_yaml.parse)(raw);
+      const apiUrl2 = parsed.CTX_API_URL || parsed.ctx_api_url || parsed.apiUrl;
+      const apiKey2 = parsed.CTX_API_KEY || parsed.ctx_api_key || parsed.apiKey;
+      if (apiUrl2 && apiKey2) {
+        for (const [key, value] of Object.entries(parsed)) {
+          if (typeof value === "string" && value && !process.env[key]) {
+            process.env[key] = value;
+          }
+        }
+        return {
+          apiUrl: apiUrl2,
+          apiKey: apiKey2,
+          projectName: parsed.PROJECT_NAME || parsed.project_name || parsed.projectName,
+          all: parsed
+        };
+      }
+    } catch {
+    }
+  }
+  const apiUrl = process.env.CTX_API_URL;
+  const apiKey = process.env.CTX_API_KEY;
+  if (apiUrl && apiKey) {
+    return { apiUrl, apiKey, all: {} };
+  }
+  return null;
+}
+function settingsSource(baseDir) {
+  const settingsPath = (0, import_node_path.join)(baseDir, "ctx-settings.yaml");
+  if ((0, import_node_fs.existsSync)(settingsPath)) {
+    return settingsPath;
+  }
+  return "environment variables";
+}
+
+// onboarder/src/cli.ts
+function requireSettings(json) {
+  const settings = loadSettings(process.cwd());
+  if (!settings) {
+    const msg = "No CTX settings found. Create a ctx-settings.yaml in the project root:\n\n  CTX_API_URL: https://ctx.your-company.com\n  CTX_API_KEY: ctx_your_key_here\n\nOr set CTX_API_URL and CTX_API_KEY environment variables.";
+    if (json) {
+      console.error(JSON.stringify({ error: msg }));
+    } else {
+      console.error(msg);
+    }
+    process.exit(1);
+  }
+  return settings;
+}
 var program2 = new Command();
 program2.name("ctx-onboard").description("Context Engine onboarding \u2014 7-step evaluation methodology").version("0.1.0");
 program2.command("step-0").description("Initialize onboarding: validate CTX connectivity and detect capabilities").option("--project <name>", "Project name").option("--json", "Output as JSON").action(async (opts) => {
   try {
     const { executeStep0: executeStep02 } = await Promise.resolve().then(() => (init_step_0_init(), step_0_init_exports));
-    const apiUrl = process.env.CTX_API_URL;
-    const apiKey = process.env.CTX_API_KEY;
-    if (!apiUrl || !apiKey) {
-      const msg = "Set CTX_API_URL and CTX_API_KEY environment variables.";
-      if (opts.json) {
-        console.error(JSON.stringify({ error: msg }));
-      } else {
-        console.error(msg);
-      }
-      process.exit(1);
-      return;
-    }
+    const settings = requireSettings(opts.json);
+    const source = settingsSource(process.cwd());
     const result = await executeStep02({
-      ctxApiUrl: apiUrl,
-      ctxApiKey: apiKey,
-      projectName: opts.project,
+      ctxApiUrl: settings.apiUrl,
+      ctxApiKey: settings.apiKey,
+      projectName: opts.project ?? settings.projectName,
       baseDir: process.cwd()
     });
     if (opts.json) {
-      console.log(JSON.stringify(result, null, 2));
+      console.log(JSON.stringify({ ...result, settingsSource: source }, null, 2));
     } else {
-      console.log("Step 0: Init completed");
+      console.log(`Step 0: Init completed (settings from ${source})`);
       console.log(`  CTX Version: ${result.prerequisites.ctxVersion ?? "unknown"}`);
       console.log(`  Extension Install: ${result.prerequisites.extensionInstallAvailable ? "available" : "not available (guideline-only mode)"}`);
       console.log(`  Agent Kinds: ${result.prerequisites.agentKindsAvailable}`);
@@ -20616,9 +20664,9 @@ program2.command("step-1").description("Build testing lab: analyze repo and gene
   try {
     const { executeStep1: executeStep12 } = await Promise.resolve().then(() => (init_step_1_testing_lab(), step_1_testing_lab_exports));
     const result = await executeStep12({
-      repoPath: (0, import_node_path7.resolve)(opts.repoPath),
+      repoPath: (0, import_node_path8.resolve)(opts.repoPath),
       baseDir: process.cwd(),
-      outputPath: opts.output ? (0, import_node_path7.resolve)(opts.output) : void 0
+      outputPath: opts.output ? (0, import_node_path8.resolve)(opts.output) : void 0
     });
     if (opts.json) {
       console.log(JSON.stringify(result, null, 2));
@@ -20639,7 +20687,7 @@ program2.command("step-1").description("Build testing lab: analyze repo and gene
 program2.command("step-2").description("Load project data (wraps ctx-loader)").requiredOption("--manifest <path>", "Path to ctx-loader manifest").option("--json", "Output as JSON").action(async (opts) => {
   try {
     const { executeStep2: executeStep22 } = await Promise.resolve().then(() => (init_step_2_load_project(), step_2_load_project_exports));
-    const result = await executeStep22({ manifestPath: (0, import_node_path7.resolve)(opts.manifest), baseDir: process.cwd() });
+    const result = await executeStep22({ manifestPath: (0, import_node_path8.resolve)(opts.manifest), baseDir: process.cwd() });
     if (opts.json) {
       console.log(JSON.stringify({ exitCode: result.loaderExitCode }, null, 2));
     } else {
@@ -20671,9 +20719,11 @@ program2.command("step-4").description("Run baseline tests with MCP and compare 
 program2.command("step-5").description("Domain enrichment: analyze repo, build domain model, load into CTX").requiredOption("--repo-path <path>", "Path to repository").option("--dry-run", "Validate domain model without loading into CTX").option("--json", "Output as JSON").action(async (opts) => {
   try {
     const { executeStep5: executeStep52 } = await Promise.resolve().then(() => (init_step_5_domain(), step_5_domain_exports));
+    const settings = requireSettings(opts.json);
     const result = await executeStep52({
-      repoPath: (0, import_node_path7.resolve)(opts.repoPath),
+      repoPath: (0, import_node_path8.resolve)(opts.repoPath),
       baseDir: process.cwd(),
+      ctxApiKey: settings.apiKey,
       dryRun: opts.dryRun
     });
     if (opts.json) {
@@ -20767,9 +20817,9 @@ program2.command("reset").description("Reset onboarding state (start over)").opt
     return;
   }
   const { rmSync } = await import("node:fs");
-  const { join: join6 } = await import("node:path");
+  const { join: join7 } = await import("node:path");
   try {
-    rmSync(join6(process.cwd(), ".ctx-onboarding"), { recursive: true, force: true });
+    rmSync(join7(process.cwd(), ".ctx-onboarding"), { recursive: true, force: true });
     if (opts.json) {
       console.log(JSON.stringify({ status: "reset" }));
     } else {
