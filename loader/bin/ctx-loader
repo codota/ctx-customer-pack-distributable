@@ -19462,9 +19462,7 @@ var init_api_client = __esm({
         return resp.data;
       }
       async getDataSource(id) {
-        const resp = await this.get(
-          `/api/data-sources/${id}`
-        );
+        const resp = await this.get(`/api/data-sources/${id}`);
         return resp.data;
       }
       async syncDataSource(id) {
@@ -20213,22 +20211,28 @@ var init_orchestrator = __esm({
           return;
         }
         const deadline = Date.now() + timeoutSeconds * 1e3;
+        const initialDs = await this.client.getDataSource(state.dataSource.id);
+        const initialSyncedAt = initialDs.lastSyncedAt;
         while (Date.now() < deadline) {
           const ds = await this.client.getDataSource(state.dataSource.id);
           state.lastProgressAt = (/* @__PURE__ */ new Date()).toISOString();
-          if (ds.syncStatus === "completed" || ds.syncStatus === "synced" || ds.status === "active") {
+          if (ds.lastSyncedAt && ds.lastSyncedAt !== initialSyncedAt) {
             state.syncCompletedAt = (/* @__PURE__ */ new Date()).toISOString();
             return;
           }
-          if (ds.syncStatus === "failed" || ds.syncStatus === "error") {
-            this.warnings.push(`Sync for '${state.dataSource.name}' reported failure \u2014 proceeding with available data`);
+          if (ds.lastSyncedAt && !ds.lastSyncError) {
+            state.syncCompletedAt = (/* @__PURE__ */ new Date()).toISOString();
+            return;
+          }
+          if (ds.lastSyncError) {
+            this.warnings.push(`Sync for '${state.dataSource.name}' reported error: ${ds.lastSyncError} \u2014 proceeding with available data`);
             state.syncCompletedAt = (/* @__PURE__ */ new Date()).toISOString();
             return;
           }
           if (this.pauseController.shouldStop) {
             return;
           }
-          await new Promise((resolve2) => setTimeout(resolve2, 3e4));
+          await new Promise((resolve2) => setTimeout(resolve2, 1e4));
         }
         this.warnings.push(
           `Sync for '${state.dataSource.name}' timed out after ${timeoutSeconds}s \u2014 proceeding with available data`

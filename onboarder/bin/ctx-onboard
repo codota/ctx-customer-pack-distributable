@@ -19812,43 +19812,107 @@ async function executeStep2(options) {
   if (!state) {
     throw new Error("Onboarding not initialized. Run step-0 first.");
   }
-  const resolvedManifestPath = options.manifestPath ? (0, import_node_path5.resolve)(options.manifestPath) : state.steps[2]?.output?.manifestPath ?? (0, import_node_path5.resolve)("ctx-loader.yaml");
-  await stateManager.markStepStarted(state, 2);
-  let manifestPath = resolvedManifestPath;
-  if (options.dataVolume) {
-    manifestPath = patchManifestWithVolume(manifestPath, options.dataVolume, options.baseDir);
+  if (options.statusOnly) {
+    return checkStatus(options.baseDir, stateManager, state);
   }
-  const result = (0, import_node_child_process.spawnSync)(
-    "ctx-loader",
-    ["load", "--manifest", manifestPath, "--json"],
+  const manifestPath = options.manifestPath ? (0, import_node_path5.resolve)(options.manifestPath) : state.steps[2]?.output?.manifestPath ?? (0, import_node_path5.resolve)("ctx-loader.yaml");
+  await stateManager.markStepStarted(state, 2);
+  let effectiveManifest = manifestPath;
+  if (options.dataVolume) {
+    effectiveManifest = patchManifestWithVolume(manifestPath, options.dataVolume, options.baseDir);
+  }
+  const logFile = (0, import_node_path5.join)(options.baseDir, ".ctx-onboarding", "loader-output.log");
+  const pidFile = (0, import_node_path5.join)(options.baseDir, ".ctx-onboarding", "loader.pid");
+  const loaderPath = findLoader();
+  const child = (0, import_node_child_process.spawn)(
+    loaderPath,
+    ["load", "--manifest", effectiveManifest, "--json"],
     {
       cwd: options.baseDir,
-      timeout: 36e5,
-      stdio: ["pipe", "pipe", "inherit"],
-      // inherit stderr → progress visible
-      encoding: "utf-8"
+      detached: true,
+      stdio: ["ignore", "pipe", "pipe"],
+      env: process.env
     }
   );
-  const exitCode = result.status ?? 1;
-  const stdout = result.stdout ?? "";
-  if (exitCode !== 0) {
-    const detail = stdout || result.error?.message || "Unknown error";
-    await stateManager.markStepFailed(state, 2, {
-      code: "ONBOARD_LOAD_001",
-      category: "server_error",
-      message: `ctx-loader failed: ${detail.slice(0, 200)}`,
-      remediation: "Run `ctx-loader load --manifest <path>` directly to see full output.",
-      retryable: true,
-      cause: detail.slice(0, 500)
-    });
-    throw catalogError(
-      "ONBOARD_LOAD_001",
-      `ctx-loader failed (exit ${exitCode}): ${detail.slice(0, 300)}`,
-      { details: { exitCode, stdout: stdout.slice(0, 500) } }
-    );
+  const log = (0, import_node_fs5.createWriteStream)(logFile, { flags: "w" });
+  child.stdout?.on("data", (data) => log.write(data));
+  child.stderr?.on("data", (data) => {
+    process.stderr.write(data);
+    log.write(data);
+  });
+  child.on("close", async (code) => {
+    log.end();
+    const mgr = new OnboardingStateManager(options.baseDir);
+    const st = await mgr.load();
+    if (st) {
+      if (code === 0) {
+        await mgr.markStepCompleted(st, 2, { manifestPath, loaderExitCode: code });
+      } else {
+        const detail = (0, import_node_fs5.existsSync)(logFile) ? (0, import_node_fs5.readFileSync)(logFile, "utf-8").slice(-500) : "unknown";
+        await mgr.markStepFailed(st, 2, {
+          code: "ONBOARD_LOAD_001",
+          category: "server_error",
+          message: `ctx-loader exited with code ${code}`,
+          remediation: `Check ${logFile} for details.`,
+          retryable: true,
+          cause: detail
+        });
+      }
+    }
+    try {
+      (0, import_node_fs5.unlinkSync)(pidFile);
+    } catch {
+    }
+  });
+  (0, import_node_fs5.writeFileSync)(pidFile, String(child.pid), "utf-8");
+  child.unref();
+  return { status: "loading", pid: child.pid };
+}
+async function checkStatus(baseDir, stateManager, state) {
+  const pidFile = (0, import_node_path5.join)(baseDir, ".ctx-onboarding", "loader.pid");
+  const logFile = (0, import_node_path5.join)(baseDir, ".ctx-onboarding", "loader-output.log");
+  const stepStatus = state.steps[2]?.status;
+  if (stepStatus === "completed") {
+    return { status: "completed" };
   }
-  await stateManager.markStepCompleted(state, 2, { loaderExitCode: exitCode, manifestPath: resolvedManifestPath });
-  return { loaderExitCode: exitCode, loaderOutput: stdout };
+  if (stepStatus === "failed") {
+    const detail = (0, import_node_fs5.existsSync)(logFile) ? (0, import_node_fs5.readFileSync)(logFile, "utf-8").slice(-300) : "";
+    return { status: "failed", loaderOutput: detail };
+  }
+  if ((0, import_node_fs5.existsSync)(pidFile)) {
+    const pid = parseInt((0, import_node_fs5.readFileSync)(pidFile, "utf-8").trim(), 10);
+    try {
+      process.kill(pid, 0);
+      let loaderStatus = "";
+      try {
+        loaderStatus = (0, import_node_child_process.execFileSync)(findLoader(), ["status", "--json"], {
+          encoding: "utf-8",
+          cwd: baseDir,
+          timeout: 5e3
+        });
+      } catch {
+      }
+      return { status: "loading", pid, loaderOutput: loaderStatus };
+    } catch {
+      const refreshed = await stateManager.load();
+      if (refreshed?.steps[2]?.status === "completed") {
+        return { status: "completed" };
+      }
+      const detail = (0, import_node_fs5.existsSync)(logFile) ? (0, import_node_fs5.readFileSync)(logFile, "utf-8").slice(-300) : "Process exited unexpectedly";
+      return { status: "failed", loaderOutput: detail };
+    }
+  }
+  return { status: "failed", loaderOutput: "Loader not running and step not complete" };
+}
+function findLoader() {
+  try {
+    const r = (0, import_node_child_process.spawnSync)("which", ["ctx-loader"], { encoding: "utf-8" });
+    if (r.status === 0 && r.stdout.trim()) {
+      return r.stdout.trim();
+    }
+  } catch {
+  }
+  return "ctx-loader";
 }
 function patchManifestWithVolume(originalPath, volume, baseDir) {
   const raw = (0, import_node_fs5.readFileSync)(originalPath, "utf-8");
@@ -19883,7 +19947,6 @@ var init_step_2_load_project = __esm({
     import_node_path5 = require("node:path");
     import_yaml5 = __toESM(require_dist(), 1);
     init_onboarding_state();
-    init_dist();
   }
 });
 
@@ -20754,19 +20817,28 @@ program2.command("step-1").description("Build testing lab: analyze repo and gene
     process.exit(1);
   }
 });
-program2.command("step-2").description("Load project data (wraps ctx-loader)").option("--manifest <path>", "Path to ctx-loader manifest (optional on retry)").option("--json", "Output as JSON").action(async (opts) => {
+program2.command("step-2").description("Load project data (runs ctx-loader in background)").option("--manifest <path>", "Path to ctx-loader manifest (optional on retry)").option("--status", "Check if the background loader is still running").option("--json", "Output as JSON").action(async (opts) => {
   try {
     const { executeStep2: executeStep22 } = await Promise.resolve().then(() => (init_step_2_load_project(), step_2_load_project_exports));
     const settings = requireSettings(opts.json);
     const result = await executeStep22({
       manifestPath: opts.manifest ? (0, import_node_path8.resolve)(opts.manifest) : void 0,
       baseDir: process.cwd(),
-      dataVolume: settings.dataVolume
+      dataVolume: settings.dataVolume,
+      statusOnly: opts.status
     });
     if (opts.json) {
-      console.log(JSON.stringify({ exitCode: result.loaderExitCode }, null, 2));
+      console.log(JSON.stringify(result, null, 2));
+    } else if (result.status === "loading") {
+      console.log(`Step 2: Loader running in background (pid ${result.pid})`);
+      console.log("Check progress: ctx-onboard step-2 --status --json");
+    } else if (result.status === "completed") {
+      console.log("Step 2: Load completed.");
     } else {
-      console.log(`Step 2: Load completed (exit code ${result.loaderExitCode})`);
+      console.log(`Step 2: Load failed.`);
+      if (result.loaderOutput) {
+        console.log(result.loaderOutput.slice(0, 300));
+      }
     }
   } catch (err) {
     if (opts.json) {

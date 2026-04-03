@@ -112,14 +112,29 @@ Produces `test-plan.yaml` with 5-10 test cases covering architecture, incident r
 
 Load your project's data sources into the Context Engine.
 
+Create a `ctx-loader.yaml` manifest first if one doesn't exist:
+```bash
+ctx-loader init --template minimal --output ctx-loader.yaml
+```
+
+Then start the load. This runs in the background — it returns immediately:
 ```bash
 ctx-onboard step-2 --manifest ctx-loader.yaml --json
 ```
 
-Create a `ctx-loader.yaml` manifest first using:
+Poll for completion (the agent should check every 15-30 seconds):
 ```bash
-ctx-loader init --template github-jira-slack --output ctx-loader.yaml
+ctx-onboard step-2 --status --json
 ```
+
+The `--status` response will be one of:
+- `{ "status": "loading", "pid": 1234 }` — still running
+- `{ "status": "completed" }` — done, move to step 3
+- `{ "status": "failed", "loaderOutput": "..." }` — check the error
+
+**Important:** Step 2 runs in the background because large repos can take minutes.
+Do NOT wait for the initial `step-2` command to finish — it returns immediately.
+Instead, poll with `--status` until it completes.
 
 ### Step 3: Baseline Without MCP
 
