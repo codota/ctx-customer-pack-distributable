@@ -14,21 +14,25 @@ Context Engine skills, data loader, and onboarding methodology for AI coding age
 
 ### curl | bash (recommended)
 
+**Core only** — skills for your AI agent:
+
 ```bash
-# Core only — skills for your AI agent
-curl -fsSL https://raw.githubusercontent.com/codota/ctx-customer-pack-distributable/main/installers/install.sh \
-  | bash -s -- --package core --agent claude
-
-# Core + data loader CLI
-curl -fsSL https://raw.githubusercontent.com/codota/ctx-customer-pack-distributable/main/installers/install.sh \
-  | bash -s -- --package loader --agent claude
-
-# Everything (core + loader + onboarding)
-curl -fsSL https://raw.githubusercontent.com/codota/ctx-customer-pack-distributable/main/installers/install.sh \
-  | bash -s -- --package all --agent claude
+curl -fsSL https://raw.githubusercontent.com/codota/ctx-customer-pack-distributable/main/installers/install.sh | bash -s -- --package core --agent claude
 ```
 
-The installer fetches files directly from GitHub — no clone needed. Dependency resolution is automatic: `loader` includes `core`, `all` includes everything.
+**Core + data loader CLI:**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/codota/ctx-customer-pack-distributable/main/installers/install.sh | bash -s -- --package loader --agent claude
+```
+
+**Everything** (core + loader + onboarding):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/codota/ctx-customer-pack-distributable/main/installers/install.sh | bash -s -- --package all --agent claude
+```
+
+The installer fetches files directly from GitHub — no clone needed. Dependency resolution is automatic: `loader` includes `core`, `all` includes everything. Replace `claude` with `cursor`, `gemini`, or `tabnine` for other agents.
 
 ### Claude Code plugin (core package)
 

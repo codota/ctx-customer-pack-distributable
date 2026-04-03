@@ -4,12 +4,10 @@ set -euo pipefail
 # CTX Customer Pack Installer
 #
 # Downloads and installs Context Engine packages directly from GitHub.
-# No git clone required.
 #
 # Usage:
-#   curl -fsSL https://raw.githubusercontent.com/codota/ctx-customer-pack-distributable/main/installers/install.sh | bash -s -- --package core --agent claude
-#   curl -fsSL .../install.sh | bash -s -- --package all --agent claude
-#   curl -fsSL .../install.sh | bash -s -- --package loader --agent claude
+#   curl -fsSL https://raw.githubusercontent.com/codota/ctx-customer-pack-distributable/main/installers/install.sh \
+#     | bash -s -- --package all --agent claude
 #
 # Environment:
 #   CTX_API_URL  — Context Engine server URL
@@ -18,46 +16,42 @@ set -euo pipefail
 REPO="codota/ctx-customer-pack-distributable"
 BRANCH="main"
 RAW_BASE="https://raw.githubusercontent.com/${REPO}/${BRANCH}"
+API_BASE="https://api.github.com/repos/${REPO}/contents"
 
 PACKAGE=""
 AGENT=""
 NON_INTERACTIVE=false
 BIN_DIR="${HOME}/bin"
-WORK_DIR=""
 
 while [[ $# -gt 0 ]]; do
   case $1 in
     --package) PACKAGE="$2"; shift 2 ;;
     --agent) AGENT="$2"; shift 2 ;;
     --bin-dir) BIN_DIR="$2"; shift 2 ;;
-    --branch) BRANCH="$2"; RAW_BASE="https://raw.githubusercontent.com/${REPO}/${BRANCH}"; shift 2 ;;
+    --branch) BRANCH="$2"; RAW_BASE="https://raw.githubusercontent.com/${REPO}/${BRANCH}"; API_BASE="https://api.github.com/repos/${REPO}/contents"; shift 2 ;;
     --non-interactive) NON_INTERACTIVE=true; shift ;;
     --help|-h)
       echo "Usage: curl -fsSL ...install.sh | bash -s -- [OPTIONS]"
       echo ""
-      echo "Options:"
-      echo "  --package core|loader|onboarder|all   Package to install"
-      echo "  --agent claude|cursor|gemini|tabnine   Target agent"
-      echo "  --bin-dir <path>                       CLI install dir (default: ~/bin)"
-      echo "  --non-interactive                      No prompts"
+      echo "  --package core|loader|onboarder|all"
+      echo "  --agent claude|cursor|gemini|tabnine"
+      echo "  --bin-dir <path>  (default: ~/bin)"
+      echo "  --non-interactive"
       exit 0
       ;;
     *) echo "Unknown option: $1"; exit 1 ;;
   esac
 done
 
-cleanup() {
-  if [ -n "$WORK_DIR" ] && [ -d "$WORK_DIR" ]; then
-    rm -rf "$WORK_DIR"
-  fi
-}
-trap cleanup EXIT
-
 fetch() {
-  local url=$1
-  local dest=$2
-  mkdir -p "$(dirname "$dest")"
-  curl -fsSL "$url" -o "$dest"
+  curl -fsSL "$1" -o "$2" 2>/dev/null
+}
+
+# List directory entries from GitHub API
+list_github_dir() {
+  curl -fsSL "${API_BASE}/$1?ref=${BRANCH}" 2>/dev/null \
+    | grep '"name"' \
+    | sed 's/.*"name": *"\([^"]*\)".*/\1/'
 }
 
 resolve_packages() {
@@ -69,87 +63,71 @@ resolve_packages() {
   esac
 }
 
-# ── Fetch skill list from GitHub ─────────────────────────────────
-
-fetch_skill_list() {
-  local agent=$1
-  local path_prefix=$2
-  # Use GitHub API to list directory contents
-  local api_url="https://api.github.com/repos/${REPO}/contents/${path_prefix}?ref=${BRANCH}"
-  curl -fsSL "$api_url" 2>/dev/null | grep '"name"' | sed 's/.*"name": "\(.*\)".*/\1/' || echo ""
-}
-
-# ── Install core ─────────────────────────────────────────────────
+# ── Install core skills ─────────────────────────────────────────
 
 install_core() {
   local agent=$1
   echo "  Installing core skills for ${agent}..."
 
+  local skills
+  local count=0
+
   case $agent in
     claude)
-      # For Claude: download the full plugin bundle
-      WORK_DIR=$(mktemp -d)
-      local plugin_dir="${WORK_DIR}/claude-plugin"
-      mkdir -p "${plugin_dir}/.claude-plugin" "${plugin_dir}/skills" "${plugin_dir}/hooks" "${plugin_dir}/scripts"
-
-      fetch "${RAW_BASE}/core/agents/claude/.claude-plugin/plugin.json" "${plugin_dir}/.claude-plugin/plugin.json"
-      fetch "${RAW_BASE}/core/agents/claude/hooks/decision-context.py" "${plugin_dir}/hooks/decision-context.py"
-      fetch "${RAW_BASE}/core/agents/claude/hooks/change-confidence.py" "${plugin_dir}/hooks/change-confidence.py"
-      fetch "${RAW_BASE}/core/agents/claude/scripts/ctx-mcp-proxy.py" "${plugin_dir}/scripts/ctx-mcp-proxy.py"
-
-      # Fetch skill list and download each
-      local skills
-      skills=$(fetch_skill_list "$agent" "core/agents/claude/skills")
+      skills=$(list_github_dir "core/agents/claude/skills")
+      mkdir -p .claude/skills
       for skill in $skills; do
-        fetch "${RAW_BASE}/core/agents/claude/skills/${skill}/SKILL.md" "${plugin_dir}/skills/${skill}/SKILL.md" 2>/dev/null || true
+        mkdir -p ".claude/skills/${skill}"
+        if fetch "${RAW_BASE}/core/agents/claude/skills/${skill}/SKILL.md" ".claude/skills/${skill}/SKILL.md"; then
+          count=$((count + 1))
+        fi
       done
 
-      # Try plugin install, fall back to file copy
-      if command -v claude >/dev/null 2>&1; then
-        claude plugin install "${plugin_dir}/" 2>/dev/null && echo "    Installed as Claude plugin." || {
-          cp -r "${plugin_dir}/skills/"* .claude/skills/ 2>/dev/null || true
-          echo "    Copied skills (plugin install unavailable)."
-        }
-      else
-        mkdir -p .claude/skills
-        cp -r "${plugin_dir}/skills/"* .claude/skills/ 2>/dev/null || true
-        echo "    Copied skills."
-      fi
+      # Also fetch hooks and MCP proxy
+      mkdir -p .claude/hooks .claude/scripts
+      fetch "${RAW_BASE}/core/agents/claude/hooks/decision-context.py" ".claude/hooks/decision-context.py" || true
+      fetch "${RAW_BASE}/core/agents/claude/hooks/change-confidence.py" ".claude/hooks/change-confidence.py" || true
+      fetch "${RAW_BASE}/core/agents/claude/scripts/ctx-mcp-proxy.py" ".claude/scripts/ctx-mcp-proxy.py" || true
       ;;
 
     cursor)
-      local skills
-      skills=$(fetch_skill_list "$agent" "core/agents/cursor/.cursor/skills")
+      skills=$(list_github_dir "core/agents/cursor/.cursor/skills")
       mkdir -p .cursor/skills .cursor/rules
       for skill in $skills; do
-        fetch "${RAW_BASE}/core/agents/cursor/.cursor/skills/${skill}/SKILL.md" ".cursor/skills/${skill}/SKILL.md" 2>/dev/null || true
+        mkdir -p ".cursor/skills/${skill}"
+        if fetch "${RAW_BASE}/core/agents/cursor/.cursor/skills/${skill}/SKILL.md" ".cursor/skills/${skill}/SKILL.md"; then
+          count=$((count + 1))
+        fi
         fetch "${RAW_BASE}/core/agents/cursor/.cursor/rules/${skill}.mdc" ".cursor/rules/${skill}.mdc" 2>/dev/null || true
       done
-      echo "    Installed skills + rules."
       ;;
 
     gemini)
-      local skills
-      skills=$(fetch_skill_list "$agent" "core/agents/gemini/.gemini/skills")
+      skills=$(list_github_dir "core/agents/gemini/.gemini/skills")
       mkdir -p .gemini/skills
       for skill in $skills; do
-        fetch "${RAW_BASE}/core/agents/gemini/.gemini/skills/${skill}/SKILL.md" ".gemini/skills/${skill}/SKILL.md" 2>/dev/null || true
+        mkdir -p ".gemini/skills/${skill}"
+        if fetch "${RAW_BASE}/core/agents/gemini/.gemini/skills/${skill}/SKILL.md" ".gemini/skills/${skill}/SKILL.md"; then
+          count=$((count + 1))
+        fi
       done
-      echo "    Installed skills."
       ;;
 
     tabnine)
-      local skills
-      skills=$(fetch_skill_list "$agent" "core/agents/tabnine/.tabnine/agent/skills")
+      skills=$(list_github_dir "core/agents/tabnine/.tabnine/agent/skills")
       mkdir -p "${HOME}/.tabnine/agent/skills"
       for skill in $skills; do
-        fetch "${RAW_BASE}/core/agents/tabnine/.tabnine/agent/skills/${skill}/SKILL.md" "${HOME}/.tabnine/agent/skills/${skill}/SKILL.md" 2>/dev/null || true
+        mkdir -p "${HOME}/.tabnine/agent/skills/${skill}"
+        if fetch "${RAW_BASE}/core/agents/tabnine/.tabnine/agent/skills/${skill}/SKILL.md" "${HOME}/.tabnine/agent/skills/${skill}/SKILL.md"; then
+          count=$((count + 1))
+        fi
       done
-      echo "    Installed skills (global)."
       ;;
 
-    *) echo "    Unknown agent: ${agent}" ;;
+    *) echo "    Unknown agent: ${agent}"; return ;;
   esac
+
+  echo "    ${count} skills installed."
 }
 
 # ── Install loader CLI ───────────────────────────────────────────
@@ -157,9 +135,12 @@ install_core() {
 install_loader() {
   echo "  Installing ctx-loader CLI..."
   mkdir -p "$BIN_DIR"
-  fetch "${RAW_BASE}/loader/bin/ctx-loader" "${BIN_DIR}/ctx-loader"
-  chmod +x "${BIN_DIR}/ctx-loader"
-  echo "    Installed → ${BIN_DIR}/ctx-loader"
+  if fetch "${RAW_BASE}/loader/bin/ctx-loader" "${BIN_DIR}/ctx-loader"; then
+    chmod +x "${BIN_DIR}/ctx-loader"
+    echo "    Installed → ${BIN_DIR}/ctx-loader"
+  else
+    echo "    Failed to download ctx-loader."
+  fi
 }
 
 # ── Install onboarder CLI + skills ───────────────────────────────
@@ -168,23 +149,31 @@ install_onboarder() {
   local agent=$1
   echo "  Installing ctx-onboard CLI..."
   mkdir -p "$BIN_DIR"
-  fetch "${RAW_BASE}/onboarder/bin/ctx-onboard" "${BIN_DIR}/ctx-onboard"
-  chmod +x "${BIN_DIR}/ctx-onboard"
-  echo "    Installed → ${BIN_DIR}/ctx-onboard"
+  if fetch "${RAW_BASE}/onboarder/bin/ctx-onboard" "${BIN_DIR}/ctx-onboard"; then
+    chmod +x "${BIN_DIR}/ctx-onboard"
+    echo "    Installed → ${BIN_DIR}/ctx-onboard"
+  else
+    echo "    Failed to download ctx-onboard."
+  fi
 
   # Install onboarding skills for the agent
   local ob_skills="onboard-init onboard-test-lab onboard-load onboard-baseline onboard-domain onboard-measure onboard-rollout"
+  local skill_dir=""
   case $agent in
-    claude) local skill_dir=".claude/skills" ;;
-    cursor) local skill_dir=".cursor/skills" ;;
-    gemini) local skill_dir=".gemini/skills" ;;
+    claude)  skill_dir=".claude/skills" ;;
+    cursor)  skill_dir=".cursor/skills" ;;
+    gemini)  skill_dir=".gemini/skills" ;;
     *) return ;;
   esac
-  mkdir -p "$skill_dir"
+
+  local count=0
   for skill in $ob_skills; do
-    fetch "${RAW_BASE}/onboarder/skills/${skill}/SKILL.md" "${skill_dir}/${skill}/SKILL.md" 2>/dev/null || true
+    mkdir -p "${skill_dir}/${skill}"
+    if fetch "${RAW_BASE}/onboarder/skills/${skill}/SKILL.md" "${skill_dir}/${skill}/SKILL.md"; then
+      count=$((count + 1))
+    fi
   done
-  echo "    Installed onboarding skills."
+  echo "    ${count} onboarding skills installed."
 }
 
 # ── Main ─────────────────────────────────────────────────────────
