@@ -12556,7 +12556,7 @@ var require_thread_stream = __commonJS({
     var { version } = require_package();
     var { EventEmitter } = require("events");
     var { Worker } = require("worker_threads");
-    var { join: join7 } = require("path");
+    var { join: join8 } = require("path");
     var { pathToFileURL } = require("url");
     var { wait } = require_wait();
     var {
@@ -12592,7 +12592,7 @@ var require_thread_stream = __commonJS({
     function createWorker(stream, opts) {
       const { filename, workerData } = opts;
       const bundlerOverrides = "__bundlerPathsOverrides" in globalThis ? globalThis.__bundlerPathsOverrides : {};
-      const toExecute = bundlerOverrides["thread-stream-worker"] || join7(__dirname, "lib", "worker.js");
+      const toExecute = bundlerOverrides["thread-stream-worker"] || join8(__dirname, "lib", "worker.js");
       const worker = new Worker(toExecute, {
         ...opts.workerOpts,
         trackUnmanagedFds: false,
@@ -12978,7 +12978,7 @@ var require_transport = __commonJS({
     "use strict";
     var { createRequire } = require("module");
     var getCallers = require_caller();
-    var { join: join7, isAbsolute, sep } = require("node:path");
+    var { join: join8, isAbsolute, sep } = require("node:path");
     var sleep = require_atomic_sleep();
     var onExit = require_on_exit_leak_free();
     var ThreadStream = require_thread_stream();
@@ -13041,7 +13041,7 @@ var require_transport = __commonJS({
         throw new Error("only one of target or targets can be specified");
       }
       if (targets) {
-        target = bundlerOverrides["pino-worker"] || join7(__dirname, "worker.js");
+        target = bundlerOverrides["pino-worker"] || join8(__dirname, "worker.js");
         options.targets = targets.filter((dest) => dest.target).map((dest) => {
           return {
             ...dest,
@@ -13059,7 +13059,7 @@ var require_transport = __commonJS({
           });
         });
       } else if (pipeline) {
-        target = bundlerOverrides["pino-worker"] || join7(__dirname, "worker.js");
+        target = bundlerOverrides["pino-worker"] || join8(__dirname, "worker.js");
         options.pipelines = [pipeline.map((dest) => {
           return {
             ...dest,
@@ -13081,7 +13081,7 @@ var require_transport = __commonJS({
           return origin;
         }
         if (origin === "pino/file") {
-          return join7(__dirname, "..", "file.js");
+          return join8(__dirname, "..", "file.js");
         }
         let fixTarget2;
         for (const filePath of callers) {
@@ -14070,7 +14070,7 @@ var require_safe_stable_stringify = __commonJS({
               return circularValue;
             }
             let res = "";
-            let join7 = ",";
+            let join8 = ",";
             const originalIndentation = indentation;
             if (Array.isArray(value)) {
               if (value.length === 0) {
@@ -14084,7 +14084,7 @@ var require_safe_stable_stringify = __commonJS({
                 indentation += spacer;
                 res += `
 ${indentation}`;
-                join7 = `,
+                join8 = `,
 ${indentation}`;
               }
               const maximumValuesToStringify = Math.min(value.length, maximumBreadth);
@@ -14092,13 +14092,13 @@ ${indentation}`;
               for (; i < maximumValuesToStringify - 1; i++) {
                 const tmp2 = stringifyFnReplacer(String(i), value, stack, replacer, spacer, indentation);
                 res += tmp2 !== void 0 ? tmp2 : "null";
-                res += join7;
+                res += join8;
               }
               const tmp = stringifyFnReplacer(String(i), value, stack, replacer, spacer, indentation);
               res += tmp !== void 0 ? tmp : "null";
               if (value.length - 1 > maximumBreadth) {
                 const removedKeys = value.length - maximumBreadth - 1;
-                res += `${join7}"... ${getItemCount(removedKeys)} not stringified"`;
+                res += `${join8}"... ${getItemCount(removedKeys)} not stringified"`;
               }
               if (spacer !== "") {
                 res += `
@@ -14119,7 +14119,7 @@ ${originalIndentation}`;
             let separator = "";
             if (spacer !== "") {
               indentation += spacer;
-              join7 = `,
+              join8 = `,
 ${indentation}`;
               whitespace = " ";
             }
@@ -14133,13 +14133,13 @@ ${indentation}`;
               const tmp = stringifyFnReplacer(key2, value, stack, replacer, spacer, indentation);
               if (tmp !== void 0) {
                 res += `${separator}${strEscape(key2)}:${whitespace}${tmp}`;
-                separator = join7;
+                separator = join8;
               }
             }
             if (keyLength > maximumBreadth) {
               const removedKeys = keyLength - maximumBreadth;
               res += `${separator}"...":${whitespace}"${getItemCount(removedKeys)} not stringified"`;
-              separator = join7;
+              separator = join8;
             }
             if (spacer !== "" && separator.length > 1) {
               res = `
@@ -14180,7 +14180,7 @@ ${originalIndentation}`;
             }
             const originalIndentation = indentation;
             let res = "";
-            let join7 = ",";
+            let join8 = ",";
             if (Array.isArray(value)) {
               if (value.length === 0) {
                 return "[]";
@@ -14193,7 +14193,7 @@ ${originalIndentation}`;
                 indentation += spacer;
                 res += `
 ${indentation}`;
-                join7 = `,
+                join8 = `,
 ${indentation}`;
               }
               const maximumValuesToStringify = Math.min(value.length, maximumBreadth);
@@ -14201,13 +14201,13 @@ ${indentation}`;
               for (; i < maximumValuesToStringify - 1; i++) {
                 const tmp2 = stringifyArrayReplacer(String(i), value[i], stack, replacer, spacer, indentation);
                 res += tmp2 !== void 0 ? tmp2 : "null";
-                res += join7;
+                res += join8;
               }
               const tmp = stringifyArrayReplacer(String(i), value[i], stack, replacer, spacer, indentation);
               res += tmp !== void 0 ? tmp : "null";
               if (value.length - 1 > maximumBreadth) {
                 const removedKeys = value.length - maximumBreadth - 1;
-                res += `${join7}"... ${getItemCount(removedKeys)} not stringified"`;
+                res += `${join8}"... ${getItemCount(removedKeys)} not stringified"`;
               }
               if (spacer !== "") {
                 res += `
@@ -14220,7 +14220,7 @@ ${originalIndentation}`;
             let whitespace = "";
             if (spacer !== "") {
               indentation += spacer;
-              join7 = `,
+              join8 = `,
 ${indentation}`;
               whitespace = " ";
             }
@@ -14229,7 +14229,7 @@ ${indentation}`;
               const tmp = stringifyArrayReplacer(key2, value[key2], stack, replacer, spacer, indentation);
               if (tmp !== void 0) {
                 res += `${separator}${strEscape(key2)}:${whitespace}${tmp}`;
-                separator = join7;
+                separator = join8;
               }
             }
             if (spacer !== "" && separator.length > 1) {
@@ -14287,20 +14287,20 @@ ${originalIndentation}`;
               indentation += spacer;
               let res2 = `
 ${indentation}`;
-              const join8 = `,
+              const join9 = `,
 ${indentation}`;
               const maximumValuesToStringify = Math.min(value.length, maximumBreadth);
               let i = 0;
               for (; i < maximumValuesToStringify - 1; i++) {
                 const tmp2 = stringifyIndent(String(i), value[i], stack, spacer, indentation);
                 res2 += tmp2 !== void 0 ? tmp2 : "null";
-                res2 += join8;
+                res2 += join9;
               }
               const tmp = stringifyIndent(String(i), value[i], stack, spacer, indentation);
               res2 += tmp !== void 0 ? tmp : "null";
               if (value.length - 1 > maximumBreadth) {
                 const removedKeys = value.length - maximumBreadth - 1;
-                res2 += `${join8}"... ${getItemCount(removedKeys)} not stringified"`;
+                res2 += `${join9}"... ${getItemCount(removedKeys)} not stringified"`;
               }
               res2 += `
 ${originalIndentation}`;
@@ -14316,16 +14316,16 @@ ${originalIndentation}`;
               return '"[Object]"';
             }
             indentation += spacer;
-            const join7 = `,
+            const join8 = `,
 ${indentation}`;
             let res = "";
             let separator = "";
             let maximumPropertiesToStringify = Math.min(keyLength, maximumBreadth);
             if (isTypedArrayWithEntries(value)) {
-              res += stringifyTypedArray(value, join7, maximumBreadth);
+              res += stringifyTypedArray(value, join8, maximumBreadth);
               keys = keys.slice(value.length);
               maximumPropertiesToStringify -= value.length;
-              separator = join7;
+              separator = join8;
             }
             if (deterministic) {
               keys = sort(keys, comparator);
@@ -14336,13 +14336,13 @@ ${indentation}`;
               const tmp = stringifyIndent(key2, value[key2], stack, spacer, indentation);
               if (tmp !== void 0) {
                 res += `${separator}${strEscape(key2)}: ${tmp}`;
-                separator = join7;
+                separator = join8;
               }
             }
             if (keyLength > maximumBreadth) {
               const removedKeys = keyLength - maximumBreadth;
               res += `${separator}"...": "${getItemCount(removedKeys)} not stringified"`;
-              separator = join7;
+              separator = join8;
             }
             if (separator !== "") {
               res = `
@@ -19813,7 +19813,10 @@ async function executeStep2(options) {
     throw new Error("Onboarding not initialized. Run step-0 first.");
   }
   await stateManager.markStepStarted(state, 2);
-  const manifestPath = (0, import_node_path5.resolve)(options.manifestPath);
+  let manifestPath = (0, import_node_path5.resolve)(options.manifestPath);
+  if (options.dataVolume) {
+    manifestPath = patchManifestWithVolume(manifestPath, options.dataVolume, options.baseDir);
+  }
   let stdout = "";
   let stderr = "";
   let exitCode;
@@ -19825,7 +19828,6 @@ async function executeStep2(options) {
         encoding: "utf-8",
         cwd: options.baseDir,
         timeout: 36e5,
-        // 1 hour max
         stdio: ["pipe", "pipe", "pipe"]
       }
     );
@@ -19853,12 +19855,38 @@ async function executeStep2(options) {
   await stateManager.markStepCompleted(state, 2, { loaderExitCode: exitCode });
   return { loaderExitCode: exitCode, loaderOutput: stdout };
 }
-var import_node_child_process, import_node_path5;
+function patchManifestWithVolume(originalPath, volume, baseDir) {
+  const raw = (0, import_node_fs5.readFileSync)(originalPath, "utf-8");
+  const manifest = (0, import_yaml5.parse)(raw);
+  const defaults = manifest.defaults ?? {};
+  defaults.sinceDays = volume.sinceDays;
+  defaults.agentBudget = volume.agentBudget;
+  manifest.defaults = defaults;
+  const workspaces = manifest.workspaces;
+  if (workspaces) {
+    for (const ws of Object.values(workspaces)) {
+      for (const source of ws.sources ?? []) {
+        if (!source.config) {
+          source.config = {};
+        }
+        if (!source.config.events) {
+          source.config.events = volume.events;
+        }
+      }
+    }
+  }
+  const patchedPath = (0, import_node_path5.join)(baseDir, ".ctx-onboarding", "ctx-loader-patched.yaml");
+  (0, import_node_fs5.writeFileSync)(patchedPath, (0, import_yaml5.stringify)(manifest), "utf-8");
+  return patchedPath;
+}
+var import_node_child_process, import_node_fs5, import_node_path5, import_yaml5;
 var init_step_2_load_project = __esm({
   "onboarder/src/commands/step-2-load-project.ts"() {
     "use strict";
     import_node_child_process = require("node:child_process");
+    import_node_fs5 = require("node:fs");
     import_node_path5 = require("node:path");
+    import_yaml5 = __toESM(require_dist(), 1);
     init_onboarding_state();
     init_dist();
   }
@@ -19879,7 +19907,7 @@ function analyzeRepo(repoPath, options) {
   };
   for (const hsf of HIGH_SIGNAL_FILES) {
     const fullPath = (0, import_node_path6.join)(repoPath, hsf);
-    if ((0, import_node_fs5.existsSync)(fullPath)) {
+    if ((0, import_node_fs6.existsSync)(fullPath)) {
       processHighSignalFile(fullPath, hsf, analysis, repoPath);
       analysis.fileStats.totalScanned++;
     }
@@ -19898,7 +19926,7 @@ function analyzeRepo(repoPath, options) {
 }
 function processHighSignalFile(fullPath, relPath, analysis, _repoPath) {
   try {
-    const content = (0, import_node_fs5.readFileSync)(fullPath, "utf-8");
+    const content = (0, import_node_fs6.readFileSync)(fullPath, "utf-8");
     if (relPath === "package.json") {
       const pkg = JSON.parse(content);
       if (pkg.dependencies) {
@@ -19937,13 +19965,13 @@ function detectServices2(repoPath) {
   const services = [];
   for (const dir of serviceDirs) {
     const fullPath = (0, import_node_path6.join)(repoPath, dir);
-    if (!(0, import_node_fs5.existsSync)(fullPath) || !(0, import_node_fs5.statSync)(fullPath).isDirectory()) {
+    if (!(0, import_node_fs6.existsSync)(fullPath) || !(0, import_node_fs6.statSync)(fullPath).isDirectory()) {
       continue;
     }
     try {
-      for (const entry of (0, import_node_fs5.readdirSync)(fullPath)) {
+      for (const entry of (0, import_node_fs6.readdirSync)(fullPath)) {
         const entryPath = (0, import_node_path6.join)(fullPath, entry);
-        if ((0, import_node_fs5.statSync)(entryPath).isDirectory() && !entry.startsWith(".")) {
+        if ((0, import_node_fs6.statSync)(entryPath).isDirectory() && !entry.startsWith(".")) {
           services.push({ name: entry, path: (0, import_node_path6.relative)(repoPath, entryPath) });
         }
       }
@@ -19959,7 +19987,7 @@ function inferArchitecturePattern(services, repoPath) {
   if (services.length >= 1) {
     return "modular-monolith";
   }
-  if ((0, import_node_fs5.existsSync)((0, import_node_path6.join)(repoPath, "src"))) {
+  if ((0, import_node_fs6.existsSync)((0, import_node_path6.join)(repoPath, "src"))) {
     return "monolith";
   }
   return "unknown";
@@ -19975,7 +20003,7 @@ function collectFiles(dir, excludes, maxDepth, maxFiles, smart) {
     }
     let entries;
     try {
-      entries = (0, import_node_fs5.readdirSync)(currentDir);
+      entries = (0, import_node_fs6.readdirSync)(currentDir);
     } catch {
       return;
     }
@@ -19990,7 +20018,7 @@ function collectFiles(dir, excludes, maxDepth, maxFiles, smart) {
       const fullPath = (0, import_node_path6.join)(currentDir, entry);
       let stat;
       try {
-        stat = (0, import_node_fs5.statSync)(fullPath);
+        stat = (0, import_node_fs6.statSync)(fullPath);
       } catch {
         continue;
       }
@@ -20016,7 +20044,7 @@ function collectFiles(dir, excludes, maxDepth, maxFiles, smart) {
 }
 function extractDomainConcepts(filePath, repoPath, analysis) {
   try {
-    const content = (0, import_node_fs5.readFileSync)(filePath, "utf-8");
+    const content = (0, import_node_fs6.readFileSync)(filePath, "utf-8");
     const rel = (0, import_node_path6.relative)(repoPath, filePath);
     const classPattern = /(?:class|interface|type|struct|enum)\s+(\w+)/g;
     let match;
@@ -20055,11 +20083,11 @@ function dedup(items, key) {
     return true;
   });
 }
-var import_node_fs5, import_node_path6, DEFAULT_EXCLUDES, HIGH_SIGNAL_FILES;
+var import_node_fs6, import_node_path6, DEFAULT_EXCLUDES, HIGH_SIGNAL_FILES;
 var init_repo_analyzer = __esm({
   "onboarder/src/domain/repo-analyzer.ts"() {
     "use strict";
-    import_node_fs5 = require("node:fs");
+    import_node_fs6 = require("node:fs");
     import_node_path6 = require("node:path");
     DEFAULT_EXCLUDES = [
       "node_modules",
@@ -20403,7 +20431,7 @@ async function executeStep5(options) {
   const analysis = analyzeRepo(options.repoPath);
   const domainModel = buildDomainModel(analysis, state.projectName);
   const domainModelPath = (0, import_node_path7.join)(options.baseDir, ".ctx-onboarding", "domain-model.yaml");
-  (0, import_node_fs6.writeFileSync)(domainModelPath, (0, import_yaml5.stringify)(domainModel), "utf-8");
+  (0, import_node_fs7.writeFileSync)(domainModelPath, (0, import_yaml6.stringify)(domainModel), "utf-8");
   state.domainModelPath = domainModelPath;
   const extensionInstallAvailable = state.capabilities?.extensionInstallAvailable ?? false;
   const client = new CtxApiClient({
@@ -20435,13 +20463,13 @@ async function executeStep5(options) {
     }
   };
 }
-var import_node_fs6, import_node_path7, import_yaml5;
+var import_node_fs7, import_node_path7, import_yaml6;
 var init_step_5_domain = __esm({
   "onboarder/src/commands/step-5-domain.ts"() {
     "use strict";
-    import_node_fs6 = require("node:fs");
+    import_node_fs7 = require("node:fs");
     import_node_path7 = require("node:path");
-    import_yaml5 = __toESM(require_dist(), 1);
+    import_yaml6 = __toESM(require_dist(), 1);
     init_dist2();
     init_onboarding_state();
     init_repo_analyzer();
@@ -20569,6 +20597,28 @@ var import_node_path8 = require("node:path");
 var import_node_fs = require("node:fs");
 var import_node_path = require("node:path");
 var import_yaml = __toESM(require_dist(), 1);
+var DATA_VOLUME_PRESETS = {
+  "ultra-light": {
+    sinceDays: 1,
+    events: ["push"],
+    agentBudget: 3e4
+  },
+  light: {
+    sinceDays: 7,
+    events: ["push"],
+    agentBudget: 5e4
+  },
+  standard: {
+    sinceDays: 30,
+    events: ["push", "pull_request", "issues"],
+    agentBudget: 1e5
+  },
+  full: {
+    sinceDays: 90,
+    events: ["push", "pull_request", "issues", "release"],
+    agentBudget: 2e5
+  }
+};
 function loadSettings(baseDir) {
   const settingsPath = (0, import_node_path.join)(baseDir, "ctx-settings.yaml");
   if ((0, import_node_fs.existsSync)(settingsPath)) {
@@ -20583,10 +20633,13 @@ function loadSettings(baseDir) {
             process.env[key] = value;
           }
         }
+        const { preset, config } = resolveDataVolume(parsed);
         return {
           apiUrl: apiUrl2,
           apiKey: apiKey2,
           projectName: parsed.PROJECT_NAME || parsed.project_name || parsed.projectName,
+          dataVolume: config,
+          dataVolumePreset: preset,
           all: parsed
         };
       }
@@ -20596,9 +20649,33 @@ function loadSettings(baseDir) {
   const apiUrl = process.env.CTX_API_URL;
   const apiKey = process.env.CTX_API_KEY;
   if (apiUrl && apiKey) {
-    return { apiUrl, apiKey, all: {} };
+    return {
+      apiUrl,
+      apiKey,
+      dataVolume: DATA_VOLUME_PRESETS.standard,
+      dataVolumePreset: "standard",
+      all: {}
+    };
   }
   return null;
+}
+function resolveDataVolume(parsed) {
+  const presetName = parsed.DATA_VOLUME || parsed.data_volume || "standard";
+  const preset = DATA_VOLUME_PRESETS[presetName] ?? DATA_VOLUME_PRESETS.standard;
+  const config = { ...preset };
+  const sinceDays = parsed.SINCE_DAYS || parsed.since_days;
+  if (sinceDays) {
+    config.sinceDays = parseInt(sinceDays, 10);
+  }
+  const events = parsed.EVENTS || parsed.events;
+  if (events) {
+    config.events = events.split(",").map((e) => e.trim());
+  }
+  const agentBudget = parsed.AGENT_BUDGET || parsed.agent_budget;
+  if (agentBudget) {
+    config.agentBudget = parseInt(agentBudget, 10);
+  }
+  return { preset: presetName, config };
 }
 function settingsSource(baseDir) {
   const settingsPath = (0, import_node_path.join)(baseDir, "ctx-settings.yaml");
@@ -20636,9 +20713,10 @@ program2.command("step-0").description("Initialize onboarding: validate CTX conn
       baseDir: process.cwd()
     });
     if (opts.json) {
-      console.log(JSON.stringify({ ...result, settingsSource: source }, null, 2));
+      console.log(JSON.stringify({ ...result, settingsSource: source, dataVolume: settings.dataVolumePreset }, null, 2));
     } else {
       console.log(`Step 0: Init completed (settings from ${source})`);
+      console.log(`  Data Volume: ${settings.dataVolumePreset} (${settings.dataVolume.sinceDays} days, events: ${settings.dataVolume.events.join(", ")})`);
       console.log(`  CTX Version: ${result.prerequisites.ctxVersion ?? "unknown"}`);
       console.log(`  Extension Install: ${result.prerequisites.extensionInstallAvailable ? "available" : "not available (guideline-only mode)"}`);
       console.log(`  Agent Kinds: ${result.prerequisites.agentKindsAvailable}`);
@@ -20684,7 +20762,12 @@ program2.command("step-1").description("Build testing lab: analyze repo and gene
 program2.command("step-2").description("Load project data (wraps ctx-loader)").requiredOption("--manifest <path>", "Path to ctx-loader manifest").option("--json", "Output as JSON").action(async (opts) => {
   try {
     const { executeStep2: executeStep22 } = await Promise.resolve().then(() => (init_step_2_load_project(), step_2_load_project_exports));
-    const result = await executeStep22({ manifestPath: (0, import_node_path8.resolve)(opts.manifest), baseDir: process.cwd() });
+    const settings = requireSettings(opts.json);
+    const result = await executeStep22({
+      manifestPath: (0, import_node_path8.resolve)(opts.manifest),
+      baseDir: process.cwd(),
+      dataVolume: settings.dataVolume
+    });
     if (opts.json) {
       console.log(JSON.stringify({ exitCode: result.loaderExitCode }, null, 2));
     } else {
@@ -20814,9 +20897,9 @@ program2.command("reset").description("Reset onboarding state (start over)").opt
     return;
   }
   const { rmSync } = await import("node:fs");
-  const { join: join7 } = await import("node:path");
+  const { join: join8 } = await import("node:path");
   try {
-    rmSync(join7(process.cwd(), ".ctx-onboarding"), { recursive: true, force: true });
+    rmSync(join8(process.cwd(), ".ctx-onboarding"), { recursive: true, force: true });
     if (opts.json) {
       console.log(JSON.stringify({ status: "reset" }));
     } else {

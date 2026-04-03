@@ -17,7 +17,15 @@ Check if `ctx-settings.yaml` exists in the project root. If it does, read it to 
    - Ask for a project name
    - Ask which repository they want to evaluate
 
-3. **Source platform credentials** — ask which platforms they use and collect the relevant tokens:
+3. **Data volume** — ask how much data to load:
+   - `ultra-light` — 1 day of history, push events only (fastest, for quick testing)
+   - `light` — 7 days, push events only
+   - `standard` — 30 days, pushes + PRs + issues (recommended)
+   - `full` — 90 days, pushes + PRs + issues + releases (most comprehensive)
+
+   Set `DATA_VOLUME` in the settings file. Default is `standard`.
+
+4. **Source platform credentials** — ask which platforms they use and collect the relevant tokens:
    - **GitHub**: `GH_PAT` (Personal Access Token)
    - **GitLab**: `GITLAB_TOKEN` and `GITLAB_URL`
    - **Bitbucket**: `BITBUCKET_TOKEN` and `BITBUCKET_URL`
@@ -34,6 +42,9 @@ Check if `ctx-settings.yaml` exists in the project root. If it does, read it to 
 CTX_API_URL: <their URL>
 CTX_API_KEY: <their key>
 PROJECT_NAME: <their project name>
+
+# Data volume (ultra-light | light | standard | full)
+DATA_VOLUME: standard
 
 # Source platform credentials (only include what they use)
 GH_PAT: <GitHub token>
