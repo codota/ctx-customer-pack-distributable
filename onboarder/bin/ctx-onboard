@@ -19008,60 +19008,52 @@ var init_zod = __esm({
 });
 
 // loader/dist/manifest/schema.js
-var githubCredential, gitlabCredential, jiraCredential, slackCredential, confluenceCredential, pagerdutyCredential, linearCredential, customCredential, credentialSpecSchema, sourceSpecSchema, workspaceSpecSchema, loaderManifestSchema;
+var githubPatCredential, gitlabPatCredential, bitbucketAppPasswordCredential, atlassianApiTokenCredential, apiKeyCredential, basicAuthCredential, sshKeyCredential, runnerEnvVarCredential, credentialSpecSchema, sourceSpecSchema, workspaceSpecSchema, loaderManifestSchema;
 var init_schema = __esm({
   "loader/dist/manifest/schema.js"() {
     "use strict";
     init_zod();
-    githubCredential = external_exports.object({
-      type: external_exports.literal("github"),
+    githubPatCredential = external_exports.object({
+      type: external_exports.literal("github_pat"),
       data: external_exports.object({ token: external_exports.string().min(1) })
     });
-    gitlabCredential = external_exports.object({
-      type: external_exports.literal("gitlab"),
-      data: external_exports.object({ token: external_exports.string().min(1), baseUrl: external_exports.string().url().optional() })
-    });
-    jiraCredential = external_exports.object({
-      type: external_exports.literal("jira"),
-      data: external_exports.object({
-        baseUrl: external_exports.string().url(),
-        email: external_exports.string().email(),
-        apiToken: external_exports.string().min(1)
-      })
-    });
-    slackCredential = external_exports.object({
-      type: external_exports.literal("slack"),
+    gitlabPatCredential = external_exports.object({
+      type: external_exports.literal("gitlab_pat"),
       data: external_exports.object({ token: external_exports.string().min(1) })
     });
-    confluenceCredential = external_exports.object({
-      type: external_exports.literal("confluence"),
-      data: external_exports.object({
-        baseUrl: external_exports.string().url(),
-        email: external_exports.string().email(),
-        apiToken: external_exports.string().min(1)
-      })
+    bitbucketAppPasswordCredential = external_exports.object({
+      type: external_exports.literal("bitbucket_app_password"),
+      data: external_exports.object({ username: external_exports.string().min(1), appPassword: external_exports.string().min(1) })
     });
-    pagerdutyCredential = external_exports.object({
-      type: external_exports.literal("pagerduty"),
-      data: external_exports.object({ apiKey: external_exports.string().min(1) })
+    atlassianApiTokenCredential = external_exports.object({
+      type: external_exports.literal("atlassian_api_token"),
+      data: external_exports.object({ email: external_exports.string().email(), apiToken: external_exports.string().min(1) })
     });
-    linearCredential = external_exports.object({
-      type: external_exports.literal("linear"),
-      data: external_exports.object({ apiKey: external_exports.string().min(1) })
+    apiKeyCredential = external_exports.object({
+      type: external_exports.literal("api_key"),
+      data: external_exports.object({ key: external_exports.string().min(1), header: external_exports.string().optional() })
     });
-    customCredential = external_exports.object({
-      type: external_exports.literal("custom"),
+    basicAuthCredential = external_exports.object({
+      type: external_exports.literal("basic_auth"),
+      data: external_exports.object({ username: external_exports.string().min(1), password: external_exports.string().min(1) })
+    });
+    sshKeyCredential = external_exports.object({
+      type: external_exports.literal("ssh_key"),
+      data: external_exports.object({ privateKey: external_exports.string().min(1), passphrase: external_exports.string().optional() })
+    });
+    runnerEnvVarCredential = external_exports.object({
+      type: external_exports.literal("runner_env_var"),
       data: external_exports.record(external_exports.string(), external_exports.string())
     });
     credentialSpecSchema = external_exports.discriminatedUnion("type", [
-      githubCredential,
-      gitlabCredential,
-      jiraCredential,
-      slackCredential,
-      confluenceCredential,
-      pagerdutyCredential,
-      linearCredential,
-      customCredential
+      githubPatCredential,
+      gitlabPatCredential,
+      bitbucketAppPasswordCredential,
+      atlassianApiTokenCredential,
+      apiKeyCredential,
+      basicAuthCredential,
+      sshKeyCredential,
+      runnerEnvVarCredential
     ]);
     sourceSpecSchema = external_exports.object({
       name: external_exports.string().min(1),

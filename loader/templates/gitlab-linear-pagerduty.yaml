@@ -7,18 +7,17 @@ ctx:
   apiKey: ${CTX_API_KEY}
 credentials:
   gitlab:
-    type: gitlab
+    type: gitlab_pat
     data:
       token: ${GITLAB_TOKEN}
-      baseUrl: ${GITLAB_URL:-https://gitlab.com}
   linear:
-    type: linear
+    type: api_key
     data:
-      apiKey: ${LINEAR_API_KEY}
+      key: ${LINEAR_API_KEY}
   pagerduty:
-    type: pagerduty
+    type: api_key
     data:
-      apiKey: ${PAGERDUTY_API_KEY}
+      key: ${PAGERDUTY_API_KEY}
 workspaces:
   platform:
     sources:

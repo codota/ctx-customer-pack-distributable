@@ -7,9 +7,9 @@ ctx:
   apiKey: ${CTX_API_KEY}
 credentials:
   github:
-    type: github
+    type: github_pat
     data:
-      token: ${GITHUB_TOKEN}
+      token: ${GH_PAT}
 workspaces:
   main:
     sources:

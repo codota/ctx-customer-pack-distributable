@@ -13,19 +13,18 @@ defaults:
   sinceDays: 30
 credentials:
   github:
-    type: github
+    type: github_pat
     data:
-      token: ${GITHUB_TOKEN}
+      token: ${GH_PAT}
   jira:
-    type: jira
+    type: atlassian_api_token
     data:
-      baseUrl: ${JIRA_URL}
       email: ${JIRA_EMAIL}
       apiToken: ${JIRA_API_TOKEN}
   slack:
-    type: slack
+    type: api_key
     data:
-      token: ${SLACK_BOT_TOKEN}
+      key: ${SLACK_BOT_TOKEN}
 workspaces:
   engineering:
     sources:
