@@ -22,4 +22,4 @@ _Coming soon._
 
 ## License
 
-MIT
+Proprietary — Copyright (c) 2026 Tabnine. All rights reserved.
