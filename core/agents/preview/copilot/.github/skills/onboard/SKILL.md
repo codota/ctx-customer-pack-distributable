@@ -16,7 +16,17 @@ Walk through the complete 7-step onboarding methodology to evaluate and adopt th
 
 ## Before You Start
 
-Check if `ctx-settings.yaml` exists in the project root. If it does, read it to confirm the settings are populated. If it doesn't exist, walk the user through creating it:
+Check if `ctx-settings.yaml` exists in the project root.
+
+**If it exists**, read it and check:
+- Are `CTX_API_URL` and `CTX_API_KEY` set? If not, ask for them.
+- Is `DATA_VOLUME` set? If not, ask the user which volume they want (ultra-light, light, standard, full) and add it to the file. Explain the options:
+  - `ultra-light` — 1 day of history, push events only (fastest, for quick testing)
+  - `light` — 7 days, push events only
+  - `standard` — 30 days, pushes + PRs + issues (recommended)
+  - `full` — 90 days, pushes + PRs + issues + releases (most comprehensive)
+
+**If it doesn't exist**, walk the user through creating it:
 
 1. **Context Engine connection** (required):
    - Ask for their Context Engine URL (e.g. `https://ctx.your-company.com`)
