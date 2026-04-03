@@ -20536,30 +20536,36 @@ program2.command("load").description("Execute full data load pipeline").option("
       manifestPath: (0, import_node_path4.resolve)(opts.manifest),
       mode: opts.mode,
       baseDir: process.cwd(),
-      onProgress: (run2) => {
-        for (const [wsName, ws] of Object.entries(run2.workspaces)) {
-          for (const [srcName, src] of Object.entries(ws.sources)) {
-            const status = src.status;
-            const label = {
-              resolving_credential: "Resolving credential...",
-              resolving_datasource: "Creating data source...",
-              adding_to_workspace: "Adding to workspace...",
-              awaiting_sync: "Syncing data (this may take a while)...",
-              running_agents: `Running agents (${src.agentRuns.length} started)...`,
-              running_analysis: "Running analysis...",
-              validating: "Validating...",
-              completed: "Done.",
-              failed: `Failed: ${src.error?.slice(0, 100) ?? "unknown error"}`
-            };
-            if (label[status]) {
-              process.stderr.write(`\r\x1B[K[${wsName}/${srcName}] ${label[status]}`);
-              if (status === "completed" || status === "failed") {
-                process.stderr.write("\n");
+      onProgress: /* @__PURE__ */ (() => {
+        const lastStatus = /* @__PURE__ */ new Map();
+        return (run2) => {
+          for (const [wsName, ws] of Object.entries(run2.workspaces)) {
+            for (const [srcName, src] of Object.entries(ws.sources)) {
+              const key = `${wsName}/${srcName}`;
+              const status = src.status;
+              if (status === lastStatus.get(key)) {
+                continue;
+              }
+              lastStatus.set(key, status);
+              const label = {
+                resolving_credential: "Resolving credential...",
+                resolving_datasource: "Creating data source...",
+                adding_to_workspace: "Adding to workspace...",
+                awaiting_sync: "Syncing data (this may take a while)...",
+                running_agents: `Running agents (${src.agentRuns.length} started)...`,
+                running_analysis: "Running analysis...",
+                validating: "Validating...",
+                completed: "Done.",
+                failed: `Failed: ${src.error?.slice(0, 100) ?? "unknown error"}`
+              };
+              if (label[status]) {
+                process.stderr.write(`[${key}] ${label[status]}
+`);
               }
             }
           }
-        }
-      }
+        };
+      })()
     });
     const { run, warnings } = await orchestrator.execute();
     if (!isJson) {
