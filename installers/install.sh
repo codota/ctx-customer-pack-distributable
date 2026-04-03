@@ -97,52 +97,71 @@ resolve_packages() {
 
 install_core() {
   local agent=$1
-  local skills count=0
-
-  echo "[core] Downloading skills for ${agent}..."
+  local skills count=0 total
 
   case $agent in
     claude)
       skills=$(list_github_dir "core/agents/claude/skills")
+      total=$(echo "$skills" | wc -w | tr -d ' ')
+      echo "[core] Downloading ${total} skills for ${agent}..."
       mkdir -p .claude/skills .claude/commands
       for skill in $skills; do
+        count=$((count + 1))
+        printf "\r[core] %d/%d %s" "$count" "$total" "$skill"
         mkdir -p ".claude/skills/${skill}"
-        fetch "${RAW_BASE}/core/agents/claude/skills/${skill}/SKILL.md" ".claude/skills/${skill}/SKILL.md" && count=$((count + 1))
+        fetch "${RAW_BASE}/core/agents/claude/skills/${skill}/SKILL.md" ".claude/skills/${skill}/SKILL.md" || true
         fetch "${RAW_BASE}/core/agents/claude/commands/${skill}.md" ".claude/commands/${skill}.md" 2>/dev/null || true
       done
+      echo ""
+      echo "[core] Downloading hooks + MCP proxy..."
       mkdir -p .claude/hooks .claude/scripts
       fetch "${RAW_BASE}/core/agents/claude/hooks/decision-context.py" ".claude/hooks/decision-context.py" || true
       fetch "${RAW_BASE}/core/agents/claude/hooks/change-confidence.py" ".claude/hooks/change-confidence.py" || true
       fetch "${RAW_BASE}/core/agents/claude/scripts/ctx-mcp-proxy.py" ".claude/scripts/ctx-mcp-proxy.py" || true
-      echo "[core] ${count} skills + ${count} commands + 2 hooks + MCP proxy installed."
+      echo "[core] Done: ${count} skills + ${count} commands + 2 hooks + MCP proxy."
       ;;
     cursor)
       skills=$(list_github_dir "core/agents/cursor/.cursor/skills")
+      total=$(echo "$skills" | wc -w | tr -d ' ')
+      echo "[core] Downloading ${total} skills for ${agent}..."
       mkdir -p .cursor/skills .cursor/rules
       for skill in $skills; do
+        count=$((count + 1))
+        printf "\r[core] %d/%d %s" "$count" "$total" "$skill"
         mkdir -p ".cursor/skills/${skill}"
-        fetch "${RAW_BASE}/core/agents/cursor/.cursor/skills/${skill}/SKILL.md" ".cursor/skills/${skill}/SKILL.md" && count=$((count + 1))
+        fetch "${RAW_BASE}/core/agents/cursor/.cursor/skills/${skill}/SKILL.md" ".cursor/skills/${skill}/SKILL.md" || true
         fetch "${RAW_BASE}/core/agents/cursor/.cursor/rules/${skill}.mdc" ".cursor/rules/${skill}.mdc" 2>/dev/null || true
       done
-      echo "[core] ${count} skills + ${count} rules installed."
+      echo ""
+      echo "[core] Done: ${count} skills + ${count} rules."
       ;;
     gemini)
       skills=$(list_github_dir "core/agents/gemini/.gemini/skills")
+      total=$(echo "$skills" | wc -w | tr -d ' ')
+      echo "[core] Downloading ${total} skills for ${agent}..."
       mkdir -p .gemini/skills
       for skill in $skills; do
+        count=$((count + 1))
+        printf "\r[core] %d/%d %s" "$count" "$total" "$skill"
         mkdir -p ".gemini/skills/${skill}"
-        fetch "${RAW_BASE}/core/agents/gemini/.gemini/skills/${skill}/SKILL.md" ".gemini/skills/${skill}/SKILL.md" && count=$((count + 1))
+        fetch "${RAW_BASE}/core/agents/gemini/.gemini/skills/${skill}/SKILL.md" ".gemini/skills/${skill}/SKILL.md" || true
       done
-      echo "[core] ${count} skills installed."
+      echo ""
+      echo "[core] Done: ${count} skills."
       ;;
     tabnine)
       skills=$(list_github_dir "core/agents/tabnine/.tabnine/agent/skills")
+      total=$(echo "$skills" | wc -w | tr -d ' ')
+      echo "[core] Downloading ${total} skills for ${agent}..."
       mkdir -p "${HOME}/.tabnine/agent/skills"
       for skill in $skills; do
+        count=$((count + 1))
+        printf "\r[core] %d/%d %s" "$count" "$total" "$skill"
         mkdir -p "${HOME}/.tabnine/agent/skills/${skill}"
-        fetch "${RAW_BASE}/core/agents/tabnine/.tabnine/agent/skills/${skill}/SKILL.md" "${HOME}/.tabnine/agent/skills/${skill}/SKILL.md" && count=$((count + 1))
+        fetch "${RAW_BASE}/core/agents/tabnine/.tabnine/agent/skills/${skill}/SKILL.md" "${HOME}/.tabnine/agent/skills/${skill}/SKILL.md" || true
       done
-      echo "[core] ${count} skills installed."
+      echo ""
+      echo "[core] Done: ${count} skills."
       ;;
     *) echo "[core] Unknown agent: ${agent}"; return ;;
   esac
