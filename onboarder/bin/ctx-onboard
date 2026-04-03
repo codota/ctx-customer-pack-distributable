@@ -19894,6 +19894,30 @@ async function checkStatus(baseDir, stateManager, state) {
       }
       return { status: "loading", pid, loaderOutput: loaderStatus };
     } catch {
+      try {
+        const loaderStatusJson = (0, import_node_child_process.execFileSync)(findLoader(), ["status", "--json"], {
+          encoding: "utf-8",
+          cwd: baseDir,
+          timeout: 5e3
+        });
+        const loaderState = JSON.parse(loaderStatusJson);
+        if (loaderState.status === "completed") {
+          await stateManager.markStepCompleted(state, 2, { loaderExitCode: 0 });
+          try {
+            (0, import_node_fs5.unlinkSync)(pidFile);
+          } catch {
+          }
+          return { status: "completed" };
+        }
+        if (loaderState.status === "failed") {
+          const errors = loaderState.workspaces && Object.values(loaderState.workspaces).flatMap(
+            (ws) => Object.values(ws.sources || {}).filter((s) => s.error).map((s) => s.error)
+          ) || [];
+          const detail2 = errors.join("; ") || "Loader failed";
+          return { status: "failed", loaderOutput: detail2 };
+        }
+      } catch {
+      }
       const refreshed = await stateManager.load();
       if (refreshed?.steps[2]?.status === "completed") {
         return { status: "completed" };
