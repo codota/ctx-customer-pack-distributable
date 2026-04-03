@@ -19974,6 +19974,254 @@ var init_step_2_load_project = __esm({
   }
 });
 
+// onboarder/src/testing/scoring/scorer.ts
+var scorer_exports = {};
+__export(scorer_exports, {
+  Scorer: () => Scorer
+});
+var Scorer;
+var init_scorer = __esm({
+  "onboarder/src/testing/scoring/scorer.ts"() {
+    "use strict";
+    Scorer = class {
+      /**
+       * Score a response against a test case.
+       * In no-mcp mode, tool usage metrics are NOT populated.
+       */
+      async score(testCase, response, mode) {
+        const deterministicChecks = this.runDeterministicChecks(testCase, response);
+        const dimensions = this.assessQuality(testCase, response);
+        const toolUsage = mode !== "no-mcp" ? this.extractToolUsage(response) : void 0;
+        const total = dimensions.relevance + dimensions.depth + dimensions.actionability + dimensions.accuracy;
+        return {
+          testCaseId: testCase.id,
+          dimensions,
+          total,
+          normalized: total / 20,
+          evidence: {
+            relevance: this.explainScore("relevance", dimensions.relevance, testCase, response),
+            depth: this.explainScore("depth", dimensions.depth, testCase, response),
+            actionability: this.explainScore("actionability", dimensions.actionability, testCase, response),
+            accuracy: this.explainScore("accuracy", dimensions.accuracy, testCase, response)
+          },
+          deterministicChecks,
+          toolUsage
+        };
+      }
+      runDeterministicChecks(testCase, response) {
+        let checksRun = 0;
+        let checksPassed = 0;
+        checksRun++;
+        if (response.trim().length > 50) {
+          checksPassed++;
+        }
+        checksRun++;
+        const topicHits = testCase.expectedTopics.filter(
+          (topic) => response.toLowerCase().includes(topic.toLowerCase())
+        );
+        if (topicHits.length > 0) {
+          checksPassed++;
+        }
+        checksRun++;
+        const hasStructure = response.includes("\n\n") || response.includes("- ") || response.includes("* ");
+        if (hasStructure) {
+          checksPassed++;
+        }
+        return {
+          structureValid: hasStructure,
+          checksRun,
+          checksPassed
+        };
+      }
+      assessQuality(testCase, response) {
+        const lower = response.toLowerCase();
+        const topicHits = testCase.expectedTopics.filter((t) => lower.includes(t.toLowerCase()));
+        const topicCoverage = testCase.expectedTopics.length > 0 ? topicHits.length / testCase.expectedTopics.length : 0;
+        const relevance = Math.min(5, Math.round(topicCoverage * 4 + (response.length > 100 ? 1 : 0)));
+        const depth = Math.min(5, Math.round(
+          (response.length > 500 ? 2 : response.length > 200 ? 1 : 0) + (response.split("\n").length > 5 ? 2 : 1) + topicCoverage
+        ));
+        const actionability = Math.min(5, Math.round(
+          (lower.includes("should") || lower.includes("recommend") || lower.includes("next step") ? 2 : 0) + (lower.includes("```") ? 1 : 0) + topicCoverage * 2
+        ));
+        const accuracy = Math.min(5, Math.round(
+          topicCoverage * 3 + (response.length > 100 ? 1 : 0) + (lower.includes("error") || lower.includes("warning") ? 0 : 1)
+        ));
+        return { relevance, depth, actionability, accuracy };
+      }
+      extractToolUsage(response) {
+        const mcpCallPattern = /ctx-cli mcp call (\S+)/g;
+        const calls = [];
+        let match;
+        while ((match = mcpCallPattern.exec(response)) !== null) {
+          calls.push(match[1]);
+        }
+        const entityPattern = /entity[:\s]+["']?([^"'\s,]+)/gi;
+        const entities = [];
+        while ((match = entityPattern.exec(response)) !== null) {
+          entities.push(match[1]);
+        }
+        return {
+          mcpCallsMade: [...new Set(calls)],
+          entitiesReferenced: [...new Set(entities)],
+          graphCoverage: Math.min(1, entities.length / 5)
+          // Simple heuristic
+        };
+      }
+      explainScore(dimension, score, testCase, _response) {
+        const level = score >= 4 ? "strong" : score >= 3 ? "adequate" : score >= 2 ? "weak" : "poor";
+        return `${dimension}: ${level} (${score}/5) for test case '${testCase.id}'`;
+      }
+    };
+  }
+});
+
+// onboarder/src/testing/scoring/aggregator.ts
+var aggregator_exports = {};
+__export(aggregator_exports, {
+  aggregateResults: () => aggregateResults
+});
+function aggregateResults(results, mode, startedAt) {
+  const totalTests = results.length;
+  if (totalTests === 0) {
+    return {
+      executionId: (0, import_node_crypto3.randomUUID)(),
+      mode,
+      startedAt,
+      completedAt: (/* @__PURE__ */ new Date()).toISOString(),
+      duration: 0,
+      results: [],
+      summary: {
+        totalTests: 0,
+        averageScore: 0,
+        dimensionAverages: { relevance: 0, depth: 0, actionability: 0, accuracy: 0 },
+        passRate: 0
+      }
+    };
+  }
+  const dimensionAverages = {
+    relevance: avg(results.map((r) => r.dimensions.relevance)),
+    depth: avg(results.map((r) => r.dimensions.depth)),
+    actionability: avg(results.map((r) => r.dimensions.actionability)),
+    accuracy: avg(results.map((r) => r.dimensions.accuracy))
+  };
+  const averageScore = avg(results.map((r) => r.total));
+  const passRate = results.filter((r) => r.total >= 12).length / totalTests;
+  return {
+    executionId: (0, import_node_crypto3.randomUUID)(),
+    mode,
+    startedAt,
+    completedAt: (/* @__PURE__ */ new Date()).toISOString(),
+    duration: Date.now() - new Date(startedAt).getTime(),
+    results,
+    summary: {
+      totalTests,
+      averageScore: round2(averageScore),
+      dimensionAverages: {
+        relevance: round2(dimensionAverages.relevance),
+        depth: round2(dimensionAverages.depth),
+        actionability: round2(dimensionAverages.actionability),
+        accuracy: round2(dimensionAverages.accuracy)
+      },
+      passRate: round2(passRate)
+    }
+  };
+}
+function avg(nums) {
+  return nums.length === 0 ? 0 : nums.reduce((a, b) => a + b, 0) / nums.length;
+}
+function round2(n) {
+  return Math.round(n * 100) / 100;
+}
+var import_node_crypto3;
+var init_aggregator = __esm({
+  "onboarder/src/testing/scoring/aggregator.ts"() {
+    "use strict";
+    import_node_crypto3 = require("node:crypto");
+  }
+});
+
+// onboarder/src/testing/scoring/comparator.ts
+var comparator_exports = {};
+__export(comparator_exports, {
+  compareBaselines: () => compareBaselines
+});
+function compareBaselines(baseline, withMcp, withDomain) {
+  const result = {
+    baseline,
+    withMcp,
+    withDomain,
+    answerQuality: {
+      mcpOverBaseline: computeDimensionDelta(
+        baseline.summary.dimensionAverages,
+        withMcp.summary.dimensionAverages,
+        baseline.summary.averageScore,
+        withMcp.summary.averageScore
+      )
+    }
+  };
+  if (withDomain) {
+    result.answerQuality.domainOverMcp = computeDimensionDelta(
+      withMcp.summary.dimensionAverages,
+      withDomain.summary.dimensionAverages,
+      withMcp.summary.averageScore,
+      withDomain.summary.averageScore
+    );
+    result.answerQuality.domainOverBaseline = computeDimensionDelta(
+      baseline.summary.dimensionAverages,
+      withDomain.summary.dimensionAverages,
+      baseline.summary.averageScore,
+      withDomain.summary.averageScore
+    );
+    const mcpToolStats = computeToolStats(withMcp);
+    const domainToolStats = computeToolStats(withDomain);
+    if (mcpToolStats && domainToolStats) {
+      result.toolUsage = {
+        domainOverMcp: {
+          avgMcpCalls: {
+            from: mcpToolStats.avgCalls,
+            to: domainToolStats.avgCalls,
+            delta: domainToolStats.avgCalls - mcpToolStats.avgCalls
+          },
+          avgEntitiesReferenced: {
+            from: mcpToolStats.avgEntities,
+            to: domainToolStats.avgEntities,
+            delta: domainToolStats.avgEntities - mcpToolStats.avgEntities
+          }
+        }
+      };
+    }
+  }
+  return result;
+}
+function computeDimensionDelta(from, to, fromOverall, toOverall) {
+  const pct = (a, b) => a === 0 ? b > 0 ? 100 : 0 : (b - a) / a * 100;
+  return {
+    relevance: { from: from.relevance, to: to.relevance, delta: to.relevance - from.relevance, percentChange: pct(from.relevance, to.relevance) },
+    depth: { from: from.depth, to: to.depth, delta: to.depth - from.depth, percentChange: pct(from.depth, to.depth) },
+    actionability: { from: from.actionability, to: to.actionability, delta: to.actionability - from.actionability, percentChange: pct(from.actionability, to.actionability) },
+    accuracy: { from: from.accuracy, to: to.accuracy, delta: to.accuracy - from.accuracy, percentChange: pct(from.accuracy, to.accuracy) },
+    overall: { from: fromOverall, to: toOverall, delta: toOverall - fromOverall, percentChange: pct(fromOverall, toOverall) }
+  };
+}
+function computeToolStats(result) {
+  const withUsage = result.results.filter((r) => r.toolUsage);
+  if (withUsage.length === 0) {
+    return null;
+  }
+  const totalCalls = withUsage.reduce((sum, r) => sum + (r.toolUsage?.mcpCallsMade.length ?? 0), 0);
+  const totalEntities = withUsage.reduce((sum, r) => sum + (r.toolUsage?.entitiesReferenced.length ?? 0), 0);
+  return {
+    avgCalls: totalCalls / withUsage.length,
+    avgEntities: totalEntities / withUsage.length
+  };
+}
+var init_comparator = __esm({
+  "onboarder/src/testing/scoring/comparator.ts"() {
+    "use strict";
+  }
+});
+
 // onboarder/src/domain/repo-analyzer.ts
 function analyzeRepo(repoPath, options) {
   const maxFiles = options?.maxFiles ?? 1e4;
@@ -20873,18 +21121,159 @@ program2.command("step-2").description("Load project data (runs ctx-loader in ba
     process.exit(1);
   }
 });
-program2.command("step-3").description("Run baseline tests without MCP (no Context Engine tools)").option("--json", "Output as JSON").action(async (opts) => {
-  if (opts.json) {
-    console.log(JSON.stringify({ status: "not_yet_implemented", mode: "no-mcp" }));
-  } else {
-    console.log("Step 3: Baseline (no MCP) \u2014 not yet fully implemented.");
+program2.command("step-3").description("Score baseline test responses (no MCP)").option("--responses <path>", "JSON file with question/answer pairs").option("--mark-complete", "Mark step 3 as complete (after agent has driven scoring)").option("--json", "Output as JSON").action(async (opts) => {
+  try {
+    const { OnboardingStateManager: OnboardingStateManager2 } = await Promise.resolve().then(() => (init_onboarding_state(), onboarding_state_exports));
+    const mgr = new OnboardingStateManager2(process.cwd());
+    const state = await mgr.load();
+    if (!state) {
+      throw new Error("Run step-0 first.");
+    }
+    if (opts.markComplete) {
+      await mgr.markStepStarted(state, 3);
+      await mgr.markStepCompleted(state, 3, { mode: "no-mcp", scoredByAgent: true });
+      if (opts.json) {
+        console.log(JSON.stringify({ status: "completed", mode: "no-mcp" }));
+      } else {
+        console.log("Step 3 marked as complete.");
+      }
+      return;
+    }
+    if (opts.responses) {
+      const { readFileSync: readFileSync7 } = await import("node:fs");
+      const { Scorer: Scorer2 } = await Promise.resolve().then(() => (init_scorer(), scorer_exports));
+      const { aggregateResults: aggregateResults2 } = await Promise.resolve().then(() => (init_aggregator(), aggregator_exports));
+      const responses = JSON.parse(readFileSync7((0, import_node_path8.resolve)(opts.responses), "utf-8"));
+      const scorer = new Scorer2();
+      const results = await Promise.all(
+        responses.map((r) => scorer.score(
+          { id: r.id, category: r.category, question: r.question, expectedTopics: [], difficulty: "medium", context: "" },
+          r.answer,
+          "no-mcp"
+        ))
+      );
+      const execution = aggregateResults2(results, "no-mcp", (/* @__PURE__ */ new Date()).toISOString());
+      await mgr.markStepStarted(state, 3);
+      await mgr.markStepCompleted(state, 3, { mode: "no-mcp", execution });
+      if (opts.json) {
+        console.log(JSON.stringify(execution, null, 2));
+      } else {
+        console.log(`Step 3: Scored ${execution.summary.totalTests} responses`);
+        console.log(`  Average: ${execution.summary.averageScore}/20`);
+        console.log(`  Pass rate: ${(execution.summary.passRate * 100).toFixed(0)}%`);
+      }
+      return;
+    }
+    const { readFileSync: readFileSync6, existsSync: existsSync6 } = await import("node:fs");
+    const { join: join8 } = await import("node:path");
+    const planPath = state.testPlanPath ?? join8(process.cwd(), ".ctx-onboarding", "test-plan.yaml");
+    if (!existsSync6(planPath)) {
+      throw new Error("No test plan found. Run step-1 first.");
+    }
+    const { parse: parseYaml5 } = await Promise.resolve().then(() => __toESM(require_dist(), 1));
+    const plan = parseYaml5(readFileSync6(planPath, "utf-8"));
+    if (opts.json) {
+      console.log(JSON.stringify({
+        mode: "no-mcp",
+        instructions: "Answer each question WITHOUT using ctx-cli or MCP tools. Save answers as JSON array [{id, category, question, answer}] and re-run with --responses <path>.",
+        testCases: plan.testCases
+      }, null, 2));
+    } else {
+      console.log("Step 3: Answer these questions WITHOUT Context Engine tools:\n");
+      for (const tc of plan.testCases) {
+        console.log(`  [${tc.id}] ${tc.question}`);
+      }
+      console.log("\nSave answers as JSON and run: ctx-onboard step-3 --responses answers.json --json");
+    }
+  } catch (err) {
+    if (opts.json) {
+      console.error(JSON.stringify({ error: err instanceof Error ? err.message : String(err) }));
+    } else {
+      console.error(`Step 3 failed: ${err instanceof Error ? err.message : String(err)}`);
+    }
+    process.exit(1);
   }
 });
-program2.command("step-4").description("Run baseline tests with MCP and compare to Step 3").option("--json", "Output as JSON").action(async (opts) => {
-  if (opts.json) {
-    console.log(JSON.stringify({ status: "not_yet_implemented", mode: "with-mcp" }));
-  } else {
-    console.log("Step 4: Baseline (with MCP) \u2014 not yet fully implemented.");
+program2.command("step-4").description("Score baseline test responses (with MCP) and compare to step 3").option("--responses <path>", "JSON file with question/answer pairs").option("--mark-complete", "Mark step 4 as complete").option("--json", "Output as JSON").action(async (opts) => {
+  try {
+    const { OnboardingStateManager: OnboardingStateManager2 } = await Promise.resolve().then(() => (init_onboarding_state(), onboarding_state_exports));
+    const mgr = new OnboardingStateManager2(process.cwd());
+    const state = await mgr.load();
+    if (!state) {
+      throw new Error("Run step-0 first.");
+    }
+    if (opts.markComplete) {
+      await mgr.markStepStarted(state, 4);
+      await mgr.markStepCompleted(state, 4, { mode: "with-mcp", scoredByAgent: true });
+      if (opts.json) {
+        console.log(JSON.stringify({ status: "completed", mode: "with-mcp" }));
+      } else {
+        console.log("Step 4 marked as complete.");
+      }
+      return;
+    }
+    if (opts.responses) {
+      const { readFileSync: readFileSync7 } = await import("node:fs");
+      const { Scorer: Scorer2 } = await Promise.resolve().then(() => (init_scorer(), scorer_exports));
+      const { aggregateResults: aggregateResults2 } = await Promise.resolve().then(() => (init_aggregator(), aggregator_exports));
+      const { compareBaselines: compareBaselines2 } = await Promise.resolve().then(() => (init_comparator(), comparator_exports));
+      const responses = JSON.parse(readFileSync7((0, import_node_path8.resolve)(opts.responses), "utf-8"));
+      const scorer = new Scorer2();
+      const results = await Promise.all(
+        responses.map((r) => scorer.score(
+          { id: r.id, category: r.category, question: r.question, expectedTopics: [], difficulty: "medium", context: "" },
+          r.answer,
+          "with-mcp"
+        ))
+      );
+      const execution = aggregateResults2(results, "with-mcp", (/* @__PURE__ */ new Date()).toISOString());
+      const step3Output = state.steps[3]?.output;
+      let comparison;
+      if (step3Output?.execution) {
+        comparison = compareBaselines2(step3Output.execution, execution);
+      }
+      await mgr.markStepStarted(state, 4);
+      await mgr.markStepCompleted(state, 4, { mode: "with-mcp", execution, comparison });
+      if (opts.json) {
+        console.log(JSON.stringify({ execution: execution.summary, comparison: comparison?.answerQuality.mcpOverBaseline }, null, 2));
+      } else {
+        console.log(`Step 4: Scored ${execution.summary.totalTests} responses`);
+        console.log(`  Average: ${execution.summary.averageScore}/20`);
+        if (comparison) {
+          const delta = comparison.answerQuality.mcpOverBaseline.overall;
+          console.log(`  vs Step 3: ${delta.delta >= 0 ? "+" : ""}${delta.delta.toFixed(1)} (${delta.percentChange >= 0 ? "+" : ""}${delta.percentChange.toFixed(0)}%)`);
+        }
+      }
+      return;
+    }
+    const { readFileSync: readFileSync6, existsSync: existsSync6 } = await import("node:fs");
+    const { join: join8 } = await import("node:path");
+    const planPath = state.testPlanPath ?? join8(process.cwd(), ".ctx-onboarding", "test-plan.yaml");
+    if (!existsSync6(planPath)) {
+      throw new Error("No test plan found. Run step-1 first.");
+    }
+    const { parse: parseYaml5 } = await Promise.resolve().then(() => __toESM(require_dist(), 1));
+    const plan = parseYaml5(readFileSync6(planPath, "utf-8"));
+    if (opts.json) {
+      console.log(JSON.stringify({
+        mode: "with-mcp",
+        instructions: "Answer each question USING ctx-cli MCP tools. Save answers as JSON array [{id, category, question, answer}] and re-run with --responses <path>.",
+        testCases: plan.testCases
+      }, null, 2));
+    } else {
+      console.log("Step 4: Answer these questions USING Context Engine tools:\n");
+      for (const tc of plan.testCases) {
+        console.log(`  [${tc.id}] ${tc.question}`);
+      }
+      console.log("\nSave answers as JSON and run: ctx-onboard step-4 --responses answers.json --json");
+    }
+  } catch (err) {
+    if (opts.json) {
+      console.error(JSON.stringify({ error: err instanceof Error ? err.message : String(err) }));
+    } else {
+      console.error(`Step 4 failed: ${err instanceof Error ? err.message : String(err)}`);
+    }
+    process.exit(1);
   }
 });
 program2.command("step-5").description("Domain enrichment: analyze repo, build domain model, load into CTX").requiredOption("--repo-path <path>", "Path to repository").option("--dry-run", "Validate domain model without loading into CTX").option("--json", "Output as JSON").action(async (opts) => {
@@ -20928,11 +21317,71 @@ program2.command("step-5").description("Domain enrichment: analyze repo, build d
     process.exit(1);
   }
 });
-program2.command("step-6").description("Re-run tests with domain enrichment and compare all baselines").option("--json", "Output as JSON").action(async (opts) => {
-  if (opts.json) {
-    console.log(JSON.stringify({ status: "not_yet_implemented", mode: "with-domain" }));
-  } else {
-    console.log("Step 6: Measure with domain \u2014 not yet fully implemented.");
+program2.command("step-6").description("Score test responses with domain enrichment and compare all baselines").option("--responses <path>", "JSON file with question/answer pairs").option("--mark-complete", "Mark step 6 as complete").option("--json", "Output as JSON").action(async (opts) => {
+  try {
+    const { OnboardingStateManager: OnboardingStateManager2 } = await Promise.resolve().then(() => (init_onboarding_state(), onboarding_state_exports));
+    const mgr = new OnboardingStateManager2(process.cwd());
+    const state = await mgr.load();
+    if (!state) {
+      throw new Error("Run step-0 first.");
+    }
+    if (opts.markComplete) {
+      await mgr.markStepStarted(state, 6);
+      await mgr.markStepCompleted(state, 6, { mode: "with-domain", scoredByAgent: true });
+      if (opts.json) {
+        console.log(JSON.stringify({ status: "completed", mode: "with-domain" }));
+      } else {
+        console.log("Step 6 marked as complete.");
+      }
+      return;
+    }
+    if (opts.responses) {
+      const { readFileSync: readFileSync6 } = await import("node:fs");
+      const { Scorer: Scorer2 } = await Promise.resolve().then(() => (init_scorer(), scorer_exports));
+      const { aggregateResults: aggregateResults2 } = await Promise.resolve().then(() => (init_aggregator(), aggregator_exports));
+      const { compareBaselines: compareBaselines2 } = await Promise.resolve().then(() => (init_comparator(), comparator_exports));
+      const responses = JSON.parse(readFileSync6((0, import_node_path8.resolve)(opts.responses), "utf-8"));
+      const scorer = new Scorer2();
+      const results = await Promise.all(
+        responses.map((r) => scorer.score(
+          { id: r.id, category: r.category, question: r.question, expectedTopics: [], difficulty: "medium", context: "" },
+          r.answer,
+          "with-domain"
+        ))
+      );
+      const execution = aggregateResults2(results, "with-domain", (/* @__PURE__ */ new Date()).toISOString());
+      const step3Output = state.steps[3]?.output;
+      const step4Output = state.steps[4]?.output;
+      let comparison;
+      if (step3Output?.execution && step4Output?.execution) {
+        comparison = compareBaselines2(step3Output.execution, step4Output.execution, execution);
+      }
+      await mgr.markStepStarted(state, 6);
+      await mgr.markStepCompleted(state, 6, { mode: "with-domain", execution, comparison });
+      if (opts.json) {
+        console.log(JSON.stringify({ execution: execution.summary, comparison: comparison?.answerQuality }, null, 2));
+      } else {
+        console.log(`Step 6: Scored ${execution.summary.totalTests} responses (with domain)`);
+        console.log(`  Average: ${execution.summary.averageScore}/20`);
+      }
+      return;
+    }
+    if (opts.json) {
+      console.log(JSON.stringify({
+        mode: "with-domain",
+        instructions: "Answer test questions USING ctx-cli MCP tools (with domain enrichment active). Save as JSON and re-run with --responses."
+      }, null, 2));
+    } else {
+      console.log("Step 6: Re-answer test questions with domain enrichment active.");
+      console.log("Use ctx-cli MCP tools and save answers, then: ctx-onboard step-6 --responses answers.json --json");
+    }
+  } catch (err) {
+    if (opts.json) {
+      console.error(JSON.stringify({ error: err instanceof Error ? err.message : String(err) }));
+    } else {
+      console.error(`Step 6 failed: ${err instanceof Error ? err.message : String(err)}`);
+    }
+    process.exit(1);
   }
 });
 program2.command("step-7").description("Generate phased rollout plan from measured improvements").option("--json", "Output as JSON").action(async (opts) => {

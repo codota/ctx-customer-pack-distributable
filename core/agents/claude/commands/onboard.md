@@ -151,23 +151,44 @@ Instead, poll with `--status` until it completes.
 
 ### Step 3: Baseline Without MCP
 
-Run the test cases without Context Engine tools to establish a baseline.
+This step is agent-driven. You (the agent) answer the test questions yourself, then submit answers for scoring.
 
+1. Get the test questions:
 ```bash
 ctx-onboard step-3 --json
 ```
+This returns the test cases. **Answer each question yourself WITHOUT using ctx-cli or any MCP tools.** Use only your training data.
 
-Scores responses on 4 dimensions (relevance, depth, actionability, accuracy), each 0-5.
+2. Save your answers as a JSON file (e.g. `.ctx-onboarding/step3-answers.json`):
+```json
+[
+  {"id": "tc-001", "category": "architecture", "question": "...", "answer": "your answer here"},
+  {"id": "tc-002", "category": "incident-response", "question": "...", "answer": "your answer here"}
+]
+```
+
+3. Submit for scoring:
+```bash
+ctx-onboard step-3 --responses .ctx-onboarding/step3-answers.json --json
+```
 
 ### Step 4: Baseline With MCP
 
-Run the same test cases with Context Engine MCP tools enabled. Compare against Step 3.
+Same as step 3, but this time **USE ctx-cli MCP tools** to answer.
 
+1. Get the test questions:
 ```bash
 ctx-onboard step-4 --json
 ```
 
-Produces a comparison report quantifying the value of Context Engine integration.
+2. Answer each question using `ctx-cli mcp call` tools (investigate_service, find_entities, etc.). Save answers the same way.
+
+3. Submit for scoring and comparison against step 3:
+```bash
+ctx-onboard step-4 --responses .ctx-onboarding/step4-answers.json --json
+```
+
+The comparison shows the improvement from using Context Engine tools.
 
 ### Step 5: Domain Enrichment (Optional)
 
