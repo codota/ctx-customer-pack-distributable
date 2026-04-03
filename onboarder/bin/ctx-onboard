@@ -19307,9 +19307,9 @@ var init_api_client = __esm({
             }
             record.errorCode = lastError.code ?? "NETWORK_ERROR";
             this.callLog.push(record);
-            throw catalogError("LOADER_NET_001", `${method} ${path}: ${lastError.message}`, {
+            throw catalogError("LOADER_NET_001", `${method} ${path}: ${lastError.message} (after ${attempt + 1} attempt${attempt > 0 ? "s" : ""})`, {
               cause: lastError,
-              details: { url, method, requestId }
+              details: { url, method, requestId, attempts: attempt + 1 }
             });
           }
         }
