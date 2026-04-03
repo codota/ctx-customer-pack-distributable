@@ -1,0 +1,7 @@
+---
+description: Walk through the complete 7-step Context Engine onboarding methodology. Validates setup, builds a testing lab, loads project data, measures baseline performance, enriches with domain context, and generates a rollout plan.
+
+alwaysApply: true
+---
+
+When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `onboard` skill for detailed commands.
