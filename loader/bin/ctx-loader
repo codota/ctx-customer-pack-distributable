@@ -19856,7 +19856,8 @@ var init_stage_machine = __esm({
       resolving_credential: ["resolving_datasource", "failed", "paused", "cancelled"],
       resolving_datasource: ["adding_to_workspace", "failed", "paused", "cancelled"],
       adding_to_workspace: ["awaiting_sync", "failed", "paused", "cancelled"],
-      awaiting_sync: ["running_agents", "failed", "paused", "cancelled"],
+      awaiting_sync: ["running_agents", "completed", "failed", "paused", "cancelled"],
+      // completed: when no agents configured
       running_agents: ["running_analysis", "completed", "failed", "paused", "cancelled"],
       running_analysis: ["validating", "completed", "failed", "paused", "cancelled"],
       validating: ["completed", "failed", "paused", "cancelled"],
