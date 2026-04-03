@@ -222,40 +222,54 @@ for pkg in $packages; do
   esac
 done
 
+# ── Post-install instructions ────────────────────────────────────
+
 echo ""
+
+# Detect shell rc file (used for both PATH and env var instructions)
+shell_name=$(basename "${SHELL:-/bin/bash}")
+case $shell_name in
+  zsh)  rc_file="${HOME}/.zshrc" ;;
+  bash)
+    if [ "$(uname -s)" = "Darwin" ]; then
+      rc_file="${HOME}/.bash_profile"
+    else
+      rc_file="${HOME}/.bashrc"
+    fi
+    ;;
+  fish) rc_file="${HOME}/.config/fish/config.fish" ;;
+  *)    rc_file="${HOME}/.profile" ;;
+esac
+
 if [[ "$packages" == *"loader"* || "$packages" == *"onboarder"* ]]; then
   abs_bin=$(cd "$BIN_DIR" 2>/dev/null && pwd || echo "$BIN_DIR")
 
-  # Detect shell rc file
-  shell_name=$(basename "${SHELL:-/bin/bash}")
-  case $shell_name in
-    zsh)  rc_file="${HOME}/.zshrc" ;;
-    bash)
-      if [ "$(uname -s)" = "Darwin" ]; then
-        rc_file="${HOME}/.bash_profile"
-      else
-        rc_file="${HOME}/.bashrc"
-      fi
-      ;;
-    fish) rc_file="${HOME}/.config/fish/config.fish" ;;
-    *)    rc_file="${HOME}/.profile" ;;
-  esac
-
   if [ "$shell_name" = "fish" ]; then
-    export_line="fish_add_path ${abs_bin}"
+    path_line="fish_add_path ${abs_bin}"
   else
-    export_line="export PATH=\"${abs_bin}:\$PATH\""
+    path_line="export PATH=\"${abs_bin}:\$PATH\""
   fi
 
   echo "CLIs installed to: ${abs_bin}"
   echo ""
   echo "If not already in your PATH, add it permanently:"
   echo ""
-  echo "  echo '${export_line}' >> ${rc_file} && source ${rc_file}"
+  echo "  echo '${path_line}' >> ${rc_file}"
   echo ""
   echo "Verify:"
   [[ "$packages" == *"loader"* ]] && echo "  ctx-loader --version"
   [[ "$packages" == *"onboarder"* ]] && echo "  ctx-onboard --version"
+  echo ""
+fi
+
+echo "To connect to the Context Engine, add to ${rc_file}:"
+echo ""
+if [ "$shell_name" = "fish" ]; then
+  echo "  set -Ux CTX_API_URL https://ctx.your-company.com"
+  echo "  set -Ux CTX_API_KEY ctx_your_key_here"
+else
+  echo "  export CTX_API_URL=https://ctx.your-company.com"
+  echo "  export CTX_API_KEY=ctx_your_key_here"
 fi
 echo ""
-echo "Set CTX_API_URL and CTX_API_KEY environment variables to connect."
+echo "Then run: source ${rc_file}"
