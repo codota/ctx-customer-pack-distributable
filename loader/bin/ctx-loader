@@ -20572,29 +20572,46 @@ program2.command("load").description("Execute full data load pipeline").option("
       mode: opts.mode,
       baseDir: process.cwd(),
       onProgress: /* @__PURE__ */ (() => {
-        const lastStatus = /* @__PURE__ */ new Map();
+        const lastPrinted = /* @__PURE__ */ new Map();
         return (run2) => {
           for (const [wsName, ws] of Object.entries(run2.workspaces)) {
             for (const [srcName, src] of Object.entries(ws.sources)) {
               const key = `${wsName}/${srcName}`;
-              const status = src.status;
-              if (status === lastStatus.get(key)) {
-                continue;
+              const agentCount = src.agentRuns.length;
+              const lastAgentName = agentCount > 0 ? src.agentRuns[agentCount - 1].agentName : "";
+              let line = "";
+              switch (src.status) {
+                case "resolving_credential":
+                  line = "Resolving credential...";
+                  break;
+                case "resolving_datasource":
+                  line = "Creating data source...";
+                  break;
+                case "adding_to_workspace":
+                  line = "Adding to workspace...";
+                  break;
+                case "awaiting_sync":
+                  line = "Syncing data (this may take a while)...";
+                  break;
+                case "running_agents":
+                  line = agentCount > 0 ? `Running agent ${agentCount}: ${lastAgentName}...` : "Starting agents...";
+                  break;
+                case "running_analysis":
+                  line = "Running analysis...";
+                  break;
+                case "validating":
+                  line = "Validating...";
+                  break;
+                case "completed":
+                  line = "Done.";
+                  break;
+                case "failed":
+                  line = `Failed: ${src.error?.slice(0, 100) ?? "unknown error"}`;
+                  break;
               }
-              lastStatus.set(key, status);
-              const label = {
-                resolving_credential: "Resolving credential...",
-                resolving_datasource: "Creating data source...",
-                adding_to_workspace: "Adding to workspace...",
-                awaiting_sync: "Syncing data (this may take a while)...",
-                running_agents: `Running agents (${src.agentRuns.length} started)...`,
-                running_analysis: "Running analysis...",
-                validating: "Validating...",
-                completed: "Done.",
-                failed: `Failed: ${src.error?.slice(0, 100) ?? "unknown error"}`
-              };
-              if (label[status]) {
-                process.stderr.write(`[${key}] ${label[status]}
+              if (line && line !== lastPrinted.get(key)) {
+                lastPrinted.set(key, line);
+                process.stderr.write(`[${key}] ${line}
 `);
               }
             }

@@ -115,15 +115,13 @@ Produces `test-plan.yaml` with 5-10 test cases covering architecture, incident r
 
 > "Step 2 has a previous attempt that [failed/is stale]. Would you like to:
 > 1. **Retry** — try loading again (the server will reuse the existing data source)
-> 2. **Reset and retry** — clean up local state and start fresh"
+> 2. **Reset step 2** — clean up the loader state and retry just this step"
 
-If the user chooses reset:
+If the user chooses reset, only clean the loader state (steps 0 and 1 are preserved):
 ```bash
-rm -rf .ctx-loader .ctx-onboarding
+rm -rf .ctx-loader
 ```
-Then re-run from step 0. The server-side data source will be reused automatically (lookup-then-create).
-
-Do NOT use `ctx-loader rollback` for reset — it requires the manifest to be re-parsed which may fail if env vars aren't set.
+Then re-run step 2 directly — no need to redo steps 0 and 1. The server-side data source will be reused automatically (lookup-then-create).
 
 **Loading data:**
 
@@ -206,9 +204,16 @@ Produces a rollout plan with phases (pilot → early adopters → GA), risk asse
 - **Path A (Quick evaluation)**: Steps 0–4, then Step 7
 - **Path B (Full evaluation)**: Steps 0–7 including domain enrichment
 
-## Start Over
+## Resetting
 
-To reset all local state and start fresh:
+**Reset just step 2** (keep steps 0-1):
+```bash
+rm -rf .ctx-loader
+```
+Then re-run `ctx-onboard step-2`.
+
+**Reset everything** (start from scratch):
 ```bash
 rm -rf .ctx-loader .ctx-onboarding
 ```
+Then re-run from step 0.
