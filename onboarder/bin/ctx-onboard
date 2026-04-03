@@ -19217,17 +19217,18 @@ var init_api_client = __esm({
         const resp = await this.get("/api/agent-kinds");
         return resp.data;
       }
-      // ─── Workspaces ─────────────────────────────────────────
+      // ─── Context Spaces (workspaces) ─────────────────────────
+      // The CTX API uses "context-spaces" not "workspaces".
       async listWorkspaces() {
-        const resp = await this.get("/api/workspaces");
+        const resp = await this.get("/api/context-spaces");
         return resp.data;
       }
       async createWorkspace(body) {
-        const resp = await this.post("/api/workspaces", body);
+        const resp = await this.post("/api/context-spaces", body);
         return resp.data;
       }
       async addDataSourceToWorkspace(workspaceId, dataSourceId) {
-        await this.post(`/api/workspaces/${workspaceId}/data-sources`, { dataSourceId });
+        await this.post(`/api/context-spaces/${workspaceId}/data-sources/${dataSourceId}`, {});
       }
       // ─── Health ─────────────────────────────────────────────
       async health() {
