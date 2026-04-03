@@ -19578,11 +19578,15 @@ async function executeStep0(options) {
   try {
     const health = await client.health();
     apiVersion = health.version;
-  } catch (err) {
-    throw catalogError("ONBOARD_CONN_001", `Cannot reach CTX server at ${options.ctxApiUrl}`, {
-      cause: err instanceof Error ? err : void 0,
-      details: { apiUrl: options.ctxApiUrl }
-    });
+  } catch {
+    try {
+      await client.listAgentKinds();
+    } catch (err) {
+      throw catalogError("ONBOARD_CONN_001", `Cannot reach CTX server at ${options.ctxApiUrl}`, {
+        cause: err instanceof Error ? err : void 0,
+        details: { apiUrl: options.ctxApiUrl }
+      });
+    }
   }
   let agentKinds = [];
   try {
