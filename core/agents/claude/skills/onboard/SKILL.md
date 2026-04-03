@@ -179,21 +179,36 @@ ctx-onboard step-3 --responses .ctx-onboarding/step3-answers.json --json
 
 ### Step 4: Baseline With MCP
 
-Same as step 3, but this time **USE ctx-cli MCP tools** to answer.
+Same as step 3, but this time **query the Context Engine** to answer.
 
 1. Get the test questions:
 ```bash
 ctx-onboard step-4 --json
 ```
 
-2. Answer each question using `ctx-cli mcp call` tools (investigate_service, find_entities, etc.). Save answers the same way.
+2. Answer each question by querying the Context Engine API. Read `CTX_API_URL` and `CTX_API_KEY` from `ctx-settings.yaml`. Use these curl patterns to get information:
 
-3. Submit for scoring and comparison against step 3:
+```bash
+# Search the knowledge graph
+curl -s -H "Authorization: Bearer $CTX_API_KEY" "$CTX_API_URL/api/search" \
+  -X POST -H "Content-Type: application/json" \
+  -d '{"query": "your search query", "limit": 10}'
+
+# List entities by type
+curl -s -H "Authorization: Bearer $CTX_API_KEY" "$CTX_API_URL/api/entities?types=Service&limit=20"
+
+# Search entities
+curl -s -H "Authorization: Bearer $CTX_API_KEY" "$CTX_API_URL/api/entities?search=typescript&limit=10"
+```
+
+Use the search results to build comprehensive answers. The key difference from step 3 is that you now have access to real project data from the knowledge graph.
+
+3. Save answers the same way and submit for scoring:
 ```bash
 ctx-onboard step-4 --responses .ctx-onboarding/step4-answers.json --json
 ```
 
-The comparison shows the improvement from using Context Engine tools.
+The comparison shows the improvement from using Context Engine data.
 
 ### Step 5: Domain Enrichment (Optional)
 
