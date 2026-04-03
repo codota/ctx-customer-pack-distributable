@@ -20104,15 +20104,15 @@ var init_orchestrator = __esm({
             state.status = transition(state.status, "running_agents");
             state.lastProgressAt = (/* @__PURE__ */ new Date()).toISOString();
             await this.checkpoint();
-            for (const agentName of agents) {
-              if (this.pauseController.shouldStop) {
-                return this.handlePause(state);
-              }
+            const agentTasks = agents.filter((agentName) => {
               const agentKindId = this.run.agentKindCache[agentName];
               if (!agentKindId) {
                 this.warnings.push(`Agent '${agentName}' not found \u2014 skipping`);
-                continue;
+                return false;
               }
+              return true;
+            }).map((agentName) => async () => {
+              const agentKindId = this.run.agentKindCache[agentName];
               const result = await runAgentWithContinuation(this.client, {
                 agentKindId,
                 agentName,
@@ -20123,7 +20123,8 @@ var init_orchestrator = __esm({
               state.agentRuns.push(result);
               state.lastProgressAt = (/* @__PURE__ */ new Date()).toISOString();
               await this.checkpoint();
-            }
+            });
+            await Promise.all(agentTasks.map((task) => task()));
           }
           state.status = transition(state.status, "completed");
           state.lastProgressAt = (/* @__PURE__ */ new Date()).toISOString();
