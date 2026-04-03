@@ -19937,6 +19937,11 @@ var init_orchestrator = __esm({
       get controller() {
         return this.pauseController;
       }
+      /** Checkpoint state and notify progress callback */
+      async checkpoint() {
+        await this.checkpoint();
+        this.options.onProgress?.(this.run);
+      }
       /**
        * Resume a previously paused/failed run from checkpoint.
        * Skips sources that already completed; retries failed ones.
@@ -19958,7 +19963,7 @@ var init_orchestrator = __esm({
             }
           }
         }
-        await this.checkpointStore.checkpoint(this.run);
+        await this.checkpoint();
         return this.runPipeline();
       }
       /**
@@ -19975,7 +19980,7 @@ var init_orchestrator = __esm({
             this.run.workspaces[wsName].sources[source.name] = createEmptySourceState();
           }
         }
-        await this.checkpointStore.checkpoint(this.run);
+        await this.checkpoint();
         return this.runPipeline();
       }
       /** Pre-resolved credential IDs — resolved once before parallel source processing */
@@ -19995,7 +20000,7 @@ var init_orchestrator = __esm({
           }
           this.run.status = this.pauseController.isCancelled ? "failed" : "paused";
           this.run.endedAt = (/* @__PURE__ */ new Date()).toISOString();
-          await this.checkpointStore.checkpoint(this.run);
+          await this.checkpoint();
           return { run: this.run, warnings: this.warnings };
         }
         await this.resolveAgentKinds(manifest);
@@ -20030,7 +20035,7 @@ var init_orchestrator = __esm({
           this.run.status = "failed";
         }
         this.run.endedAt = (/* @__PURE__ */ new Date()).toISOString();
-        await this.checkpointStore.checkpoint(this.run);
+        await this.checkpoint();
         for (const ws of Object.values(this.run.workspaces)) {
           for (const source of Object.values(ws.sources)) {
             source.apiCalls.push(...this.client.callLog);
@@ -20050,9 +20055,9 @@ var init_orchestrator = __esm({
           }
           state.status = transition(state.status, "resolving_credential");
           state.lastProgressAt = (/* @__PURE__ */ new Date()).toISOString();
-          await this.checkpointStore.checkpoint(this.run);
+          await this.checkpoint();
           state.credential = this.getResolvedCredential(sourceSpec.credential);
-          await this.checkpointStore.checkpoint(this.run);
+          await this.checkpoint();
           if (this.pauseController.shouldStop) {
             return this.handlePause(state);
           }
@@ -20064,7 +20069,7 @@ var init_orchestrator = __esm({
             state.credential.id,
             sourceSpec.config
           );
-          await this.checkpointStore.checkpoint(this.run);
+          await this.checkpoint();
           if (this.pauseController.shouldStop) {
             return this.handlePause(state);
           }
@@ -20073,7 +20078,7 @@ var init_orchestrator = __esm({
           const wsState = this.run.workspaces[wsName];
           if (!wsState.workspace) {
             wsState.workspace = this.resolvedWorkspaces.get(wsName);
-            await this.checkpointStore.checkpoint(this.run);
+            await this.checkpoint();
           }
           if (state.dataSource && wsState.workspace) {
             try {
@@ -20084,7 +20089,7 @@ var init_orchestrator = __esm({
           }
           state.status = transition(state.status, "awaiting_sync");
           state.syncStartedAt = (/* @__PURE__ */ new Date()).toISOString();
-          await this.checkpointStore.checkpoint(this.run);
+          await this.checkpoint();
           await this.awaitSync(state, defaults.syncTimeout ?? 3600);
           if (this.pauseController.shouldStop) {
             return this.handlePause(state);
@@ -20092,7 +20097,7 @@ var init_orchestrator = __esm({
           if (sourceSpec.agents && sourceSpec.agents.length > 0) {
             state.status = transition(state.status, "running_agents");
             state.lastProgressAt = (/* @__PURE__ */ new Date()).toISOString();
-            await this.checkpointStore.checkpoint(this.run);
+            await this.checkpoint();
             for (const agentName of sourceSpec.agents) {
               if (this.pauseController.shouldStop) {
                 return this.handlePause(state);
@@ -20111,17 +20116,17 @@ var init_orchestrator = __esm({
               });
               state.agentRuns.push(result);
               state.lastProgressAt = (/* @__PURE__ */ new Date()).toISOString();
-              await this.checkpointStore.checkpoint(this.run);
+              await this.checkpoint();
             }
           }
           state.status = transition(state.status, "completed");
           state.lastProgressAt = (/* @__PURE__ */ new Date()).toISOString();
-          await this.checkpointStore.checkpoint(this.run);
+          await this.checkpoint();
         } catch (err) {
           state.status = "failed";
           state.error = err instanceof Error ? err.message : String(err);
           state.errorCode = err instanceof Error && "code" in err ? err.code : void 0;
-          await this.checkpointStore.checkpoint(this.run);
+          await this.checkpoint();
         }
       }
       handlePause(state) {
@@ -20524,14 +20529,42 @@ program2.command("validate").description("Validate manifest (schema + CTX connec
 program2.command("load").description("Execute full data load pipeline").option("--manifest <path>", "Manifest file path", "ctx-loader.yaml").option("--mode <mode>", "Load mode", "full").option("--json", "Output as JSON").action(async (opts) => {
   try {
     const { manifest, fingerprint } = parseManifest((0, import_node_path4.resolve)(opts.manifest));
+    const isJson = opts.json;
     const orchestrator = new Orchestrator({
       manifest,
       manifestFingerprint: fingerprint,
       manifestPath: (0, import_node_path4.resolve)(opts.manifest),
       mode: opts.mode,
-      baseDir: process.cwd()
+      baseDir: process.cwd(),
+      onProgress: isJson ? void 0 : (run2) => {
+        for (const [wsName, ws] of Object.entries(run2.workspaces)) {
+          for (const [srcName, src] of Object.entries(ws.sources)) {
+            const status = src.status;
+            const label = {
+              resolving_credential: "Resolving credential...",
+              resolving_datasource: "Creating data source...",
+              adding_to_workspace: "Adding to workspace...",
+              awaiting_sync: "Syncing data (this may take a while)...",
+              running_agents: `Running agents (${src.agentRuns.length} started)...`,
+              running_analysis: "Running analysis...",
+              validating: "Validating...",
+              completed: "Done.",
+              failed: `Failed: ${src.error?.slice(0, 100) ?? "unknown error"}`
+            };
+            if (label[status]) {
+              process.stderr.write(`\r\x1B[K[${wsName}/${srcName}] ${label[status]}`);
+              if (status === "completed" || status === "failed") {
+                process.stderr.write("\n");
+              }
+            }
+          }
+        }
+      }
     });
     const { run, warnings } = await orchestrator.execute();
+    if (!isJson) {
+      process.stderr.write("\n");
+    }
     const sourceErrors = [];
     for (const [wsName, ws] of Object.entries(run.workspaces)) {
       for (const [srcName, src] of Object.entries(ws.sources)) {
