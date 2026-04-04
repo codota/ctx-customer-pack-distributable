@@ -35,17 +35,22 @@ def load_settings():
                     continue
                 key, _, value = line.partition(":")
                 key, value = key.strip(), value.strip()
-                if key and value and key not in os.environ:
+                if key and value and not os.environ.get(key):
                     os.environ[key] = value
     except Exception:
         pass
 
 
-load_settings()
-
-CTX_API_URL = os.environ.get("CTX_API_URL", "").rstrip("/")
-CTX_API_KEY = os.environ.get("CTX_API_KEY", "")
 TIMEOUT = 120  # seconds per request
+
+
+def get_credentials():
+    """Get credentials, re-reading ctx-settings.yaml each time (handles late creation)."""
+    load_settings()
+    return (
+        os.environ.get("CTX_API_URL", "").rstrip("/"),
+        os.environ.get("CTX_API_KEY", ""),
+    )
 
 session_id = None
 
@@ -54,18 +59,19 @@ def send_to_remote(payload: dict) -> str | None:
     """Send a JSON-RPC message to the remote MCP server."""
     global session_id
 
-    if not CTX_API_URL or not CTX_API_KEY:
+    api_url, api_key = get_credentials()
+    if not api_url or not api_key:
         return json.dumps({
             "jsonrpc": "2.0",
             "id": payload.get("id"),
-            "error": {"code": -32600, "message": "CTX_API_URL and CTX_API_KEY must be set"},
+            "error": {"code": -32600, "message": "CTX_API_URL and CTX_API_KEY must be set. Create ctx-settings.yaml with your credentials."},
         })
 
-    url = f"{CTX_API_URL}/mcp"
+    url = f"{api_url}/mcp"
     headers = {
         "Content-Type": "application/json",
         "Accept": "text/event-stream, application/json",
-        "Authorization": f"Bearer {CTX_API_KEY}",
+        "Authorization": f"Bearer {api_key}",
     }
     if session_id:
         headers["Mcp-Session-Id"] = session_id

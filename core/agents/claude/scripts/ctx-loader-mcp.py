@@ -29,13 +29,11 @@ def load_settings():
                     continue
                 key, _, value = line.partition(":")
                 key, value = key.strip(), value.strip()
-                if key and value and key not in os.environ:
+                if key and value and not os.environ.get(key):
                     os.environ[key] = value
     except Exception:
         pass
 
-
-load_settings()
 
 SERVER_NAME = "ctx-loader"
 SERVER_VERSION = "0.1.0"
@@ -159,6 +157,7 @@ TOOLS = [
 
 def run_cli(args: list[str], timeout: int = 120) -> dict:
     """Run ctx-loader with args and return parsed JSON output."""
+    load_settings()  # Re-read each time — ctx-settings.yaml may be created mid-session
     cmd = ["ctx-loader"] + args + ["--json"]
     try:
         result = subprocess.run(
