@@ -174,58 +174,55 @@ SETTINGS_EOF
       # Generate CLAUDE.md project guide
       echo "[core] Creating CLAUDE.md..."
       cat > CLAUDE.md <<'CLAUDE_EOF'
-# Tabnine Context Engine
+# Tabnine Context Engine — Fully Installed
 
-This project has the Tabnine Context Engine customer pack installed.
+Everything you need is already installed in THIS directory. Do NOT explore parent directories or search for packages elsewhere.
 
-## Getting Started
+## What's here
 
-Run `/onboard` to walk through the 7-step onboarding methodology. This will:
-1. Create `ctx-settings.yaml` with your credentials (MANDATORY first step)
-2. Validate connectivity
-3. Load project data
-4. Measure Context Engine value
+- `.claude/skills/` — 38+ skills (slash commands) for querying, onboarding, investigating services, etc.
+- `.claude/commands/` — Command documentation for all skills
+- `.claude/hooks/` — Pre-tool-use hooks for change confidence and decision context
+- `.claude/scripts/ctx-mcp-proxy.py` — MCP bridge to the Context Engine (already configured in settings.local.json)
+- `.claude/settings.local.json` — MCP server, hooks, and permissions (already configured)
 
-## Available Skills
+The MCP server `ctx-cloud` is configured and will connect to the Context Engine automatically once credentials are set.
 
-Use these slash commands to interact with the Context Engine:
+## How to use — follow these steps in order
 
-- `/ctx` — Query the knowledge graph (services, entities, blast radius, change confidence)
-- `/onboard` — Full onboarding workflow
-- `/investigate-service` — Deep-dive into a service
-- `/blast-radius` — Assess impact of a change
-- `/review-pr` — Review PRs with architectural context
-- `/search-knowledge` — Search the knowledge graph
-- `/incident-response` — Get incident response context
-- `/understand-flow` — Trace business flows end-to-end
+### Step 1: Create ctx-settings.yaml (if it doesn't exist)
 
-## Credentials
-
-All credentials are loaded from `ctx-settings.yaml` in this directory. Create it with:
+Check if `ctx-settings.yaml` exists in this directory. If not, create it:
 
 ```yaml
-CTX_API_URL: https://ctx.your-company.com
-CTX_API_KEY: ctx_your_key_here
-PROJECT_NAME: my-project
-GITHUB_ORG: your-org
-GITHUB_REPO: your-repo
+CTX_API_URL: <Context Engine URL>
+CTX_API_KEY: <your API key>
+PROJECT_NAME: <project name>
+GITHUB_ORG: <GitHub org or owner>
+GITHUB_REPO: <repo name>
 DATA_VOLUME: standard
-GH_PAT: ghp_your_token_here
+GH_PAT: <GitHub PAT>
 ```
 
-Or run `/onboard` and it will guide you through creating this file.
+This file is read automatically by all CLIs. No need to export environment variables.
 
-## MCP Tools
+### Step 2: Use the tools
 
-The Context Engine is connected via MCP. Tools like `mcp__ctx-cloud__search_knowledge`,
-`mcp__ctx-cloud__get_service`, `mcp__ctx-cloud__blast_radius`, etc. are available
-automatically when `ctx-settings.yaml` is configured.
+Once credentials are set, you can immediately use:
 
-## CLIs
+- **Slash commands**: `/ctx`, `/onboard`, `/investigate-service`, `/blast-radius`, `/review-pr`, `/search-knowledge`, `/incident-response`, `/understand-flow`, `/change-confidence-tools`, `/ownership-tools`, `/git-insights-tools`, `/architecture-tools`
+- **MCP tools** (available directly): `mcp__ctx-cloud__search_knowledge`, `mcp__ctx-cloud__query_entities`, `mcp__ctx-cloud__blast_radius`, `mcp__ctx-cloud__investigate_service`, `mcp__ctx-cloud__get_change_confidence`, and many more
+- **CLIs**: `ctx-loader` (data loading), `ctx-onboard` (onboarding methodology), `ctx-cli` (direct queries)
 
-- `ctx-loader` — Bulk data loading (init, load, status, resume, diagnose)
-- `ctx-onboard` — Onboarding methodology (step-0 through step-7)
-- `ctx-cli` — Direct Context Engine queries
+### Step 3: For onboarding a new project
+
+Run `/onboard` to walk through the 7-step methodology: validate connectivity, build test lab, load data, measure value, enrich domain, generate rollout plan.
+
+## Key rules
+
+- **Credentials**: Always from `ctx-settings.yaml` or environment variables. Never pass secrets as CLI arguments.
+- **No exploration needed**: All skills, tools, and configuration are in this directory. Do not search parent directories.
+- **Diagnosing failures**: If data loading fails, run `ctx-loader diagnose --json` for structured error output with remediation steps.
 CLAUDE_EOF
 
       echo "[core] Done: ${count} skills + ${count} commands + 2 hooks + MCP proxy + settings + CLAUDE.md."
