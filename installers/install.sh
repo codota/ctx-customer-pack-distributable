@@ -104,13 +104,12 @@ install_core() {
       skills=$(list_github_dir "core/agents/claude/skills")
       total=$(echo "$skills" | wc -w | tr -d ' ')
       echo "[core] Downloading ${total} skills for ${agent}..."
-      mkdir -p .claude/skills .claude/commands
+      mkdir -p .claude/skills
       for skill in $skills; do
         count=$((count + 1))
         printf "\r\033[K[core] %d/%d %s" "$count" "$total" "$skill"
         mkdir -p ".claude/skills/${skill}"
         fetch "${RAW_BASE}/core/agents/claude/skills/${skill}/SKILL.md" ".claude/skills/${skill}/SKILL.md" || true
-        fetch "${RAW_BASE}/core/agents/claude/commands/${skill}.md" ".claude/commands/${skill}.md" 2>/dev/null || true
       done
       echo ""
       echo "[core] Downloading hooks + MCP proxy..."
@@ -217,7 +216,7 @@ Invoke `/onboard`. It walks through: validate connectivity â†’ build test lab â†
 - Do not access parent directories or search for source repositories.
 CLAUDE_EOF
 
-      echo "[core] Done: ${count} skills + ${count} commands + 2 hooks + MCP proxy + settings + CLAUDE.md."
+      echo "[core] Done: ${count} skills + 2 hooks + MCP proxy + settings + CLAUDE.md."
       ;;
     cursor)
       skills=$(list_github_dir "core/agents/cursor/.cursor/skills")
