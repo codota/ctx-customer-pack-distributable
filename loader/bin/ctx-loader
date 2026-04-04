@@ -12777,7 +12777,7 @@ var require_thread_stream = __commonJS({
     var { version } = require_package();
     var { EventEmitter } = require("events");
     var { Worker } = require("worker_threads");
-    var { join: join5 } = require("path");
+    var { join: join6 } = require("path");
     var { pathToFileURL } = require("url");
     var { wait } = require_wait();
     var {
@@ -12813,7 +12813,7 @@ var require_thread_stream = __commonJS({
     function createWorker(stream, opts) {
       const { filename, workerData } = opts;
       const bundlerOverrides = "__bundlerPathsOverrides" in globalThis ? globalThis.__bundlerPathsOverrides : {};
-      const toExecute = bundlerOverrides["thread-stream-worker"] || join5(__dirname, "lib", "worker.js");
+      const toExecute = bundlerOverrides["thread-stream-worker"] || join6(__dirname, "lib", "worker.js");
       const worker = new Worker(toExecute, {
         ...opts.workerOpts,
         trackUnmanagedFds: false,
@@ -13199,7 +13199,7 @@ var require_transport = __commonJS({
     "use strict";
     var { createRequire } = require("module");
     var getCallers = require_caller();
-    var { join: join5, isAbsolute, sep } = require("node:path");
+    var { join: join6, isAbsolute, sep } = require("node:path");
     var sleep = require_atomic_sleep();
     var onExit = require_on_exit_leak_free();
     var ThreadStream = require_thread_stream();
@@ -13262,7 +13262,7 @@ var require_transport = __commonJS({
         throw new Error("only one of target or targets can be specified");
       }
       if (targets) {
-        target = bundlerOverrides["pino-worker"] || join5(__dirname, "worker.js");
+        target = bundlerOverrides["pino-worker"] || join6(__dirname, "worker.js");
         options.targets = targets.filter((dest) => dest.target).map((dest) => {
           return {
             ...dest,
@@ -13280,7 +13280,7 @@ var require_transport = __commonJS({
           });
         });
       } else if (pipeline) {
-        target = bundlerOverrides["pino-worker"] || join5(__dirname, "worker.js");
+        target = bundlerOverrides["pino-worker"] || join6(__dirname, "worker.js");
         options.pipelines = [pipeline.map((dest) => {
           return {
             ...dest,
@@ -13302,7 +13302,7 @@ var require_transport = __commonJS({
           return origin;
         }
         if (origin === "pino/file") {
-          return join5(__dirname, "..", "file.js");
+          return join6(__dirname, "..", "file.js");
         }
         let fixTarget2;
         for (const filePath of callers) {
@@ -14291,7 +14291,7 @@ var require_safe_stable_stringify = __commonJS({
               return circularValue;
             }
             let res = "";
-            let join5 = ",";
+            let join6 = ",";
             const originalIndentation = indentation;
             if (Array.isArray(value)) {
               if (value.length === 0) {
@@ -14305,7 +14305,7 @@ var require_safe_stable_stringify = __commonJS({
                 indentation += spacer;
                 res += `
 ${indentation}`;
-                join5 = `,
+                join6 = `,
 ${indentation}`;
               }
               const maximumValuesToStringify = Math.min(value.length, maximumBreadth);
@@ -14313,13 +14313,13 @@ ${indentation}`;
               for (; i < maximumValuesToStringify - 1; i++) {
                 const tmp2 = stringifyFnReplacer(String(i), value, stack, replacer, spacer, indentation);
                 res += tmp2 !== void 0 ? tmp2 : "null";
-                res += join5;
+                res += join6;
               }
               const tmp = stringifyFnReplacer(String(i), value, stack, replacer, spacer, indentation);
               res += tmp !== void 0 ? tmp : "null";
               if (value.length - 1 > maximumBreadth) {
                 const removedKeys = value.length - maximumBreadth - 1;
-                res += `${join5}"... ${getItemCount(removedKeys)} not stringified"`;
+                res += `${join6}"... ${getItemCount(removedKeys)} not stringified"`;
               }
               if (spacer !== "") {
                 res += `
@@ -14340,7 +14340,7 @@ ${originalIndentation}`;
             let separator = "";
             if (spacer !== "") {
               indentation += spacer;
-              join5 = `,
+              join6 = `,
 ${indentation}`;
               whitespace = " ";
             }
@@ -14354,13 +14354,13 @@ ${indentation}`;
               const tmp = stringifyFnReplacer(key2, value, stack, replacer, spacer, indentation);
               if (tmp !== void 0) {
                 res += `${separator}${strEscape(key2)}:${whitespace}${tmp}`;
-                separator = join5;
+                separator = join6;
               }
             }
             if (keyLength > maximumBreadth) {
               const removedKeys = keyLength - maximumBreadth;
               res += `${separator}"...":${whitespace}"${getItemCount(removedKeys)} not stringified"`;
-              separator = join5;
+              separator = join6;
             }
             if (spacer !== "" && separator.length > 1) {
               res = `
@@ -14401,7 +14401,7 @@ ${originalIndentation}`;
             }
             const originalIndentation = indentation;
             let res = "";
-            let join5 = ",";
+            let join6 = ",";
             if (Array.isArray(value)) {
               if (value.length === 0) {
                 return "[]";
@@ -14414,7 +14414,7 @@ ${originalIndentation}`;
                 indentation += spacer;
                 res += `
 ${indentation}`;
-                join5 = `,
+                join6 = `,
 ${indentation}`;
               }
               const maximumValuesToStringify = Math.min(value.length, maximumBreadth);
@@ -14422,13 +14422,13 @@ ${indentation}`;
               for (; i < maximumValuesToStringify - 1; i++) {
                 const tmp2 = stringifyArrayReplacer(String(i), value[i], stack, replacer, spacer, indentation);
                 res += tmp2 !== void 0 ? tmp2 : "null";
-                res += join5;
+                res += join6;
               }
               const tmp = stringifyArrayReplacer(String(i), value[i], stack, replacer, spacer, indentation);
               res += tmp !== void 0 ? tmp : "null";
               if (value.length - 1 > maximumBreadth) {
                 const removedKeys = value.length - maximumBreadth - 1;
-                res += `${join5}"... ${getItemCount(removedKeys)} not stringified"`;
+                res += `${join6}"... ${getItemCount(removedKeys)} not stringified"`;
               }
               if (spacer !== "") {
                 res += `
@@ -14441,7 +14441,7 @@ ${originalIndentation}`;
             let whitespace = "";
             if (spacer !== "") {
               indentation += spacer;
-              join5 = `,
+              join6 = `,
 ${indentation}`;
               whitespace = " ";
             }
@@ -14450,7 +14450,7 @@ ${indentation}`;
               const tmp = stringifyArrayReplacer(key2, value[key2], stack, replacer, spacer, indentation);
               if (tmp !== void 0) {
                 res += `${separator}${strEscape(key2)}:${whitespace}${tmp}`;
-                separator = join5;
+                separator = join6;
               }
             }
             if (spacer !== "" && separator.length > 1) {
@@ -14508,20 +14508,20 @@ ${originalIndentation}`;
               indentation += spacer;
               let res2 = `
 ${indentation}`;
-              const join6 = `,
+              const join7 = `,
 ${indentation}`;
               const maximumValuesToStringify = Math.min(value.length, maximumBreadth);
               let i = 0;
               for (; i < maximumValuesToStringify - 1; i++) {
                 const tmp2 = stringifyIndent(String(i), value[i], stack, spacer, indentation);
                 res2 += tmp2 !== void 0 ? tmp2 : "null";
-                res2 += join6;
+                res2 += join7;
               }
               const tmp = stringifyIndent(String(i), value[i], stack, spacer, indentation);
               res2 += tmp !== void 0 ? tmp : "null";
               if (value.length - 1 > maximumBreadth) {
                 const removedKeys = value.length - maximumBreadth - 1;
-                res2 += `${join6}"... ${getItemCount(removedKeys)} not stringified"`;
+                res2 += `${join7}"... ${getItemCount(removedKeys)} not stringified"`;
               }
               res2 += `
 ${originalIndentation}`;
@@ -14537,16 +14537,16 @@ ${originalIndentation}`;
               return '"[Object]"';
             }
             indentation += spacer;
-            const join5 = `,
+            const join6 = `,
 ${indentation}`;
             let res = "";
             let separator = "";
             let maximumPropertiesToStringify = Math.min(keyLength, maximumBreadth);
             if (isTypedArrayWithEntries(value)) {
-              res += stringifyTypedArray(value, join5, maximumBreadth);
+              res += stringifyTypedArray(value, join6, maximumBreadth);
               keys = keys.slice(value.length);
               maximumPropertiesToStringify -= value.length;
-              separator = join5;
+              separator = join6;
             }
             if (deterministic) {
               keys = sort(keys, comparator);
@@ -14557,13 +14557,13 @@ ${indentation}`;
               const tmp = stringifyIndent(key2, value[key2], stack, spacer, indentation);
               if (tmp !== void 0) {
                 res += `${separator}${strEscape(key2)}: ${tmp}`;
-                separator = join5;
+                separator = join6;
               }
             }
             if (keyLength > maximumBreadth) {
               const removedKeys = keyLength - maximumBreadth;
               res += `${separator}"...": "${getItemCount(removedKeys)} not stringified"`;
-              separator = join5;
+              separator = join6;
             }
             if (separator !== "") {
               res = `
@@ -19398,6 +19398,7 @@ var init_schema = __esm({
         maxContinuations: external_exports.number().int().min(0).optional(),
         sinceDays: external_exports.number().int().min(1).optional(),
         maxRetries: external_exports.number().int().min(0).optional(),
+        maxAgentRetries: external_exports.number().int().min(0).optional(),
         validateAfterLoad: external_exports.boolean().optional(),
         batchSize: external_exports.number().int().min(1).optional(),
         interBatchDelayMs: external_exports.number().int().min(0).optional()
@@ -19997,13 +19998,16 @@ async function runAgentWithContinuation(client, options) {
   });
   let currentRunId = runId;
   let continuations = 0;
+  let retryCount = 0;
   while (true) {
     const entry = {
       runId: currentRunId,
       status: "running",
       startedAt: (/* @__PURE__ */ new Date()).toISOString(),
       isContinuation: continuations > 0,
-      continuedFromRunId: continuations > 0 ? record.runs[record.runs.length - 1]?.runId : void 0
+      continuedFromRunId: continuations > 0 ? record.runs[record.runs.length - 1]?.runId : void 0,
+      isRetry: retryCount > 0 && continuations === 0,
+      retriedFromRunId: retryCount > 0 && continuations === 0 ? record.runs[record.runs.length - 1]?.runId : void 0
     };
     record.runs.push(entry);
     const result = await pollRunCompletion(client, currentRunId, options.pollIntervalMs, options.timeoutMs);
@@ -20019,8 +20023,21 @@ async function runAgentWithContinuation(client, options) {
       break;
     }
     if (result.status === "failed") {
+      if (retryCount < options.maxAgentRetries) {
+        retryCount++;
+        record.overallStatus = "retrying";
+        record.error = void 0;
+        const { id: retryRunId } = await client.createAgentRun({
+          agentKindId: options.agentKindId,
+          input: options.input,
+          workspaceId: options.workspaceId
+        });
+        currentRunId = retryRunId;
+        continuations = 0;
+        continue;
+      }
       record.overallStatus = "failed";
-      record.error = result.error ?? "Agent run failed";
+      record.error = result.error ?? `Agent run failed after ${retryCount} retry(ies)`;
       break;
     }
     if ((result.status === "timeout" || result.status === "budget_exceeded") && continuations < options.maxContinuations) {
@@ -20197,6 +20214,67 @@ var init_concurrency_pool = __esm({
           this.running++;
           next();
         }
+      }
+    };
+  }
+});
+
+// loader/src/progress/run-tracker.ts
+function formatRunStatus(run) {
+  const lines = [];
+  lines.push(`CTX Loader - Run ${run.id}`);
+  lines.push(`Status: ${run.status}`);
+  lines.push(`Started: ${run.startedAt}`);
+  if (run.endedAt) {
+    lines.push(`Ended: ${run.endedAt}`);
+  }
+  lines.push("");
+  for (const [wsName, ws] of Object.entries(run.workspaces)) {
+    lines.push(`== ${wsName} ==`);
+    lines.push("");
+    for (const [srcName, src] of Object.entries(ws.sources)) {
+      lines.push(`  [${srcName}] ${src.status}`);
+      const allRuns = [...src.agentRuns, ...src.analysisRuns];
+      for (const agentRun of allRuns) {
+        const latestEntry = agentRun.runs[agentRun.runs.length - 1];
+        const retryCount = agentRun.runs.filter((r) => r.isRetry).length;
+        let detail = "";
+        if (latestEntry) {
+          detail += `(run ${latestEntry.runId.slice(0, 8)}`;
+          if (retryCount > 0) {
+            detail += `, retry ${retryCount}`;
+          }
+          if (agentRun.error) {
+            detail += `, error: ${agentRun.error.slice(0, 60)}`;
+          }
+          detail += ")";
+        }
+        const name = agentRun.agentName.padEnd(30);
+        const status = agentRun.overallStatus.padEnd(12);
+        lines.push(`    ${name} ${status} ${detail}`.trimEnd());
+      }
+    }
+    lines.push("");
+  }
+  lines.push(`Updated: ${(/* @__PURE__ */ new Date()).toISOString()}`);
+  return lines.join("\n") + "\n";
+}
+var import_node_fs6, import_node_path4, RunTracker;
+var init_run_tracker = __esm({
+  "loader/src/progress/run-tracker.ts"() {
+    "use strict";
+    import_node_fs6 = require("node:fs");
+    import_node_path4 = require("node:path");
+    RunTracker = class {
+      filePath;
+      constructor(baseDir) {
+        const dir = (0, import_node_path4.join)(baseDir, ".ctx-loader");
+        (0, import_node_fs6.mkdirSync)(dir, { recursive: true });
+        this.filePath = (0, import_node_path4.join)(dir, "run-status.txt");
+      }
+      update(run) {
+        const content = formatRunStatus(run);
+        (0, import_node_fs6.writeFileSync)(this.filePath, content, { mode: 420 });
       }
     };
   }
@@ -20436,12 +20514,12 @@ function getAgentsForSource(sourceSpec) {
   }
   return DEFAULT_AGENTS[sourceSpec.type] ?? [];
 }
-var import_node_crypto4, import_node_path4, log, Orchestrator, DEFAULT_AGENTS;
+var import_node_crypto4, import_node_path5, log, Orchestrator, DEFAULT_AGENTS;
 var init_orchestrator = __esm({
   "loader/src/pipeline/orchestrator.ts"() {
     "use strict";
     import_node_crypto4 = require("node:crypto");
-    import_node_path4 = require("node:path");
+    import_node_path5 = require("node:path");
     init_dist();
     init_types2();
     init_checkpoint();
@@ -20449,6 +20527,7 @@ var init_orchestrator = __esm({
     init_agent_runner();
     init_pause_controller();
     init_concurrency_pool();
+    init_run_tracker();
     init_stage_machine();
     init_dependency_resolver();
     log = createLogger({ name: "orchestrator" });
@@ -20456,7 +20535,8 @@ var init_orchestrator = __esm({
       constructor(options) {
         this.options = options;
         this.checkpointStore = new CheckpointStore(options.baseDir);
-        this.pauseController = new PauseController((0, import_node_path4.join)(options.baseDir, ".ctx-loader"));
+        this.pauseController = new PauseController((0, import_node_path5.join)(options.baseDir, ".ctx-loader"));
+        this.runTracker = new RunTracker(options.baseDir);
         this.client = new CtxApiClient({
           apiUrl: options.manifest.ctx.apiUrl,
           apiKey: options.manifest.ctx.apiKey,
@@ -20468,15 +20548,17 @@ var init_orchestrator = __esm({
       options;
       checkpointStore;
       pauseController;
+      runTracker;
       client;
       run;
       warnings = [];
       get controller() {
         return this.pauseController;
       }
-      /** Checkpoint state and notify progress callback */
+      /** Checkpoint state, update tracker file, and notify progress callback */
       async checkpoint() {
         await this.checkpointStore.checkpoint(this.run);
+        this.runTracker.update(this.run);
         this.options.onProgress?.(this.run);
       }
       /**
@@ -20682,6 +20764,7 @@ var init_orchestrator = __esm({
                   workspaceId,
                   pollIntervalMs: (defaults.pollInterval ?? 30) * 1e3,
                   maxContinuations: defaults.maxContinuations ?? 3,
+                  maxAgentRetries: defaults.maxAgentRetries ?? 1,
                   timeoutMs: (defaults.agentTimeout ?? 1800) * 1e3
                 });
                 state.agentRuns.push(result);
@@ -20893,7 +20976,8 @@ function summarizeRun(run) {
         agents: src.agentRuns.map((a) => ({
           name: a.agentName,
           status: a.overallStatus,
-          runCount: a.runs.length
+          runCount: a.runs.length,
+          retryCount: a.runs.filter((r) => r.isRetry).length
         }))
       });
     }
@@ -21103,7 +21187,7 @@ var {
 } = import_index.default;
 
 // loader/src/cli.ts
-var import_node_path5 = require("node:path");
+var import_node_path6 = require("node:path");
 var import_node_readline = require("node:readline");
 init_dist();
 init_parser();
@@ -21128,16 +21212,16 @@ var program2 = new Command();
 program2.name("ctx-loader").description("Bulk data loader for Context Engine").version("0.1.0").option("--api-url <url>", "CTX API URL (or set CTX_API_URL)");
 program2.command("init").description("Generate a manifest from a template").option("--template <name>", "Template name (minimal, github-jira-slack, gitlab-linear-pagerduty)", "minimal").option("--output <path>", "Output file path", "ctx-loader.yaml").option("--set <pairs...>", "Set template variables (e.g. --set GITHUB_ORG=microsoft GITHUB_REPO=TypeScript)").option("--owner <org>", "GitHub org/owner (shorthand for --set GITHUB_ORG=<org>)").option("--repo <name>", "GitHub repo name (shorthand for --set GITHUB_REPO=<name>)").option("--resolve", "Also resolve env vars and ctx-settings.yaml values in the template").option("--json", "Output as JSON").action(async (opts) => {
   try {
-    const { readFileSync: readFS, writeFileSync: writeFileSync2, existsSync: existsSync4 } = await import("node:fs");
-    const { dirname, join: join5 } = await import("node:path");
+    const { readFileSync: readFS, writeFileSync: writeFileSync3, existsSync: existsSync4 } = await import("node:fs");
+    const { dirname, join: join6 } = await import("node:path");
     const { interpolateEnv: interpolateEnv2 } = await Promise.resolve().then(() => (init_dist(), dist_exports));
     const templateName = opts.template.endsWith(".yaml") ? opts.template : `${opts.template}.yaml`;
     const binDir = dirname(process.argv[1] || ".");
     const candidates = [
       // Bundled with the CLI (distributable layout: loader/bin/ctx-loader → loader/templates/)
-      join5(binDir, "..", "templates", templateName),
+      join6(binDir, "..", "templates", templateName),
       // Relative to cwd
-      join5(process.cwd(), "templates", templateName)
+      join6(process.cwd(), "templates", templateName)
     ];
     let templateContent = null;
     for (const candidate of candidates) {
@@ -21206,8 +21290,8 @@ workspaces:
         });
       }
     }
-    const outputPath = (0, import_node_path5.resolve)(opts.output);
-    writeFileSync2(outputPath, templateContent, "utf-8");
+    const outputPath = (0, import_node_path6.resolve)(opts.output);
+    writeFileSync3(outputPath, templateContent, "utf-8");
     if (opts.json) {
       console.log(JSON.stringify({ template: opts.template, output: outputPath }));
     } else {
@@ -21226,7 +21310,7 @@ workspaces:
 });
 program2.command("validate").description("Validate manifest (schema + CTX connectivity)").option("--manifest <path>", "Manifest file path", "ctx-loader.yaml").option("--json", "Output as JSON").action(async (opts) => {
   try {
-    const { manifest, fingerprint } = parseManifest((0, import_node_path5.resolve)(opts.manifest));
+    const { manifest, fingerprint } = parseManifest((0, import_node_path6.resolve)(opts.manifest));
     const sources = Object.values(manifest.workspaces).flatMap((ws) => ws.sources);
     const result = {
       valid: true,
@@ -21262,12 +21346,12 @@ program2.command("validate").description("Validate manifest (schema + CTX connec
 });
 program2.command("load").description("Execute full data load pipeline").option("--manifest <path>", "Manifest file path", "ctx-loader.yaml").option("--mode <mode>", "Load mode", "full").option("--json", "Output as JSON").action(async (opts) => {
   try {
-    const { manifest, fingerprint } = parseManifest((0, import_node_path5.resolve)(opts.manifest));
+    const { manifest, fingerprint } = parseManifest((0, import_node_path6.resolve)(opts.manifest));
     const isJson = opts.json;
     const orchestrator = new Orchestrator({
       manifest,
       manifestFingerprint: fingerprint,
-      manifestPath: (0, import_node_path5.resolve)(opts.manifest),
+      manifestPath: (0, import_node_path6.resolve)(opts.manifest),
       mode: opts.mode,
       baseDir: process.cwd(),
       onProgress: /* @__PURE__ */ (() => {
@@ -21423,13 +21507,13 @@ program2.command("resume").description("Resume from last checkpoint").option("--
       return;
     }
     const { parseManifest: parseManifest2 } = await Promise.resolve().then(() => (init_parser(), parser_exports));
-    const { manifest, fingerprint } = parseManifest2((0, import_node_path5.resolve)(opts.manifest));
+    const { manifest, fingerprint } = parseManifest2((0, import_node_path6.resolve)(opts.manifest));
     store.validateFingerprint(run, fingerprint);
     const { Orchestrator: Orchestrator2 } = await Promise.resolve().then(() => (init_orchestrator(), orchestrator_exports));
     const orchestrator = new Orchestrator2({
       manifest,
       manifestFingerprint: fingerprint,
-      manifestPath: (0, import_node_path5.resolve)(opts.manifest),
+      manifestPath: (0, import_node_path6.resolve)(opts.manifest),
       mode: run.mode,
       baseDir: process.cwd()
     });
@@ -21455,11 +21539,11 @@ program2.command("resume").description("Resume from last checkpoint").option("--
   }
 });
 program2.command("pause").description("Cooperative pause (takes effect at next stage boundary)").option("--json", "Output as JSON").action(async (opts) => {
-  const { writeFileSync: writeFileSync2, mkdirSync: mkdirSync3 } = await import("node:fs");
-  const { join: join5 } = await import("node:path");
-  const signalDir = join5(process.cwd(), ".ctx-loader");
-  mkdirSync3(signalDir, { recursive: true });
-  writeFileSync2(join5(signalDir, "pause-signal"), "", { mode: 384 });
+  const { writeFileSync: writeFileSync3, mkdirSync: mkdirSync4 } = await import("node:fs");
+  const { join: join6 } = await import("node:path");
+  const signalDir = join6(process.cwd(), ".ctx-loader");
+  mkdirSync4(signalDir, { recursive: true });
+  writeFileSync3(join6(signalDir, "pause-signal"), "", { mode: 384 });
   if (opts.json) {
     console.log(JSON.stringify({ status: "pause_signalled" }));
   } else {
@@ -21467,11 +21551,11 @@ program2.command("pause").description("Cooperative pause (takes effect at next s
   }
 });
 program2.command("cancel").description("Cooperative cancel (takes effect at next stage boundary)").option("--json", "Output as JSON").action(async (opts) => {
-  const { writeFileSync: writeFileSync2, mkdirSync: mkdirSync3 } = await import("node:fs");
-  const { join: join5 } = await import("node:path");
-  const signalDir = join5(process.cwd(), ".ctx-loader");
-  mkdirSync3(signalDir, { recursive: true });
-  writeFileSync2(join5(signalDir, "cancel-signal"), "", { mode: 384 });
+  const { writeFileSync: writeFileSync3, mkdirSync: mkdirSync4 } = await import("node:fs");
+  const { join: join6 } = await import("node:path");
+  const signalDir = join6(process.cwd(), ".ctx-loader");
+  mkdirSync4(signalDir, { recursive: true });
+  writeFileSync3(join6(signalDir, "cancel-signal"), "", { mode: 384 });
   if (opts.json) {
     console.log(JSON.stringify({ status: "cancel_signalled" }));
   } else {
@@ -21496,7 +21580,7 @@ program2.command("rollback").description("Rollback resources created by the last
       process.exit(1);
       return;
     }
-    const { manifest } = parseManifest2((0, import_node_path5.resolve)(opts.manifest));
+    const { manifest } = parseManifest2((0, import_node_path6.resolve)(opts.manifest));
     const client = new CtxApiClient2({
       apiUrl: manifest.ctx.apiUrl,
       apiKey: manifest.ctx.apiKey
@@ -21676,7 +21760,7 @@ program2.command("diagnose").description("Diagnose failures in the latest load r
 program2.command("collect-logs").description("Package debug bundle for support (client-side traces only)").option("--json", "Output as JSON").action(async (opts) => {
   try {
     const { existsSync: existsSync4, readFileSync: readFS } = await import("node:fs");
-    const { join: join5 } = await import("node:path");
+    const { join: join6 } = await import("node:path");
     const { CheckpointStore: CheckpointStore2 } = await Promise.resolve().then(() => (init_checkpoint(), checkpoint_exports));
     const cwd = process.cwd();
     const bundle = { collectedAt: (/* @__PURE__ */ new Date()).toISOString() };
@@ -21685,7 +21769,7 @@ program2.command("collect-logs").description("Package debug bundle for support (
     if (latestRun) {
       bundle.checkpoint = latestRun;
     }
-    const onboardStatePath = join5(cwd, ".ctx-onboarding", "state.json");
+    const onboardStatePath = join6(cwd, ".ctx-onboarding", "state.json");
     if (existsSync4(onboardStatePath)) {
       try {
         bundle.onboardingState = JSON.parse(readFS(onboardStatePath, "utf-8"));
@@ -21693,7 +21777,7 @@ program2.command("collect-logs").description("Package debug bundle for support (
         bundle.onboardingState = { error: "Failed to parse state.json" };
       }
     }
-    const logPath = join5(cwd, ".ctx-onboarding", "loader-output.log");
+    const logPath = join6(cwd, ".ctx-onboarding", "loader-output.log");
     if (existsSync4(logPath)) {
       try {
         const fullLog = readFS(logPath, "utf-8");

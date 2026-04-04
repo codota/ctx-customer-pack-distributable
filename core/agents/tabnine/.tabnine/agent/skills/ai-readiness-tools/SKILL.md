@@ -17,9 +17,7 @@ mcp-tools:
 
 Get the historical AI Readiness snapshots for a repository. Returns all snapshots ordered by date, allowing you to track improvements over time.
 
-```bash
-ctx-cli mcp call get_ai_readiness_history  -o json
-```
+Call `mcp__ctx-cloud__get_ai_readiness_history` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -31,9 +29,7 @@ ctx-cli mcp call get_ai_readiness_history  -o json
 
 Get the latest AI Readiness snapshot for a repository. Returns the overall score, grade, dimension scores, and recommendations. Run the ai-readiness-analyzer agent first to populate this data.
 
-```bash
-ctx-cli mcp call get_ai_readiness  -o json
-```
+Call `mcp__ctx-cloud__get_ai_readiness` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|

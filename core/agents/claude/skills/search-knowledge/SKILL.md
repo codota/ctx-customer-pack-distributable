@@ -1,7 +1,7 @@
 ---
 name: search-knowledge
 description: 'Search the knowledge graph for entities, documentation, and patterns.'
-allowed-tools: 'Bash(ctx-cli:*)'
+allowed-tools: 'mcp__ctx-cloud__search_knowledge, mcp__ctx-cloud__find_entities'
 ---
 # Search Knowledge
 

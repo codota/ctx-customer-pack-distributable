@@ -1,7 +1,7 @@
 ---
 name: slack-tools
 description: 'Slack tools: post_slack_message, update_slack_message'
-allowed-tools: 'Bash(ctx-cli:*)'
+allowed-tools: 'mcp__ctx-cloud__post_slack_message, mcp__ctx-cloud__update_slack_message'
 ---
 # Slack Tools
 
@@ -11,9 +11,7 @@ allowed-tools: 'Bash(ctx-cli:*)'
 
 Post a message to a Slack channel. Requires a connected and enabled Slack data source. Uses the Slack chat.postMessage API. Supports threading via thread_ts parameter.
 
-```bash
-ctx-cli mcp call post_slack_message -p channel=<string> -p text=<string> -o json
-```
+Call `mcp__ctx-cloud__post_slack_message` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -25,9 +23,7 @@ ctx-cli mcp call post_slack_message -p channel=<string> -p text=<string> -o json
 
 Update an existing Slack message. Requires a connected and enabled Slack data source. Uses the Slack chat.update API.
 
-```bash
-ctx-cli mcp call update_slack_message -p channel=<string> -p ts=<string> -p text=<string> -o json
-```
+Call `mcp__ctx-cloud__update_slack_message` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|

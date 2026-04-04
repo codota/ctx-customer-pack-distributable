@@ -10,9 +10,7 @@ Get comprehensive context for a service combining multiple data sources. Returns
 PREFER: Use 'investigate_service' for the most comprehensive service analysis including all context plus documentation and flow participation in one call.
 USE THIS WHEN: You need a quick service overview without the full documentation and flow context, or when profiling multiple services.
 
-```bash
-ctx-cli mcp call get_service_context -p serviceName=<string> -o json
-```
+Call `mcp__ctx-cloud__get_service_context` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -24,9 +22,7 @@ Get all dependencies of a service - what it depends on. Shows services it calls 
 PREFER: Use 'investigate_service' for comprehensive view including dependencies, dependents, documentation, and flows in one call.
 USE THIS WHEN: You need only the outbound dependencies (what this service relies on), not the full service context.
 
-```bash
-ctx-cli mcp call get_service_dependencies -p serviceName=<string> -o json
-```
+Call `mcp__ctx-cloud__get_service_dependencies` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -39,9 +35,7 @@ Get all dependents of a service - what depends on it. Shows services that call i
 PREFER: Use 'blast_radius' for complete impact analysis including transitive dependents, affected flows, and teams to notify. Use 'investigate_service' if you also need the service's own dependencies.
 USE THIS WHEN: You need only the inbound dependents (what calls this service), not the full impact analysis.
 
-```bash
-ctx-cli mcp call get_service_dependents -p serviceName=<string> -o json
-```
+Call `mcp__ctx-cloud__get_service_dependents` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -54,9 +48,7 @@ Get detailed information about a specific service including all its relationship
 PREFER: Use 'investigate_service' for comprehensive analysis that also includes documentation, business flows, and architectural context in a single call.
 USE THIS WHEN: You need just the basic service info and relationships without the full investigation context, or when building custom queries.
 
-```bash
-ctx-cli mcp call get_service -p serviceName=<string> -o json
-```
+Call `mcp__ctx-cloud__get_service` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -66,9 +58,7 @@ ctx-cli mcp call get_service -p serviceName=<string> -o json
 
 List all services in the knowledge graph with their metadata. Returns service name, team, tier, language, framework, and purpose. Use this to get an overview of all services or filter by team/tier/language.
 
-```bash
-ctx-cli mcp call list_services  -o json
-```
+Call `mcp__ctx-cloud__list_services` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|

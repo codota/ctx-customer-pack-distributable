@@ -8,9 +8,7 @@ _builtin tools: get_coding_guidelines, get_cve_resolution_status, query_entities
 
 Retrieve coding guidelines and best practices from the knowledge base. Use this tool to get team-specific guidelines for code review and development standards.
 
-```bash
-ctx-cli mcp call get_coding_guidelines  -o json
-```
+Call `mcp__ctx-cloud__get_coding_guidelines` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -23,9 +21,7 @@ ctx-cli mcp call get_coding_guidelines  -o json
 
 Query CVE resolution status across repositories. Returns CVEResolution entities showing how each CVE was resolved (VEX attestation, auto-fix PR, or human escalation) along with the current status and resolution artifacts.
 
-```bash
-ctx-cli mcp call get_cve_resolution_status -p cveId=<string> -o json
-```
+Call `mcp__ctx-cloud__get_cve_resolution_status` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -38,9 +34,7 @@ ctx-cli mcp call get_cve_resolution_status -p cveId=<string> -o json
 
 Query the knowledge graph for entities and their relationships using Cypher. Returns entities matching the specified type and optional filters.
 
-```bash
-ctx-cli mcp call query_entities -p entityType=<string> -o json
-```
+Call `mcp__ctx-cloud__query_entities` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -52,9 +46,7 @@ ctx-cli mcp call query_entities -p entityType=<string> -o json
 
 Query extracted code symbols from repositories. Returns interfaces, structs, classes, functions, and their fields/properties extracted via LSP analysis. Use this to discover configuration APIs, type definitions, and code structure across multiple repositories in a workspace.
 
-```bash
-ctx-cli mcp call query_symbols  -o json
-```
+Call `mcp__ctx-cloud__query_symbols` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -68,9 +60,7 @@ ctx-cli mcp call query_symbols  -o json
 
 Search the knowledge graph for entities and information using semantic similarity. Use this tool to find relevant context, code patterns, documentation, or any other knowledge stored in the system.
 
-```bash
-ctx-cli mcp call search_knowledge -p query=<string> -o json
-```
+Call `mcp__ctx-cloud__search_knowledge` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -83,9 +73,7 @@ ctx-cli mcp call search_knowledge -p query=<string> -o json
 
 Search for organizational skills learned from past successful agent runs. Skills are reusable patterns that describe how to accomplish specific tasks. Use this tool at the start of a task to find relevant approaches and best practices that have worked for similar tasks in the past.
 
-```bash
-ctx-cli mcp call search_skills -p query=<string> -o json
-```
+Call `mcp__ctx-cloud__search_skills` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|

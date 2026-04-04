@@ -1,7 +1,9 @@
 ---
 name: jira-tools
 description: 'Manage Jira issues — get, create, transition, and comment on issues.'
-allowed-tools: 'Bash(ctx-cli:*)'
+allowed-tools: >-
+  mcp__ctx-cloud__get_jira_issue, mcp__ctx-cloud__create_jira_issue,
+  mcp__ctx-cloud__transition_jira_issue, mcp__ctx-cloud__add_jira_comment
 ---
 # Jira Tools
 
@@ -9,39 +11,20 @@ Interact with Jira from the command line via the Context Engine MCP integration.
 
 ## Get an Issue
 
-```bash
-ctx-cli mcp call get_jira_issue -p issue_key=PAY-1234 --raw
-```
+Call `mcp__ctx-cloud__get_jira_issue` with issue_key=PAY-1234.
 
 ## Create an Issue
 
-```bash
-ctx-cli mcp call create_jira_issue \
-  -p project_key=PAY \
-  -p summary="Fix timeout in payment retry logic" \
-  -p description="The retry loop does not respect the configured backoff interval." \
-  -p issue_type=Bug \
-  --raw
-```
+Call `mcp__ctx-cloud__create_jira_issue`.
 
 ## Transition an Issue
 
-```bash
-# Move an issue to "In Progress"
-ctx-cli mcp call transition_jira_issue -p issue_key=PAY-1234 -p transition="In Progress" --raw
-
-# Close an issue
-ctx-cli mcp call transition_jira_issue -p issue_key=PAY-1234 -p transition="Done" --raw
-```
+- **Move an issue to "In Progress"**: Call `mcp__ctx-cloud__transition_jira_issue` with issue_key=PAY-1234, transition="In Progress".
+- **Close an issue**: Call `mcp__ctx-cloud__transition_jira_issue` with issue_key=PAY-1234, transition="Done".
 
 ## Add a Comment
 
-```bash
-ctx-cli mcp call add_jira_comment \
-  -p issue_key=PAY-1234 \
-  -p comment="Root cause identified: missing null check in retry handler. Fix in PR #892." \
-  --raw
-```
+Call `mcp__ctx-cloud__add_jira_comment`.
 
 ## When to Use
 

@@ -3,7 +3,7 @@ name: investigate-service
 description: >-
   Deep-dive investigation of a service — dependencies, dependents, ownership,
   ADRs, incidents.
-allowed-tools: 'Bash(ctx-cli:*)'
+allowed-tools: mcp__ctx-cloud__investigate_service
 ---
 # Investigate Service
 
@@ -11,9 +11,8 @@ Deep-dive into any service registered in the Context Engine to understand its ar
 
 ## Usage
 
-```bash
-# Full investigation of a service
-ctx-cli mcp call investigate_service --raw -p service_name=payments-api```
+**Full investigation of a service**
+Call `mcp__ctx-cloud__investigate_service` with service_name=payments-api.
 
 The response includes:
 - **Dependencies** — upstream services this service calls.
@@ -24,13 +23,12 @@ The response includes:
 
 ## Examples
 
-```bash
-# Investigate before making changes
-ctx-cli mcp call investigate_service --raw -p service_name=user-auth
-# Pipe to jq to extract just dependencies
-ctx-cli mcp call investigate_service --raw -p service_name=order-service -o json
-# Get ownership info for an unfamiliar service
-ctx-cli mcp call investigate_service --raw -p service_name=notification-gateway -o json```
+**Investigate before making changes**
+Call `mcp__ctx-cloud__investigate_service` with service_name=user-auth.
+**Pipe to jq to extract just dependencies**
+Call `mcp__ctx-cloud__investigate_service` with service_name=order-service.
+**Get ownership info for an unfamiliar service**
+Call `mcp__ctx-cloud__investigate_service` with service_name=notification-gateway.
 
 ## When to Use
 

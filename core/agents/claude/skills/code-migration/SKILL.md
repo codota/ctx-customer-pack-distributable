@@ -3,7 +3,7 @@ name: code-migration
 description: >-
   Plan and execute code migrations — find equivalent fields, get migration
   examples.
-allowed-tools: 'Bash(ctx-cli:*)'
+allowed-tools: mcp__ctx-cloud__code_migration
 ---
 # Code Migration
 
@@ -11,10 +11,8 @@ Plan and execute code migrations with Context Engine guidance. Find equivalent f
 
 ## Usage
 
-```bash
-# Get migration guidance for a service
-ctx-cli mcp call code_migration -p service_name=payments-api --raw
-```
+**Get migration guidance for a service**
+Call `mcp__ctx-cloud__code_migration` with service_name=payments-api.
 
 The response includes:
 - **Field mappings** — equivalent fields between old and new schemas.
@@ -24,16 +22,12 @@ The response includes:
 
 ## Examples
 
-```bash
-# Find field mappings for a schema migration
-ctx-cli mcp call code_migration -p service_name=order-service -p source_version=v1 -p target_version=v2 --raw
-
-# Get migration guidance for user-service
-ctx-cli mcp call code_migration -p service_name=user-service --raw
-
-# Get migration guidance for inventory-api
-ctx-cli mcp call code_migration -p service_name=inventory-api --raw
-```
+**Find field mappings for a schema migration**
+Call `mcp__ctx-cloud__code_migration` with service_name=order-service, source_version=v1, target_version=v2.
+**Get migration guidance for user-service**
+Call `mcp__ctx-cloud__code_migration` with service_name=user-service.
+**Get migration guidance for inventory-api**
+Call `mcp__ctx-cloud__code_migration` with service_name=inventory-api.
 
 ## When to Use
 

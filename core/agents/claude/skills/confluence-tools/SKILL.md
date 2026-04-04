@@ -3,7 +3,11 @@ name: confluence-tools
 description: >-
   Confluence tools: add_confluence_comment, create_confluence_page,
   get_confluence_page, search_confluence_pages, update_confluence_page
-allowed-tools: 'Bash(ctx-cli:*)'
+allowed-tools: >-
+  mcp__ctx-cloud__add_confluence_comment,
+  mcp__ctx-cloud__create_confluence_page, mcp__ctx-cloud__get_confluence_page,
+  mcp__ctx-cloud__search_confluence_pages,
+  mcp__ctx-cloud__update_confluence_page
 ---
 # Confluence Tools
 
@@ -13,9 +17,7 @@ allowed-tools: 'Bash(ctx-cli:*)'
 
 Add a footer comment to a Confluence page. Requires a connected and enabled Confluence data source. Comments are visible at the bottom of the page.
 
-```bash
-ctx-cli mcp call add_confluence_comment -p pageId=<string> -p body=<string> -o json
-```
+Call `mcp__ctx-cloud__add_confluence_comment` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -26,9 +28,7 @@ ctx-cli mcp call add_confluence_comment -p pageId=<string> -p body=<string> -o j
 
 Create a new page in a Confluence space. Requires a connected and enabled Confluence data source. The body should be in Confluence storage format (XHTML). Returns the created page ID, title, and URL.
 
-```bash
-ctx-cli mcp call create_confluence_page -p spaceId=<string> -p title=<string> -p body=<string> -o json
-```
+Call `mcp__ctx-cloud__create_confluence_page` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -42,9 +42,7 @@ ctx-cli mcp call create_confluence_page -p spaceId=<string> -p title=<string> -p
 
 Retrieve a Confluence page's content and metadata. Use this to get page context before updating, including the current version number needed for updates. Requires a connected and enabled Confluence data source.
 
-```bash
-ctx-cli mcp call get_confluence_page -p pageId=<string> -o json
-```
+Call `mcp__ctx-cloud__get_confluence_page` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -54,9 +52,7 @@ ctx-cli mcp call get_confluence_page -p pageId=<string> -o json
 
 Search for Confluence pages using CQL (Confluence Query Language). Requires a connected and enabled Confluence data source. Example queries: 'title = "Meeting Notes"', 'space = "ENG" AND type = "page"', 'text ~ "deployment"'.
 
-```bash
-ctx-cli mcp call search_confluence_pages -p query=<string> -o json
-```
+Call `mcp__ctx-cloud__search_confluence_pages` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -67,9 +63,7 @@ ctx-cli mcp call search_confluence_pages -p query=<string> -o json
 
 Update an existing Confluence page's content. Requires a connected and enabled Confluence data source. You must provide the current version number (incremented by 1). Use get_confluence_page first to retrieve the current version.
 
-```bash
-ctx-cli mcp call update_confluence_page -p pageId=<string> -p title=<string> -p body=<string> -p version=<number> -o json
-```
+Call `mcp__ctx-cloud__update_confluence_page` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|

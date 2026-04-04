@@ -4,7 +4,7 @@ description: >
   Walk through the complete 7-step Context Engine onboarding methodology.
   Validates setup, builds a testing lab, loads project data, measures baseline
   performance, enriches with domain context, and generates a rollout plan.
-allowed-tools: 'Bash(ctx-cli:*)'
+allowed-tools: 'Bash(ctx-onboard:*), Bash(ctx-loader:*)'
 ---
 # Context Engine Onboarding
 
@@ -171,7 +171,7 @@ This step is agent-driven. You (the agent) answer the test questions yourself, t
 ```bash
 ctx-onboard step-3 --json
 ```
-This returns the test cases. **Answer each question yourself WITHOUT using ctx-cli or any MCP tools.** Use only your training data.
+This returns the test cases. **Answer each question yourself WITHOUT using any Context Engine MCP tools.** Use only your training data.
 
 2. Save your answers as a JSON file (e.g. `.ctx-onboarding/step3-answers.json`):
 ```json

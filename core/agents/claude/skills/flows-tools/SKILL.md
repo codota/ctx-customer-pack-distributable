@@ -1,7 +1,9 @@
 ---
 name: flows-tools
 description: 'Flows tools: get_flow_services, get_flow, get_service_flows, list_flows'
-allowed-tools: 'Bash(ctx-cli:*)'
+allowed-tools: >-
+  mcp__ctx-cloud__get_flow_services, mcp__ctx-cloud__get_flow,
+  mcp__ctx-cloud__get_service_flows, mcp__ctx-cloud__list_flows
 ---
 # Flows Tools
 
@@ -13,9 +15,7 @@ Get all services involved in a flow with their roles and order. Shows the orches
 PREFER: Use 'understand_flow' for complete flow analysis including ownership, runbooks, past incidents, and architectural decisions in one call.
 USE THIS WHEN: You need just the service participation list without the full operational context, or when comparing services across multiple flows.
 
-```bash
-ctx-cli mcp call get_flow_services -p flowName=<string> -o json
-```
+Call `mcp__ctx-cloud__get_flow_services` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -27,9 +27,7 @@ Get detailed information about a specific flow including all steps, services inv
 PREFER: Use 'understand_flow' for complete flow analysis including ownership, runbooks, past incidents, and architectural decisions in one call.
 USE THIS WHEN: You need just the flow definition and steps without the full operational context, or when listing multiple flows.
 
-```bash
-ctx-cli mcp call get_flow -p flowName=<string> -o json
-```
+Call `mcp__ctx-cloud__get_flow` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -41,9 +39,7 @@ Get all flows that involve a specific service. Shows which business processes th
 PREFER: Use 'investigate_service' for comprehensive service analysis including flows, dependencies, documentation, and ownership in one call. Use 'blast_radius' when assessing impact of changes to this service.
 USE THIS WHEN: You need just the flow participation list without the full service context, or when mapping flows for multiple services.
 
-```bash
-ctx-cli mcp call get_service_flows -p serviceName=<string> -o json
-```
+Call `mcp__ctx-cloud__get_service_flows` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -54,9 +50,7 @@ ctx-cli mcp call get_service_flows -p serviceName=<string> -o json
 
 List all business flows discovered in the codebase. Includes both CriticalFlow (discovered from code, spanning 3+ services) and Flow (documented in markdown) entities. Use this to understand the major business processes in your system.
 
-```bash
-ctx-cli mcp call list_flows  -o json
-```
+Call `mcp__ctx-cloud__list_flows` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|

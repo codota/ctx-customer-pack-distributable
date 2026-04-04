@@ -233,7 +233,27 @@ CLAUDE_EOF
         fetch "${RAW_BASE}/core/agents/cursor/.cursor/rules/${skill}.mdc" ".cursor/rules/${skill}.mdc" 2>/dev/null || true
       done
       echo ""
-      echo "[core] Done: ${count} skills + ${count} rules."
+      echo "[core] Downloading MCP proxy..."
+      mkdir -p .cursor/scripts
+      fetch "${RAW_BASE}/core/agents/claude/scripts/ctx-mcp-proxy.py" ".cursor/scripts/ctx-mcp-proxy.py" || true
+      chmod +x .cursor/scripts/*.py 2>/dev/null || true
+
+      # Configure MCP server for Cursor (.cursor/mcp.json)
+      echo "[core] Configuring Cursor MCP..."
+      local abs_cursor_scripts
+      abs_cursor_scripts="$(cd .cursor/scripts 2>/dev/null && pwd)"
+      cat > .cursor/mcp.json <<CURSOR_MCP_EOF
+{
+  "mcpServers": {
+    "ctx-cloud": {
+      "command": "python3",
+      "args": ["${abs_cursor_scripts}/ctx-mcp-proxy.py"]
+    }
+  }
+}
+CURSOR_MCP_EOF
+
+      echo "[core] Done: ${count} skills + ${count} rules + MCP proxy."
       ;;
     gemini)
       skills=$(list_github_dir "core/agents/gemini/.gemini/skills")
@@ -247,6 +267,25 @@ CLAUDE_EOF
         fetch "${RAW_BASE}/core/agents/gemini/.gemini/skills/${skill}/SKILL.md" ".gemini/skills/${skill}/SKILL.md" || true
       done
       echo ""
+      echo "[core] Downloading MCP proxy..."
+      mkdir -p .gemini/scripts
+      fetch "${RAW_BASE}/core/agents/claude/scripts/ctx-mcp-proxy.py" ".gemini/scripts/ctx-mcp-proxy.py" || true
+      chmod +x .gemini/scripts/*.py 2>/dev/null || true
+
+      # Configure MCP server for Gemini (.gemini/settings.json)
+      echo "[core] Configuring Gemini MCP..."
+      local abs_gemini_scripts
+      abs_gemini_scripts="$(cd .gemini/scripts 2>/dev/null && pwd)"
+      cat > .gemini/settings.json <<GEMINI_MCP_EOF
+{
+  "mcpServers": {
+    "ctx-cloud": {
+      "command": "python3",
+      "args": ["${abs_gemini_scripts}/ctx-mcp-proxy.py"]
+    }
+  }
+}
+GEMINI_MCP_EOF
       echo "[core] Done: ${count} skills."
       ;;
     tabnine)

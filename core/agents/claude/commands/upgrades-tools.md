@@ -10,9 +10,7 @@ Get major version upgrades (e.g., 4.x to 5.x) that historically required code ch
 PREFER: Use 'dependency_check' for complete package assessment including major upgrade history, security status, and migration recommendations in one call.
 USE THIS WHEN: You need to analyze major upgrades across multiple packages, or when researching upgrade patterns organization-wide.
 
-```bash
-ctx-cli mcp call get_major_upgrades  -o json
-```
+Call `mcp__ctx-cloud__get_major_upgrades` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -26,9 +24,7 @@ Get the upgrade history for a specific package. Shows all version changes over t
 PREFER: Use 'dependency_check' for complete package assessment including security status, upgrade history, and migration recommendations in one call.
 USE THIS WHEN: You need only the raw upgrade event history, or when analyzing upgrade patterns across multiple packages.
 
-```bash
-ctx-cli mcp call get_package_upgrade_history -p packageName=<string> -o json
-```
+Call `mcp__ctx-cloud__get_package_upgrade_history` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -40,9 +36,7 @@ ctx-cli mcp call get_package_upgrade_history -p packageName=<string> -o json
 
 Get a summary of upgrade analysis for a repository. Returns statistics about total upgrades, breakdown by category (with/without code changes), top upgraded packages, and upgrade sources (dependabot, renovate, manual). Run the upgrade-history-analyzer agent first to populate this data.
 
-```bash
-ctx-cli mcp call get_upgrade_summary  -o json
-```
+Call `mcp__ctx-cloud__get_upgrade_summary` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -53,9 +47,7 @@ ctx-cli mcp call get_upgrade_summary  -o json
 
 Get upgrade events that required code changes beyond the manifest file. These are upgrades that caused friction - requiring migrations, API updates, or breaking change fixes. Useful for identifying problematic dependencies. Run the upgrade-history-analyzer agent first to populate this data.
 
-```bash
-ctx-cli mcp call get_upgrades_with_code_changes  -o json
-```
+Call `mcp__ctx-cloud__get_upgrades_with_code_changes` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -67,9 +59,7 @@ ctx-cli mcp call get_upgrades_with_code_changes  -o json
 
 Get upgrade events that were simple version bumps with no code changes. These are clean upgrades where only manifest/lock files changed. Useful for identifying dependencies that are safe to auto-merge. Run the upgrade-history-analyzer agent first to populate this data.
 
-```bash
-ctx-cli mcp call get_upgrades_without_code_changes  -o json
-```
+Call `mcp__ctx-cloud__get_upgrades_without_code_changes` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -81,9 +71,7 @@ ctx-cli mcp call get_upgrades_without_code_changes  -o json
 
 List all upgrade events discovered in a repository. Returns package name, versions, whether code changes were required, commit info, and upgrade source. Run the upgrade-history-analyzer agent first to populate this data.
 
-```bash
-ctx-cli mcp call list_upgrades  -o json
-```
+Call `mcp__ctx-cloud__list_upgrades` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|

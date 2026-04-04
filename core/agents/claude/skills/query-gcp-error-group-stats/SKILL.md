@@ -4,7 +4,7 @@ description: >-
   Query GCP Error Reporting API for error group statistics with time-windowed
   counts. Returns timedCounts arrays for spike detection. Requires a connected
   and enabled gcp_monitoring data source.
-allowed-tools: 'Bash(ctx-cli:*)'
+allowed-tools: mcp__ctx-cloud__query_gcp_error_group_stats
 ---
 # Gcp Tools
 
@@ -14,9 +14,7 @@ allowed-tools: 'Bash(ctx-cli:*)'
 
 Query GCP Error Reporting API for error group statistics with time-windowed counts. Returns timedCounts arrays for spike detection. Requires a connected and enabled gcp_monitoring data source.
 
-```bash
-ctx-cli mcp call query_gcp_error_group_stats -p projectId=<string> -o json
-```
+Call `mcp__ctx-cloud__query_gcp_error_group_stats` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|

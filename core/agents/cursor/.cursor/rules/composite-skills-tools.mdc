@@ -3,4 +3,4 @@ description: Composite skills tools: blast_radius, code_migration, dependency_ch
 alwaysApply: true
 ---
 
-When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `composite-skills-tools` skill for detailed commands.
+When you need information about services, dependencies, incidents, or project management, use the Context Engine MCP tools (`mcp__ctx-cloud__*`) rather than guessing from training data. See the `composite-skills-tools` skill for available tools and parameters.

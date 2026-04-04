@@ -175,7 +175,7 @@ This step is agent-driven. You (the agent) answer the test questions yourself, t
 ```bash
 ctx-onboard step-3 --json
 ```
-This returns the test cases. **Answer each question yourself WITHOUT using ctx-cli or any MCP tools.** Use only your training data.
+This returns the test cases. **Answer each question yourself WITHOUT using any Context Engine MCP tools.** Use only your training data.
 
 2. Save your answers as a JSON file (e.g. `.ctx-onboarding/step3-answers.json`):
 ```json

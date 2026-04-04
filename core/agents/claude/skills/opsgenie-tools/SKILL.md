@@ -3,7 +3,10 @@ name: opsgenie-tools
 description: >-
   Opsgenie tools: acknowledge_opsgenie_alert, add_opsgenie_note,
   close_opsgenie_alert, escalate_opsgenie_alert, get_opsgenie_alert
-allowed-tools: 'Bash(ctx-cli:*)'
+allowed-tools: >-
+  mcp__ctx-cloud__acknowledge_opsgenie_alert, mcp__ctx-cloud__add_opsgenie_note,
+  mcp__ctx-cloud__close_opsgenie_alert, mcp__ctx-cloud__escalate_opsgenie_alert,
+  mcp__ctx-cloud__get_opsgenie_alert
 ---
 # Opsgenie Tools
 
@@ -13,9 +16,7 @@ allowed-tools: 'Bash(ctx-cli:*)'
 
 Acknowledge an Opsgenie alert to stop further escalations. Requires a connected and enabled Opsgenie data source.
 
-```bash
-ctx-cli mcp call acknowledge_opsgenie_alert -p alertId=<string> -o json
-```
+Call `mcp__ctx-cloud__acknowledge_opsgenie_alert` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -27,9 +28,7 @@ ctx-cli mcp call acknowledge_opsgenie_alert -p alertId=<string> -o json
 
 Add a note to an existing Opsgenie alert for additional context. Requires a connected and enabled Opsgenie data source. Notes are visible on the alert timeline.
 
-```bash
-ctx-cli mcp call add_opsgenie_note -p alertId=<string> -p note=<string> -o json
-```
+Call `mcp__ctx-cloud__add_opsgenie_note` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -41,9 +40,7 @@ ctx-cli mcp call add_opsgenie_note -p alertId=<string> -p note=<string> -o json
 
 Close an Opsgenie alert, marking it as resolved. Requires a connected and enabled Opsgenie data source.
 
-```bash
-ctx-cli mcp call close_opsgenie_alert -p alertId=<string> -o json
-```
+Call `mcp__ctx-cloud__close_opsgenie_alert` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -55,9 +52,7 @@ ctx-cli mcp call close_opsgenie_alert -p alertId=<string> -o json
 
 Escalate an Opsgenie alert to the next escalation level. Requires a connected and enabled Opsgenie data source.
 
-```bash
-ctx-cli mcp call escalate_opsgenie_alert -p alertId=<string> -p escalationId=<string> -o json
-```
+Call `mcp__ctx-cloud__escalate_opsgenie_alert` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -70,9 +65,7 @@ ctx-cli mcp call escalate_opsgenie_alert -p alertId=<string> -p escalationId=<st
 
 Retrieve details of an Opsgenie alert. Use this to get alert context before taking actions like acknowledging or closing. Requires a connected and enabled Opsgenie data source.
 
-```bash
-ctx-cli mcp call get_opsgenie_alert -p alertId=<string> -o json
-```
+Call `mcp__ctx-cloud__get_opsgenie_alert` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|

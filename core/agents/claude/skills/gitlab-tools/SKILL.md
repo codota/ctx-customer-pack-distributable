@@ -3,7 +3,10 @@ name: gitlab-tools
 description: >-
   Gitlab tools: add_gitlab_mr_comment, create_gitlab_merge_request,
   search_gitlab_issues
-allowed-tools: 'Bash(ctx-cli:*)'
+allowed-tools: >-
+  mcp__ctx-cloud__add_gitlab_mr_comment,
+  mcp__ctx-cloud__create_gitlab_merge_request,
+  mcp__ctx-cloud__search_gitlab_issues
 ---
 # Gitlab Tools
 
@@ -13,9 +16,7 @@ allowed-tools: 'Bash(ctx-cli:*)'
 
 Add a comment (note) to an existing GitLab merge request. Requires a connected and enabled GitLab data source.
 
-```bash
-ctx-cli mcp call add_gitlab_mr_comment -p projectId=<string> -p mergeRequestIid=<string> -p body=<string> -o json
-```
+Call `mcp__ctx-cloud__add_gitlab_mr_comment` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -27,9 +28,7 @@ ctx-cli mcp call add_gitlab_mr_comment -p projectId=<string> -p mergeRequestIid=
 
 Create a new merge request in a GitLab project. Requires a connected and enabled GitLab data source. Returns the created merge request details including IID and web URL.
 
-```bash
-ctx-cli mcp call create_gitlab_merge_request -p projectId=<string> -p sourceBranch=<string> -p targetBranch=<string> -p title=<string> -o json
-```
+Call `mcp__ctx-cloud__create_gitlab_merge_request` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -44,9 +43,7 @@ ctx-cli mcp call create_gitlab_merge_request -p projectId=<string> -p sourceBran
 Search GitLab issues in the knowledge graph. Supports filtering by service name, state, and free-text query against title/description. Use this to find open or closed GitLab issues related to a service or topic.
 Prefer investigate_service when you need a full service overview — use this tool when you need a targeted GitLab issue search (e.g. all open issues for a service, issues matching a keyword).
 
-```bash
-ctx-cli mcp call search_gitlab_issues  -o json
-```
+Call `mcp__ctx-cloud__search_gitlab_issues` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|

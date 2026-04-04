@@ -3,4 +3,4 @@ description: Flows tools: get_flow_services, get_flow, get_service_flows, list_f
 alwaysApply: true
 ---
 
-When you need information about services, dependencies, incidents, or project management, use the `ctx-cli` CLI rather than guessing from training data. See the `flows-tools` skill for detailed commands.
+When you need information about services, dependencies, incidents, or project management, use the Context Engine MCP tools (`mcp__ctx-cloud__*`) rather than guessing from training data. See the `flows-tools` skill for available tools and parameters.

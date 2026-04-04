@@ -19256,6 +19256,7 @@ var init_schema = __esm({
         maxContinuations: external_exports.number().int().min(0).optional(),
         sinceDays: external_exports.number().int().min(1).optional(),
         maxRetries: external_exports.number().int().min(0).optional(),
+        maxAgentRetries: external_exports.number().int().min(0).optional(),
         validateAfterLoad: external_exports.boolean().optional(),
         batchSize: external_exports.number().int().min(1).optional(),
         interBatchDelayMs: external_exports.number().int().min(0).optional()
@@ -19311,7 +19312,8 @@ function summarizeRun(run) {
         agents: src.agentRuns.map((a) => ({
           name: a.agentName,
           status: a.overallStatus,
-          runCount: a.runs.length
+          runCount: a.runs.length,
+          retryCount: a.runs.filter((r) => r.isRetry).length
         }))
       });
     }
@@ -19624,6 +19626,13 @@ var init_concurrency_pool = __esm({
   }
 });
 
+// loader/dist/progress/run-tracker.js
+var init_run_tracker = __esm({
+  "loader/dist/progress/run-tracker.js"() {
+    "use strict";
+  }
+});
+
 // loader/dist/pipeline/stage-machine.js
 var init_stage_machine = __esm({
   "loader/dist/pipeline/stage-machine.js"() {
@@ -19654,6 +19663,7 @@ var init_orchestrator = __esm({
     init_agent_runner();
     init_pause_controller();
     init_concurrency_pool();
+    init_run_tracker();
     init_stage_machine();
     init_dependency_resolver();
     log = createLogger({ name: "orchestrator" });
@@ -19724,6 +19734,7 @@ var init_dist2 = __esm({
     init_circuit_breaker();
     init_rate_limiter();
     init_staleness();
+    init_run_tracker();
   }
 });
 

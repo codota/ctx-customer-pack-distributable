@@ -23,9 +23,7 @@ mcp-tools:
 
 Add a work note to an existing ServiceNow record (incident, change request, or problem). Requires a connected and enabled ServiceNow data source. Work notes are internal comments visible only to IT staff.
 
-```bash
-ctx-cli mcp call add_servicenow_work_note -p table=<string> -p sys_id=<string> -p work_notes=<string> -o json
-```
+Call `mcp__ctx-cloud__add_servicenow_work_note` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -37,9 +35,7 @@ ctx-cli mcp call add_servicenow_work_note -p table=<string> -p sys_id=<string> -
 
 Create a new ServiceNow change request. Requires a connected and enabled ServiceNow data source. Returns the created change request number and sys_id.
 
-```bash
-ctx-cli mcp call create_servicenow_change_request -p short_description=<string> -o json
-```
+Call `mcp__ctx-cloud__create_servicenow_change_request` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -58,9 +54,7 @@ ctx-cli mcp call create_servicenow_change_request -p short_description=<string> 
 
 Create a new ServiceNow incident. Requires a connected and enabled ServiceNow data source. Returns the created incident number and sys_id.
 
-```bash
-ctx-cli mcp call create_servicenow_incident -p short_description=<string> -o json
-```
+Call `mcp__ctx-cloud__create_servicenow_incident` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -76,9 +70,7 @@ ctx-cli mcp call create_servicenow_incident -p short_description=<string> -o jso
 
 List or search ServiceNow incidents. Requires a connected and enabled ServiceNow data source. Supports filtering by state, priority, assignment group, and encoded query. Returns up to the specified limit of incidents.
 
-```bash
-ctx-cli mcp call list_servicenow_incidents  -o json
-```
+Call `mcp__ctx-cloud__list_servicenow_incidents` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -92,9 +84,7 @@ ctx-cli mcp call list_servicenow_incidents  -o json
 
 Update an existing ServiceNow incident. Requires a connected and enabled ServiceNow data source. IMPORTANT: All fields in the request body are sent to ServiceNow — omitted optional parameters are sent as empty strings, which may clear those fields. Only call this tool with ALL fields you want to preserve on the record.
 
-```bash
-ctx-cli mcp call update_servicenow_incident -p sys_id=<string> -o json
-```
+Call `mcp__ctx-cloud__update_servicenow_incident` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|

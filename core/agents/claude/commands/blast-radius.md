@@ -6,10 +6,8 @@ Assess the impact of a change before deploying. Returns the set of services, bus
 
 ## Usage
 
-```bash
-# Check blast radius for a service change
-ctx-cli mcp call blast_radius -p service_name=payments-api --raw
-```
+**Check blast radius for a service change**
+Call `mcp__ctx-cloud__blast_radius` with service_name=payments-api.
 
 The response includes:
 - **Affected services** — direct and transitive dependents.
@@ -19,16 +17,12 @@ The response includes:
 
 ## Examples
 
-```bash
-# Assess blast radius before a database migration
-ctx-cli mcp call blast_radius -p service_name=inventory-db --raw
-
-# Check blast radius for the auth service
-ctx-cli mcp call blast_radius -p service_name=auth-service --raw
-
-# Check blast radius for the order service
-ctx-cli mcp call blast_radius -p service_name=order-service --raw
-```
+**Assess blast radius before a database migration**
+Call `mcp__ctx-cloud__blast_radius` with service_name=inventory-db.
+**Check blast radius for the auth service**
+Call `mcp__ctx-cloud__blast_radius` with service_name=auth-service.
+**Check blast radius for the order service**
+Call `mcp__ctx-cloud__blast_radius` with service_name=order-service.
 
 ## When to Use
 

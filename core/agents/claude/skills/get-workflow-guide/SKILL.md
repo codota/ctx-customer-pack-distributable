@@ -6,7 +6,7 @@ description: >-
   like investigating services, responding to incidents, assessing blast radius,
   managing dependencies, and exploring architecture. Returns a comprehensive
   guide covering all major workflows with step-by-step instructions.
-allowed-tools: 'Bash(ctx-cli:*)'
+allowed-tools: mcp__ctx-cloud__get_workflow_guide
 ---
 # Workflow guides Tools
 
@@ -16,9 +16,7 @@ allowed-tools: 'Bash(ctx-cli:*)'
 
 Get workflow guides for using Context Engine tools effectively. Call this at the start of a session to understand which tools to use for common workflows like investigating services, responding to incidents, assessing blast radius, managing dependencies, and exploring architecture. Returns a comprehensive guide covering all major workflows with step-by-step instructions.
 
-```bash
-ctx-cli mcp call get_workflow_guide  -o json
-```
+Call `mcp__ctx-cloud__get_workflow_guide` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|

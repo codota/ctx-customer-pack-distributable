@@ -3,7 +3,10 @@ name: architecture-tools
 description: >-
   Architecture tools: get_runbook, get_security_patterns, search_adrs,
   search_flows, search_incidents
-allowed-tools: 'Bash(ctx-cli:*)'
+allowed-tools: >-
+  mcp__ctx-cloud__get_runbook, mcp__ctx-cloud__get_security_patterns,
+  mcp__ctx-cloud__search_adrs, mcp__ctx-cloud__search_flows,
+  mcp__ctx-cloud__search_incidents
 ---
 # Architecture Tools
 
@@ -15,9 +18,7 @@ Get a runbook for a specific service or operational scenario. Returns investigat
 PREFER: Use 'incident_response' during incidents - it includes the runbook plus escalation contacts, similar incidents, and ownership in one call.
 USE THIS WHEN: You need just the runbook steps without the incident context, or when referencing runbooks outside of an active incident.
 
-```bash
-ctx-cli mcp call get_runbook -p service=<string> -o json
-```
+Call `mcp__ctx-cloud__get_runbook` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -29,9 +30,7 @@ Get security patterns and anti-patterns learned from past incidents. Returns cod
 PREFER: Use 'incident_response' during active incidents - includes relevant security patterns plus runbooks, escalation contacts, and similar incidents.
 USE THIS WHEN: You need to browse security patterns for code review or education, without the context of a specific incident or service.
 
-```bash
-ctx-cli mcp call get_security_patterns  -o json
-```
+Call `mcp__ctx-cloud__get_security_patterns` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -44,9 +43,7 @@ Search Architecture Decision Records (ADRs) by keyword or topic. Finds ADRs that
 PREFER: Use 'code_migration' when researching ADRs for a specific migration. Use 'understand_flow' when researching ADRs for a specific business flow.
 USE THIS WHEN: You need to browse ADRs by topic without specific migration or flow context, or when researching architectural patterns broadly.
 
-```bash
-ctx-cli mcp call search_adrs -p query=<string> -o json
-```
+Call `mcp__ctx-cloud__search_adrs` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -59,9 +56,7 @@ Search for documented business flows and workflows by keyword or service. Return
 PREFER: Use 'understand_flow' for complete flow analysis including ownership, runbooks, past incidents, and architectural decisions in one call.
 USE THIS WHEN: You need to search across multiple flows by keyword, or when browsing available flows without full operational context.
 
-```bash
-ctx-cli mcp call search_flows -p query=<string> -o json
-```
+Call `mcp__ctx-cloud__search_flows` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -73,9 +68,7 @@ Search past incidents by keyword, service, or symptom. Returns incidents with ro
 PREFER: Use 'incident_response' during active incidents - it provides escalation contacts, runbooks, and similar incidents for a specific service.
 USE THIS WHEN: You need to search across all incidents by keyword/symptom, or when researching historical patterns not tied to a specific service.
 
-```bash
-ctx-cli mcp call search_incidents -p query=<string> -o json
-```
+Call `mcp__ctx-cloud__search_incidents` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|

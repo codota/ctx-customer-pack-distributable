@@ -20,9 +20,7 @@ mcp-tools:
 
 Acknowledge a PagerDuty incident. Requires a connected and enabled PagerDuty data source. The requesterEmail must match a valid PagerDuty user.
 
-```bash
-ctx-cli mcp call acknowledge_pagerduty_incident -p incidentId=<string> -p requesterEmail=<string> -o json
-```
+Call `mcp__ctx-cloud__acknowledge_pagerduty_incident` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -33,9 +31,7 @@ ctx-cli mcp call acknowledge_pagerduty_incident -p incidentId=<string> -p reques
 
 Add a note to an existing PagerDuty incident. Requires a connected and enabled PagerDuty data source. Notes are visible on the incident timeline.
 
-```bash
-ctx-cli mcp call add_pagerduty_note -p incidentId=<string> -p content=<string> -p requesterEmail=<string> -o json
-```
+Call `mcp__ctx-cloud__add_pagerduty_note` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -47,9 +43,7 @@ ctx-cli mcp call add_pagerduty_note -p incidentId=<string> -p content=<string> -
 
 Resolve a PagerDuty incident. Requires a connected and enabled PagerDuty data source. The requesterEmail must match a valid PagerDuty user. Optionally include a resolution note.
 
-```bash
-ctx-cli mcp call resolve_pagerduty_incident -p incidentId=<string> -p requesterEmail=<string> -o json
-```
+Call `mcp__ctx-cloud__resolve_pagerduty_incident` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|

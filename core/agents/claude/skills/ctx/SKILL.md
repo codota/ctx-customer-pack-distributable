@@ -3,71 +3,30 @@ name: ctx
 description: >-
   Query the Context Engine knowledge graph — investigate services, check blast
   radius, search entities, manage issues, and assess change risk.
-allowed-tools: 'Bash(ctx-cli:*)'
+allowed-tools: >-
+  mcp__ctx-cloud__investigate_service, mcp__ctx-cloud__blast_radius,
+  mcp__ctx-cloud__find_entities, mcp__ctx-cloud__get_change_confidence,
+  mcp__ctx-cloud__search_knowledge
 ---
 # Context Engine (ctx)
 
 ## Prerequisites
 
-1. Install the CTX distributable (ctx-loader, ctx-onboard, ctx-cli).
-2. Set the `CTX_API_KEY` and `CTX_API_URL` environment variables. Or pass them as flags: `--api-key` and `--api-url`.
-3. Verify connectivity: `ctx-loader query search "hello"`
+1. Ensure the Context Engine MCP server (`ctx-cloud`) is configured.
+2. Set the `CTX_API_KEY` and `CTX_API_URL` environment variables.
+3. Verify connectivity by calling `mcp__ctx-cloud__search_knowledge` with query="hello".
 
 ## Quick Start
 
-```bash
-# Search for any entity in the knowledge graph
-ctx-loader query search "authentication" --fields entityType,entityName,similarity
+- **Search for any entity**: Call `mcp__ctx-cloud__find_entities` with query="authentication".
+- **Investigate a service**: Call `mcp__ctx-cloud__investigate_service` with serviceName=payments-api.
+- **Check blast radius**: Call `mcp__ctx-cloud__blast_radius` with target=payments-api.
+- **Get change confidence**: Call `mcp__ctx-cloud__get_change_confidence` with files=["src/checkout/handler.ts"].
+- **Search knowledge**: Call `mcp__ctx-cloud__search_knowledge` with query="rate limiting strategy".
 
-# List entities by type
-ctx-loader query entities --type service --search "payment"
+## Composite Tools
 
-# Investigate a service (composite tool — uses ctx-cli)
-ctx-cli mcp call investigate_service -p service_name=payments-api --raw
+For aggregated investigations that combine multiple queries server-side:
 
-# Check blast radius before a change
-ctx-cli mcp call blast_radius -p service_name=payments-api --raw
-
-# Get change confidence score for a file
-ctx-cli mcp call get_change_confidence -p file_path=src/checkout/handler.ts --raw
-```
-
-## Searching the Knowledge Graph
-
-Use `ctx-loader query` for all search and entity lookups. It outputs clean JSON with optional `--fields` selection.
-
-```bash
-# Free-text search
-ctx-loader query search "rate limiting strategy"
-
-# Search with field selection
-ctx-loader query search "checkout" --fields entityType,entityName,similarity
-
-# List entities by type
-ctx-loader query entities --type service --limit 20
-
-# Get a specific entity by ID
-ctx-loader query entity <id>
-```
-
-## Composite Tools (via ctx-cli)
-
-For aggregated investigations that combine multiple queries server-side, use `ctx-cli mcp call`:
-
-```bash
-# Service investigation (dependencies, ownership, incidents)
-ctx-cli mcp call investigate_service -p service_name=order-service --raw
-
-# Change confidence score
-ctx-cli mcp call get_change_confidence -p file_path=src/payments/processor.ts --raw
-```
-
-## Discover Available Tools
-
-```bash
-# List all registered MCP tools
-ctx-cli mcp list
-
-# Get help for a specific tool
-ctx-cli mcp describe investigate_service
-```
+- **Service investigation** (dependencies, ownership, incidents): Call `mcp__ctx-cloud__investigate_service` with serviceName=order-service.
+- **Change confidence score**: Call `mcp__ctx-cloud__get_change_confidence` with files=["src/payments/processor.ts"].
