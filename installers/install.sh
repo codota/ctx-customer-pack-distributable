@@ -174,25 +174,13 @@ SETTINGS_EOF
       # Generate CLAUDE.md project guide
       echo "[core] Creating CLAUDE.md..."
       cat > CLAUDE.md <<'CLAUDE_EOF'
-# Tabnine Context Engine — Fully Installed
+# Tabnine Context Engine
 
-Everything you need is already installed in THIS directory. Do NOT explore parent directories or search for packages elsewhere.
+The Context Engine customer pack is fully installed and configured. All skills, MCP tools, and hooks are ALREADY LOADED into your context automatically. Do not read or explore the .claude/ directory — everything is available to you right now.
 
-## What's here
+## Step 1: Set up credentials
 
-- `.claude/skills/` — 38+ skills (slash commands) for querying, onboarding, investigating services, etc.
-- `.claude/commands/` — Command documentation for all skills
-- `.claude/hooks/` — Pre-tool-use hooks for change confidence and decision context
-- `.claude/scripts/ctx-mcp-proxy.py` — MCP bridge to the Context Engine (already configured in settings.local.json)
-- `.claude/settings.local.json` — MCP server, hooks, and permissions (already configured)
-
-The MCP server `ctx-cloud` is configured and will connect to the Context Engine automatically once credentials are set.
-
-## How to use — follow these steps in order
-
-### Step 1: Create ctx-settings.yaml (if it doesn't exist)
-
-Check if `ctx-settings.yaml` exists in this directory. If not, create it:
+If `ctx-settings.yaml` does not exist in this directory, create it now:
 
 ```yaml
 CTX_API_URL: <Context Engine URL>
@@ -204,25 +192,24 @@ DATA_VOLUME: standard
 GH_PAT: <GitHub PAT>
 ```
 
-This file is read automatically by all CLIs. No need to export environment variables.
+This file is read automatically by all CLIs — no need to export environment variables.
 
-### Step 2: Use the tools
+## Step 2: Use the Context Engine
 
-Once credentials are set, you can immediately use:
+Once `ctx-settings.yaml` exists, use your tools directly:
 
-- **Slash commands**: `/ctx`, `/onboard`, `/investigate-service`, `/blast-radius`, `/review-pr`, `/search-knowledge`, `/incident-response`, `/understand-flow`, `/change-confidence-tools`, `/ownership-tools`, `/git-insights-tools`, `/architecture-tools`
-- **MCP tools** (available directly): `mcp__ctx-cloud__search_knowledge`, `mcp__ctx-cloud__query_entities`, `mcp__ctx-cloud__blast_radius`, `mcp__ctx-cloud__investigate_service`, `mcp__ctx-cloud__get_change_confidence`, and many more
-- **CLIs**: `ctx-loader` (data loading), `ctx-onboard` (onboarding methodology), `ctx-cli` (direct queries)
+- **To query the knowledge graph**: use the `/ctx` skill or call MCP tools like `mcp__ctx-cloud__search_knowledge`, `mcp__ctx-cloud__query_entities`
+- **To investigate a service**: `/investigate-service`
+- **To assess change impact**: `/blast-radius` or `mcp__ctx-cloud__blast_radius`
+- **To review a PR**: `/review-pr`
+- **To onboard a new project**: `/onboard` (7-step methodology with data loading)
+- **CLIs**: `ctx-loader` (data loading), `ctx-onboard` (onboarding), `ctx-cli` (queries)
 
-### Step 3: For onboarding a new project
+## Rules
 
-Run `/onboard` to walk through the 7-step methodology: validate connectivity, build test lab, load data, measure value, enrich domain, generate rollout plan.
-
-## Key rules
-
-- **Credentials**: Always from `ctx-settings.yaml` or environment variables. Never pass secrets as CLI arguments.
-- **No exploration needed**: All skills, tools, and configuration are in this directory. Do not search parent directories.
-- **Diagnosing failures**: If data loading fails, run `ctx-loader diagnose --json` for structured error output with remediation steps.
+- Credentials come from `ctx-settings.yaml` or environment variables only. Never pass secrets as CLI arguments.
+- If data loading fails, run `ctx-loader diagnose --json` for structured error output.
+- Do not explore parent directories or the .claude/ directory. Everything is already loaded and configured.
 CLAUDE_EOF
 
       echo "[core] Done: ${count} skills + ${count} commands + 2 hooks + MCP proxy + settings + CLAUDE.md."
