@@ -202,7 +202,9 @@ MCP tools (call directly — the MCP server is already configured):
 `mcp__ctx-cloud__search_knowledge`, `mcp__ctx-cloud__query_entities`, `mcp__ctx-cloud__blast_radius`, `mcp__ctx-cloud__investigate_service`, `mcp__ctx-cloud__get_change_confidence`, `mcp__ctx-cloud__get_service`, `mcp__ctx-cloud__get_service_dependencies`
 
 CLIs (pre-approved, no permission prompt needed):
-`ctx-loader` (data loading, diagnostics), `ctx-onboard` (7-step onboarding), `ctx-cli` (direct queries)
+`ctx-loader` (data loading, queries, diagnostics), `ctx-onboard` (7-step onboarding), `ctx-cli` (MCP tool calls, entity queries)
+
+All CLIs read `ctx-settings.yaml` automatically. Do not prefix commands with environment variable exports.
 
 ## Onboarding a new project
 
@@ -268,9 +270,28 @@ CLAUDE_EOF
 install_cli() {
   echo "[cli] Downloading ctx-cli..."
   mkdir -p "$BIN_DIR"
-  if fetch "${RAW_BASE}/cli/bin/ctx-cli" "${BIN_DIR}/ctx-cli"; then
+  if fetch "${RAW_BASE}/cli/bin/ctx-cli" "${BIN_DIR}/ctx-cli-bin"; then
+    chmod +x "${BIN_DIR}/ctx-cli-bin"
+    # Create wrapper that loads ctx-settings.yaml into env before calling the real binary
+    cat > "${BIN_DIR}/ctx-cli" <<'WRAPPER_EOF'
+#!/usr/bin/env bash
+# Wrapper: loads ctx-settings.yaml into environment before calling ctx-cli-bin.
+# This ensures credentials from the customer-pack settings file are available.
+if [ -f "ctx-settings.yaml" ]; then
+  while IFS=': ' read -r key value; do
+    # Skip comments, empty lines, and lines without a value
+    case "$key" in \#*|"") continue ;; esac
+    [ -z "$value" ] && continue
+    # Only set if not already in environment
+    if [ -z "${!key}" ]; then
+      export "$key=$value"
+    fi
+  done < ctx-settings.yaml
+fi
+exec "$(dirname "$0")/ctx-cli-bin" "$@"
+WRAPPER_EOF
     chmod +x "${BIN_DIR}/ctx-cli"
-    echo "[cli] Installed → ${BIN_DIR}/ctx-cli"
+    echo "[cli] Installed → ${BIN_DIR}/ctx-cli (with settings wrapper)"
   else
     echo "[cli] Failed to download (ctx-cli may not be built yet)."
   fi
