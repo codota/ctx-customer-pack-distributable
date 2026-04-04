@@ -220,9 +220,10 @@ Skills (invoke via slash command or Skill tool — do NOT read the skill files, 
 MCP tools (call directly — the MCP server is already configured):
 `mcp__ctx-cloud__search_knowledge`, `mcp__ctx-cloud__query_entities`, `mcp__ctx-cloud__blast_radius`, `mcp__ctx-cloud__investigate_service`, `mcp__ctx-cloud__get_change_confidence`, `mcp__ctx-cloud__get_service`, `mcp__ctx-cloud__get_service_dependencies`
 
-MCP servers for data loading and onboarding (call directly, no Bash needed):
-`mcp__ctx-loader__loader_init`, `mcp__ctx-loader__loader_load`, `mcp__ctx-loader__loader_status`, `mcp__ctx-loader__loader_diagnose`, `mcp__ctx-loader__loader_query_search`, `mcp__ctx-loader__loader_query_entities`
-`mcp__ctx-onboard__onboard_step_0` through `mcp__ctx-onboard__onboard_step_7`, `mcp__ctx-onboard__onboard_status`
+For querying the knowledge graph, ALWAYS use `mcp__ctx-cloud__*` tools (search_knowledge, query_entities, blast_radius, investigate_service, etc.)
+
+For data loading: `mcp__ctx-loader__loader_init`, `mcp__ctx-loader__loader_load`, `mcp__ctx-loader__loader_status`, `mcp__ctx-loader__loader_diagnose`
+For onboarding: `mcp__ctx-onboard__onboard_step_0` through `mcp__ctx-onboard__onboard_step_7`, `mcp__ctx-onboard__onboard_status`
 
 Fallback CLIs (if MCP is unavailable):
 `ctx-loader` (data loading), `ctx-onboard` (onboarding), `ctx-cli` (queries) — all read `ctx-settings.yaml` automatically.
