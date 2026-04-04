@@ -155,6 +155,20 @@ TOOLS = [
 ]
 
 
+def slim_loader_status(data: dict) -> dict:
+    """Extract pipeline status summary — drop apiCalls, credential details, etc."""
+    if "workspaces" not in data:
+        return data
+    summary = {"runId": data.get("id"), "status": data.get("status"), "startedAt": data.get("startedAt"), "endedAt": data.get("endedAt")}
+    sources = []
+    for ws_name, ws in data.get("workspaces", {}).items():
+        for src_name, src in ws.get("sources", {}).items():
+            agents = [{"name": a.get("agentName"), "status": a.get("overallStatus"), "error": a.get("error")} for a in src.get("agentRuns", [])]
+            sources.append({"workspace": ws_name, "source": src_name, "status": src.get("status"), "error": src.get("error"), "agents": agents})
+    summary["sources"] = sources
+    return summary
+
+
 def run_cli(args: list[str], timeout: int = 120) -> dict:
     """Run ctx-loader with args and return parsed JSON output."""
     load_settings()  # Re-read each time — ctx-settings.yaml may be created mid-session
@@ -199,7 +213,7 @@ def handle_tool_call(name: str, args: dict) -> dict:
     elif name == "loader_status":
         cmd = ["status"]
         if args.get("summary", True): cmd += ["--summary"]
-        return run_cli(cmd)
+        return slim_loader_status(run_cli(cmd))
 
     elif name == "loader_resume":
         cmd = ["resume", "--manifest", args.get("manifest", "ctx-loader.yaml")]

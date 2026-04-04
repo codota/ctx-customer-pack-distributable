@@ -176,10 +176,35 @@ def run_cli(args: list[str], timeout: int = 120) -> dict:
         return {"error": str(e)}
 
 
+def slim_step_0(data: dict) -> dict:
+    """Extract what the agent needs from step-0: connectivity + capability summary."""
+    caps = data.get("capabilities", {})
+    agents = caps.get("availableAgentKinds", [])
+    return {
+        "status": "connected" if caps else "unknown",
+        "supportedCredentialTypes": caps.get("supportedCredentialTypes", []),
+        "supportedDataSourceTypes": caps.get("supportedDataSourceTypes", []),
+        "extensionInstallAvailable": caps.get("extensionInstallAvailable", False),
+        "agentCount": len(agents),
+        "agentNames": [a.get("name") for a in agents],
+    }
+
+
+def slim_status(data: dict) -> dict:
+    """Extract step progress from status — drop checkpoint details."""
+    steps = data.get("steps", data.get("progress", {}))
+    if isinstance(steps, list):
+        return {"steps": [{"step": s.get("step"), "status": s.get("status"), "completedAt": s.get("completedAt")} for s in steps]}
+    if isinstance(steps, dict):
+        return {"steps": {k: v.get("status") if isinstance(v, dict) else v for k, v in steps.items()}}
+    # Fallback: return top-level keys only
+    return {k: v for k, v in data.items() if k in ("currentStep", "status", "steps", "progress", "error")}
+
+
 def handle_tool_call(name: str, args: dict) -> dict:
     """Map MCP tool name to ctx-onboard CLI invocation."""
     if name == "onboard_step_0":
-        return run_cli(["step-0"])
+        return slim_step_0(run_cli(["step-0"]))
 
     elif name == "onboard_step_1":
         cmd = ["step-1", "--repo-path", args["repo_path"]]
@@ -214,7 +239,7 @@ def handle_tool_call(name: str, args: dict) -> dict:
         return run_cli(["step-7"])
 
     elif name == "onboard_status":
-        return run_cli(["status"])
+        return slim_status(run_cli(["status"]))
 
     elif name == "onboard_query_search":
         cmd = ["query", "search", args["terms"]]
