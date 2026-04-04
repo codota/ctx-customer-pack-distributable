@@ -19197,6 +19197,42 @@ var init_checkpoint = __esm({
   }
 });
 
+// loader/dist/state/summarize.js
+function summarizeRun(run) {
+  const sources = [];
+  for (const [wsName, ws] of Object.entries(run.workspaces)) {
+    for (const [srcName, src] of Object.entries(ws.sources)) {
+      sources.push({
+        workspace: wsName,
+        source: srcName,
+        status: src.status,
+        syncStartedAt: src.syncStartedAt,
+        syncCompletedAt: src.syncCompletedAt,
+        error: src.error,
+        agents: src.agentRuns.map((a) => ({
+          name: a.agentName,
+          status: a.overallStatus,
+          runCount: a.runs.length
+        }))
+      });
+    }
+  }
+  return {
+    runId: run.id,
+    status: run.status,
+    mode: run.mode,
+    startedAt: run.startedAt,
+    endedAt: run.endedAt,
+    error: run.error,
+    sources
+  };
+}
+var init_summarize = __esm({
+  "loader/dist/state/summarize.js"() {
+    "use strict";
+  }
+});
+
 // loader/dist/engine/api-client.js
 var import_node_crypto, CtxApiClient;
 var init_api_client = __esm({
@@ -19567,6 +19603,7 @@ var init_dist2 = __esm({
     init_schema();
     init_types2();
     init_checkpoint();
+    init_summarize();
     init_orchestrator();
     init_pause_controller();
     init_concurrency_pool();
@@ -20031,24 +20068,25 @@ async function checkStatus(baseDir, stateManager, state) {
     const pid = parseInt((0, import_node_fs5.readFileSync)(pidFile, "utf-8").trim(), 10);
     try {
       process.kill(pid, 0);
-      let loaderStatus = "";
+      let loaderStatus;
       try {
-        loaderStatus = (0, import_node_child_process.execFileSync)(findLoader(), ["status", "--json"], {
+        const raw = (0, import_node_child_process.execFileSync)(findLoader(), ["status", "--json"], {
           encoding: "utf-8",
           cwd: baseDir,
           timeout: 5e3
         });
+        loaderStatus = parseAndSummarize(raw);
       } catch {
       }
-      return { status: "loading", pid, loaderOutput: loaderStatus };
+      return { status: "loading", pid, loaderStatus };
     } catch {
       try {
-        const loaderStatusJson = (0, import_node_child_process.execFileSync)(findLoader(), ["status", "--json"], {
+        const raw = (0, import_node_child_process.execFileSync)(findLoader(), ["status", "--json"], {
           encoding: "utf-8",
           cwd: baseDir,
           timeout: 5e3
         });
-        const loaderState = JSON.parse(loaderStatusJson);
+        const loaderState = JSON.parse(raw);
         if (loaderState.status === "completed") {
           await stateManager.markStepCompleted(state, 2, { loaderExitCode: 0 });
           try {
@@ -20058,11 +20096,7 @@ async function checkStatus(baseDir, stateManager, state) {
           return { status: "completed" };
         }
         if (loaderState.status === "failed") {
-          const errors = loaderState.workspaces && Object.values(loaderState.workspaces).flatMap(
-            (ws) => Object.values(ws.sources || {}).filter((s) => s.error).map((s) => s.error)
-          ) || [];
-          const detail2 = errors.join("; ") || "Loader failed";
-          return { status: "failed", loaderOutput: detail2 };
+          return { status: "failed", loaderStatus: parseAndSummarize(raw) };
         }
       } catch {
       }
@@ -20085,6 +20119,17 @@ function findLoader() {
   } catch {
   }
   return "ctx-loader";
+}
+function parseAndSummarize(raw) {
+  try {
+    const parsed = JSON.parse(raw);
+    if (parsed.workspaces) {
+      return summarizeRun(parsed);
+    }
+    return parsed;
+  } catch {
+    return { raw: raw.slice(-300) };
+  }
 }
 function patchManifestWithVolume(originalPath, volume, baseDir) {
   const raw = (0, import_node_fs5.readFileSync)(originalPath, "utf-8");
@@ -20119,6 +20164,7 @@ var init_step_2_load_project = __esm({
     import_node_path5 = require("node:path");
     import_yaml5 = __toESM(require_dist(), 1);
     init_onboarding_state();
+    init_dist2();
   }
 });
 
@@ -21210,12 +21256,23 @@ program2.command("step-2").description("Load project data (runs ctx-loader in ba
       console.log(JSON.stringify(result, null, 2));
     } else if (result.status === "loading") {
       console.log(`Step 2: Loader running in background (pid ${result.pid})`);
+      if (result.loaderStatus) {
+        const summary = result.loaderStatus;
+        const sources = summary.sources ?? [];
+        for (const src of sources) {
+          const agents = src.agents ?? [];
+          const agentInfo = agents.length > 0 ? ` [${agents.map((a) => `${a.name}:${a.status}`).join(", ")}]` : "";
+          console.log(`  ${src.workspace}/${src.source}: ${src.status}${agentInfo}`);
+        }
+      }
       console.log("Check progress: ctx-onboard step-2 --status --json");
     } else if (result.status === "completed") {
       console.log("Step 2: Load completed.");
     } else {
       console.log(`Step 2: Load failed.`);
-      if (result.loaderOutput) {
+      if (result.loaderStatus) {
+        console.log(JSON.stringify(result.loaderStatus, null, 2).slice(0, 300));
+      } else if (result.loaderOutput) {
         console.log(result.loaderOutput.slice(0, 300));
       }
     }

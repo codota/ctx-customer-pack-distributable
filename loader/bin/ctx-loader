@@ -20644,6 +20644,46 @@ var init_orchestrator = __esm({
   }
 });
 
+// loader/src/state/summarize.ts
+var summarize_exports = {};
+__export(summarize_exports, {
+  summarizeRun: () => summarizeRun
+});
+function summarizeRun(run) {
+  const sources = [];
+  for (const [wsName, ws] of Object.entries(run.workspaces)) {
+    for (const [srcName, src] of Object.entries(ws.sources)) {
+      sources.push({
+        workspace: wsName,
+        source: srcName,
+        status: src.status,
+        syncStartedAt: src.syncStartedAt,
+        syncCompletedAt: src.syncCompletedAt,
+        error: src.error,
+        agents: src.agentRuns.map((a) => ({
+          name: a.agentName,
+          status: a.overallStatus,
+          runCount: a.runs.length
+        }))
+      });
+    }
+  }
+  return {
+    runId: run.id,
+    status: run.status,
+    mode: run.mode,
+    startedAt: run.startedAt,
+    endedAt: run.endedAt,
+    error: run.error,
+    sources
+  };
+}
+var init_summarize = __esm({
+  "loader/src/state/summarize.ts"() {
+    "use strict";
+  }
+});
+
 // loader/src/pipeline/rollback.ts
 var rollback_exports = {};
 __export(rollback_exports, {
@@ -21047,7 +21087,7 @@ program2.command("load").description("Execute full data load pipeline").option("
     process.exit(1);
   }
 });
-program2.command("status").description("Show current pipeline status").option("--json", "Output as JSON").action(async (opts) => {
+program2.command("status").description("Show current pipeline status").option("--json", "Output as JSON").option("--summary", "Compact status (omit internal details like apiCalls, credentials)").action(async (opts) => {
   const { CheckpointStore: CheckpointStore2 } = await Promise.resolve().then(() => (init_checkpoint(), checkpoint_exports));
   const store = new CheckpointStore2(process.cwd());
   const run = await store.loadLatest();
@@ -21056,6 +21096,21 @@ program2.command("status").description("Show current pipeline status").option("-
       console.log(JSON.stringify({ status: "no_runs" }));
     } else {
       console.log("No load runs found.");
+    }
+    return;
+  }
+  if (opts.summary) {
+    const { summarizeRun: summarizeRun2 } = await Promise.resolve().then(() => (init_summarize(), summarize_exports));
+    const summary = summarizeRun2(run);
+    if (opts.json) {
+      console.log(JSON.stringify(summary, null, 2));
+    } else {
+      console.log(`Run: ${summary.runId} (${summary.status})`);
+      console.log(`Started: ${summary.startedAt}${summary.endedAt ? `  Ended: ${summary.endedAt}` : ""}`);
+      for (const src of summary.sources) {
+        const agentInfo = src.agents.length > 0 ? ` [${src.agents.map((a) => `${a.name}:${a.status}`).join(", ")}]` : "";
+        console.log(`  ${src.workspace}/${src.source}: ${src.status}${agentInfo}`);
+      }
     }
     return;
   }
