@@ -8,7 +8,6 @@ tags:
   - onboarding
   - methodology
 group: onboarding
-mcp-tools: []
 ---
 # Context Engine Onboarding
 
@@ -91,25 +90,19 @@ If not found, tell the user to install them:
 curl -fsSL https://raw.githubusercontent.com/codota/ctx-customer-pack-distributable/main/installers/install.sh | bash -s -- --package all --agent claude
 ```
 
-## The 7 Steps
-
 ## Checking Progress
 
-Use `ctx-onboard status` (without --json) for a readable summary:
-```bash
-ctx-onboard status
-```
-This shows each step's status. Do NOT pipe through python or jq — the plain output is already formatted.
+Call `mcp__ctx-onboard__onboard_status` to see which steps are completed, in progress, or pending.
 
 ## The 7 Steps
+
+Use MCP tools for all steps. Do NOT use Bash commands — use the `mcp__ctx-onboard__*` tools directly.
 
 ### Step 0: Initialize
 
 Validate connectivity to the Context Engine and detect server capabilities.
 
-```bash
-ctx-onboard step-0 --json
-```
+Call `mcp__ctx-onboard__onboard_step_0`.
 
 This checks:
 - CTX API reachability and authentication
@@ -121,60 +114,41 @@ This checks:
 
 Analyze your repository and generate a test plan with categorized test cases.
 
-```bash
-ctx-onboard step-1 --repo-path /path/to/your/repo --json
-```
+Call `mcp__ctx-onboard__onboard_step_1` with `repo_path` set to the repository path.
 
 Produces `test-plan.yaml` with 5-10 test cases covering architecture, incident response, code intelligence, dependencies, and documentation.
 
 ### Step 2: Load Project Data
 
-**Before starting:** Check `ctx-onboard status` (no --json) to see the current progress. If step 2 shows `in_progress` or `failed`, ask the user:
-
-> "Step 2 has a previous attempt that [failed/is stale]. Would you like to:
-> 1. **Retry** — try loading again (the server will reuse the existing data source)
-> 2. **Reset step 2** — clean up the loader state and retry just this step"
-
-If the user chooses reset, only clean the loader state (steps 0 and 1 are preserved):
-```bash
-rm -rf .ctx-loader
-```
-Then re-run step 2 directly — no need to redo steps 0 and 1. The server-side data source will be reused automatically (lookup-then-create).
+**Before starting:** Call `mcp__ctx-onboard__onboard_status` to check progress. If step 2 shows `in_progress` or `failed`, ask the user whether to retry or reset.
 
 **Loading data:**
 
 Create a `ctx-loader.yaml` manifest first if one doesn't exist:
-```bash
-ctx-loader init --template minimal --output ctx-loader.yaml
-```
 
-Then start the load. This runs in the background — it returns immediately:
-```bash
-ctx-onboard step-2 --manifest ctx-loader.yaml --json
-```
+Call `mcp__ctx-loader__loader_init` with `template: "minimal"`, `output: "ctx-loader.yaml"`. Set `owner` and `repo` if known.
+
+Then start the load (runs in background, returns immediately):
+
+Call `mcp__ctx-onboard__onboard_step_2_start` with `manifest: "ctx-loader.yaml"`.
 
 Poll for completion (check every 15-30 seconds):
-```bash
-ctx-onboard step-2 --status --json
-```
 
-The `--status` response will be one of:
-- `{ "status": "loading", "pid": 1234 }` — still running, keep polling
+Call `mcp__ctx-onboard__onboard_step_2_status`.
+
+The response will be one of:
+- `{ "status": "loading" }` — still running, keep polling
 - `{ "status": "completed" }` — done, move to step 3
 - `{ "status": "failed", "loaderOutput": "..." }` — show the error to the user and offer to retry or reset
 
 **Important:** Step 2 runs in the background because large repos can take minutes.
-Do NOT wait for the initial `step-2` command to finish — it returns immediately.
-Instead, poll with `--status` until it completes.
 
 ### Step 3: Baseline Without MCP
 
 This step is agent-driven. You (the agent) answer the test questions yourself, then submit answers for scoring.
 
-1. Get the test questions:
-```bash
-ctx-onboard step-3 --json
-```
+1. Get the test questions: call `mcp__ctx-onboard__onboard_step_3_get_questions`.
+
 This returns the test cases. **Answer each question yourself WITHOUT using any Context Engine MCP tools.** Use only your training data.
 
 2. Save your answers as a JSON file (e.g. `.ctx-onboarding/step3-answers.json`):
@@ -185,42 +159,24 @@ This returns the test cases. **Answer each question yourself WITHOUT using any C
 ]
 ```
 
-3. Submit for scoring:
-```bash
-ctx-onboard step-3 --responses .ctx-onboarding/step3-answers.json --json
-```
+3. Submit for scoring: call `mcp__ctx-onboard__onboard_step_3_submit` with `responses_file: ".ctx-onboarding/step3-answers.json"`.
 
 ### Step 4: Baseline With MCP
 
 Same as step 3, but this time **query the Context Engine** to answer.
 
-1. Get the test questions:
-```bash
-ctx-onboard step-4 --json
-```
+1. Get the test questions: call `mcp__ctx-onboard__onboard_step_4_get_questions`.
 
-2. Answer each question by querying the Context Engine using `ctx-onboard query`:
+2. Answer each question by querying the Context Engine using MCP tools:
 
-```bash
-# Search the knowledge graph (semantic search)
-ctx-onboard query search "services architecture dependencies"
+- `mcp__ctx-cloud__search_knowledge` — semantic search
+- `mcp__ctx-cloud__query_entities` — list/search entities by type
+- `mcp__ctx-onboard__onboard_query_search` — search via onboard server
+- `mcp__ctx-onboard__onboard_query_entities` — list entities via onboard server
 
-# List entities by type
-ctx-onboard query entities --type Service --limit 20
+Use the search results to build comprehensive answers. The key difference from step 3 is that you now have access to real project data from the knowledge graph.
 
-# Search entities by name
-ctx-onboard query entities --search "typescript" --limit 10
-
-# Get a specific entity by ID
-ctx-onboard query entity <entity-id>
-```
-
-These commands are auto-approved (no user confirmation needed). Use the search results to build comprehensive answers. The key difference from step 3 is that you now have access to real project data from the knowledge graph.
-
-3. Save answers the same way and submit for scoring:
-```bash
-ctx-onboard step-4 --responses .ctx-onboarding/step4-answers.json --json
-```
+3. Submit for scoring: call `mcp__ctx-onboard__onboard_step_4_submit` with `responses_file: ".ctx-onboarding/step4-answers.json"`.
 
 The comparison shows the improvement from using Context Engine data.
 
@@ -228,9 +184,7 @@ The comparison shows the improvement from using Context Engine data.
 
 Analyze your repository for domain-specific concepts and load them into the Context Engine.
 
-```bash
-ctx-onboard step-5 --repo-path /path/to/your/repo --json
-```
+Call `mcp__ctx-onboard__onboard_step_5` with `repo_path` set to the repository path.
 
 This step is capability-gated:
 - **Full mode**: Creates ontology extensions, coaching guidelines, and custom agents
@@ -240,17 +194,13 @@ This step is capability-gated:
 
 Re-run tests with domain enrichment active. Produces a 3-way comparison.
 
-```bash
-ctx-onboard step-6 --json
-```
+Call `mcp__ctx-onboard__onboard_step_6`.
 
 ### Step 7: Rollout Plan
 
 Generate a phased adoption plan based on measured improvements.
 
-```bash
-ctx-onboard step-7 --json
-```
+Call `mcp__ctx-onboard__onboard_step_7`.
 
 Produces a rollout plan with phases (pilot → early adopters → GA), risk assessment, and success criteria backed by the measured improvements.
 
@@ -258,17 +208,3 @@ Produces a rollout plan with phases (pilot → early adopters → GA), risk asse
 
 - **Path A (Quick evaluation)**: Steps 0–4, then Step 7
 - **Path B (Full evaluation)**: Steps 0–7 including domain enrichment
-
-## Resetting
-
-**Reset just step 2** (keep steps 0-1):
-```bash
-rm -rf .ctx-loader
-```
-Then re-run `ctx-onboard step-2`.
-
-**Reset everything** (start from scratch):
-```bash
-rm -rf .ctx-loader .ctx-onboarding
-```
-Then re-run from step 0.

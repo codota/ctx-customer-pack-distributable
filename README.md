@@ -56,6 +56,13 @@ export CTX_API_KEY=ctx_your_key_here
 | `HTTPS_PROXY` | No | HTTP proxy for corporate networks |
 | `NODE_EXTRA_CA_CERTS` | No | Custom CA certificate path |
 
+## Documentation
+
+- [Customer Pack User Guide](docs/customer-pack-user-guide.md) — tutorials for `ctx-skills`, `ctx-loader`, and `ctx-onboard`
+- [Customer Pack Manual](docs/customer-pack-manual.md) — detailed setup, command reference, and common workflows
+- [Onboarding Guide](docs/onboarding-guide.md) — expanded walkthrough of the 7-step evaluation flow
+- [Context Engine User Guide](docs/context-engine-guide.md) — broader Context Engine workflows and examples
+
 ## Data Loader
 
 ```bash
