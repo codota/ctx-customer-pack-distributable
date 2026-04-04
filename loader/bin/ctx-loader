@@ -14894,6 +14894,11 @@ var require_pino = __commonJS({
 // shared/dist/logging/logger.js
 function createLogger(options) {
   const redactPaths = [...DEFAULT_REDACT_PATHS, ...options.redactPaths ?? []];
+  const redact = { paths: redactPaths, censor: "[REDACTED]" };
+  if (true) {
+    const dest = options.filePath ? import_pino.default.destination({ dest: options.filePath, mkdir: true }) : import_pino.default.destination(1);
+    return (0, import_pino.default)({ name: options.name, level: options.level ?? "info", redact }, dest);
+  }
   const targets = [];
   if (options.pretty !== false) {
     targets.push({
@@ -14921,10 +14926,7 @@ function createLogger(options) {
     name: options.name,
     level: "debug",
     // let transports filter
-    redact: {
-      paths: redactPaths,
-      censor: "[REDACTED]"
-    },
+    redact,
     transport: {
       targets
     }
