@@ -119,6 +119,7 @@ install_core() {
       fetch "${RAW_BASE}/core/agents/claude/scripts/ctx-mcp-proxy.py" ".claude/scripts/ctx-mcp-proxy.py" || true
       fetch "${RAW_BASE}/core/agents/claude/scripts/ctx-loader-mcp.py" ".claude/scripts/ctx-loader-mcp.py" || true
       fetch "${RAW_BASE}/core/agents/claude/scripts/ctx-onboard-mcp.py" ".claude/scripts/ctx-onboard-mcp.py" || true
+      fetch "${RAW_BASE}/core/tool-schemas.json" ".claude/scripts/tool-schemas.json" || true
       chmod +x .claude/hooks/*.py .claude/scripts/*.py 2>/dev/null || true
 
       # Configure hooks and permissions in settings.local.json
@@ -261,6 +262,7 @@ CLAUDE_EOF
       fetch "${RAW_BASE}/core/agents/claude/scripts/ctx-mcp-proxy.py" ".cursor/scripts/ctx-mcp-proxy.py" || true
       fetch "${RAW_BASE}/core/agents/claude/scripts/ctx-loader-mcp.py" ".cursor/scripts/ctx-loader-mcp.py" || true
       fetch "${RAW_BASE}/core/agents/claude/scripts/ctx-onboard-mcp.py" ".cursor/scripts/ctx-onboard-mcp.py" || true
+      fetch "${RAW_BASE}/core/tool-schemas.json" ".cursor/scripts/tool-schemas.json" || true
       chmod +x .cursor/scripts/*.py 2>/dev/null || true
 
       # Configure MCP servers for Cursor (.cursor/mcp.json)
@@ -305,6 +307,7 @@ CURSOR_MCP_EOF
       fetch "${RAW_BASE}/core/agents/claude/scripts/ctx-mcp-proxy.py" ".gemini/scripts/ctx-mcp-proxy.py" || true
       fetch "${RAW_BASE}/core/agents/claude/scripts/ctx-loader-mcp.py" ".gemini/scripts/ctx-loader-mcp.py" || true
       fetch "${RAW_BASE}/core/agents/claude/scripts/ctx-onboard-mcp.py" ".gemini/scripts/ctx-onboard-mcp.py" || true
+      fetch "${RAW_BASE}/core/tool-schemas.json" ".gemini/scripts/tool-schemas.json" || true
       chmod +x .gemini/scripts/*.py 2>/dev/null || true
 
       # Configure MCP servers for Gemini (.gemini/settings.json)

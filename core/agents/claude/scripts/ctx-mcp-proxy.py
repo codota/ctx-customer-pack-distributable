@@ -117,6 +117,24 @@ def send_to_remote(payload: dict) -> str | None:
 SERVER_NAME = "ctx-cloud"
 SERVER_VERSION = "0.1.0"
 
+# Load tool schemas from the static file bundled alongside this script.
+# This allows tools/list to work without credentials (tools are known at install time).
+TOOLS: list[dict] = []
+_schema_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tool-schemas.json")
+if os.path.exists(_schema_path):
+    try:
+        with open(_schema_path) as _f:
+            _raw = json.load(_f)
+        # tool-schemas.json is { "tool_name": { name, description, parameters }, ... }
+        for _tool in _raw.values():
+            TOOLS.append({
+                "name": _tool.get("name", ""),
+                "description": _tool.get("description", ""),
+                "inputSchema": _tool.get("parameters", {"type": "object", "properties": {}}),
+            })
+    except Exception:
+        pass  # If schemas can't load, tools/list will return empty — agent falls back to CLI
+
 
 def handle_locally(payload: dict) -> str | None:
     """Handle protocol messages locally; return None to forward to remote."""
@@ -136,7 +154,13 @@ def handle_locally(payload: dict) -> str | None:
     if method == "notifications/initialized":
         return None  # No response needed
 
-    # tools/list and tools/call get forwarded to remote
+    if method == "tools/list":
+        return json.dumps({
+            "jsonrpc": "2.0", "id": msg_id,
+            "result": {"tools": TOOLS},
+        })
+
+    # Only tools/call gets forwarded to remote
     return None
 
 
