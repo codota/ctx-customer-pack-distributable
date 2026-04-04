@@ -121,7 +121,7 @@ install_core() {
       fetch "${RAW_BASE}/core/agents/claude/scripts/ctx-onboard-mcp.py" ".claude/scripts/ctx-onboard-mcp.py" || true
       chmod +x .claude/hooks/*.py .claude/scripts/*.py 2>/dev/null || true
 
-      # Configure MCP servers, hooks, and permissions in settings.local.json
+      # Configure hooks and permissions in settings.local.json
       echo "[core] Configuring Claude Code settings..."
       local abs_scripts
       abs_scripts="$(cd .claude/scripts 2>/dev/null && pwd)"
@@ -138,20 +138,6 @@ install_core() {
       "Bash(which ctx-loader:*)",
       "Bash(which ctx-cli:*)"
     ]
-  },
-  "mcpServers": {
-    "ctx-cloud": {
-      "command": "python3",
-      "args": ["${abs_scripts}/ctx-mcp-proxy.py"]
-    },
-    "ctx-loader": {
-      "command": "python3",
-      "args": ["${abs_scripts}/ctx-loader-mcp.py"]
-    },
-    "ctx-onboard": {
-      "command": "python3",
-      "args": ["${abs_scripts}/ctx-onboard-mcp.py"]
-    }
   },
   "hooks": {
     "PreToolUse": [
@@ -179,6 +165,26 @@ install_core() {
   }
 }
 SETTINGS_EOF
+
+      # Configure MCP servers in .mcp.json (project root — Claude Code reads MCP from here, not settings.local.json)
+      cat > .mcp.json <<MCP_EOF
+{
+  "mcpServers": {
+    "ctx-cloud": {
+      "command": "python3",
+      "args": ["${abs_scripts}/ctx-mcp-proxy.py"]
+    },
+    "ctx-loader": {
+      "command": "python3",
+      "args": ["${abs_scripts}/ctx-loader-mcp.py"]
+    },
+    "ctx-onboard": {
+      "command": "python3",
+      "args": ["${abs_scripts}/ctx-onboard-mcp.py"]
+    }
+  }
+}
+MCP_EOF
 
       # Generate CLAUDE.md project guide
       echo "[core] Creating CLAUDE.md..."
