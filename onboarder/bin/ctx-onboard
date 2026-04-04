@@ -4741,7 +4741,7 @@ var require_merge = __commonJS({
 var require_addPairToJSMap = __commonJS({
   "node_modules/yaml/dist/nodes/addPairToJSMap.js"(exports2) {
     "use strict";
-    var log = require_log();
+    var log2 = require_log();
     var merge = require_merge();
     var stringify = require_stringify();
     var identity = require_identity();
@@ -4790,7 +4790,7 @@ var require_addPairToJSMap = __commonJS({
           let jsonStr = JSON.stringify(strKey);
           if (jsonStr.length > 40)
             jsonStr = jsonStr.substring(0, 36) + '..."';
-          log.warn(ctx.doc.options.logLevel, `Keys with collection values will be stringified due to JS Object restrictions: ${jsonStr}. Set mapAsMap: true to use object keys.`);
+          log2.warn(ctx.doc.options.logLevel, `Keys with collection values will be stringified due to JS Object restrictions: ${jsonStr}. Set mapAsMap: true to use object keys.`);
           ctx.mapKeyWarned = true;
         }
         return strKey;
@@ -10186,7 +10186,7 @@ var require_public_api = __commonJS({
     var composer = require_composer();
     var Document = require_Document();
     var errors = require_errors();
-    var log = require_log();
+    var log2 = require_log();
     var identity = require_identity();
     var lineCounter = require_line_counter();
     var parser = require_parser();
@@ -10238,7 +10238,7 @@ var require_public_api = __commonJS({
       const doc = parseDocument(src, options);
       if (!doc)
         return null;
-      doc.warnings.forEach((warning) => log.warn(doc.options.logLevel, warning));
+      doc.warnings.forEach((warning) => log2.warn(doc.options.logLevel, warning));
       if (doc.errors.length > 0) {
         if (doc.options.logLevel !== "silent")
           throw doc.errors[0];
@@ -10553,11 +10553,11 @@ var init_env_interpolation = __esm({
 });
 
 // shared/dist/config/yaml-loader.js
-var import_yaml2;
+var import_yaml;
 var init_yaml_loader = __esm({
   "shared/dist/config/yaml-loader.js"() {
     "use strict";
-    import_yaml2 = __toESM(require_dist(), 1);
+    import_yaml = __toESM(require_dist(), 1);
     init_categorized_error();
     init_env_interpolation();
   }
@@ -13409,11 +13409,11 @@ var require_tools = __commonJS({
         }
       }
     }
-    function buildFormatters(level, bindings, log) {
+    function buildFormatters(level, bindings, log2) {
       return {
         level,
         bindings,
-        log
+        log: log2
       };
     }
     function normalizeDestFileDescriptor(destination) {
@@ -13796,11 +13796,11 @@ var require_proto = __commonJS({
         }
       } else instance[serializersSym] = serializers;
       if (options.hasOwnProperty("formatters")) {
-        const { level, bindings: chindings, log } = options.formatters;
+        const { level, bindings: chindings, log: log2 } = options.formatters;
         instance[formattersSym] = buildFormatters(
           level || formatters.level,
           chindings || resetChildingsFormatter,
-          log || formatters.log
+          log2 || formatters.log
         );
       } else {
         instance[formattersSym] = buildFormatters(
@@ -14869,11 +14869,64 @@ var require_pino = __commonJS({
 });
 
 // shared/dist/logging/logger.js
-var import_pino;
+function createLogger(options) {
+  const redactPaths = [...DEFAULT_REDACT_PATHS, ...options.redactPaths ?? []];
+  const targets = [];
+  if (options.pretty !== false) {
+    targets.push({
+      target: "pino-pretty",
+      options: { colorize: true },
+      level: options.level ?? "info"
+    });
+  } else {
+    targets.push({
+      target: "pino/file",
+      options: { destination: 1 },
+      // stdout
+      level: options.level ?? "info"
+    });
+  }
+  if (options.filePath) {
+    targets.push({
+      target: "pino/file",
+      options: { destination: options.filePath, mkdir: true },
+      level: "debug"
+      // file always gets debug level
+    });
+  }
+  return (0, import_pino.default)({
+    name: options.name,
+    level: "debug",
+    // let transports filter
+    redact: {
+      paths: redactPaths,
+      censor: "[REDACTED]"
+    },
+    transport: {
+      targets
+    }
+  });
+}
+var import_pino, DEFAULT_REDACT_PATHS;
 var init_logger = __esm({
   "shared/dist/logging/logger.js"() {
     "use strict";
     import_pino = __toESM(require_pino(), 1);
+    DEFAULT_REDACT_PATHS = [
+      "*.apiKey",
+      "*.token",
+      "*.password",
+      "*.secret",
+      "*.authorization",
+      "*.api_key",
+      "*.apiToken",
+      "*.accessToken",
+      "*.refreshToken",
+      "ctx.apiKey",
+      "credentials.*.data.token",
+      "credentials.*.data.apiToken",
+      "credentials.*.data.password"
+    ];
   }
 });
 
@@ -19117,11 +19170,11 @@ var init_schema = __esm({
 });
 
 // loader/dist/manifest/parser.js
-var import_yaml3;
+var import_yaml2;
 var init_parser = __esm({
   "loader/dist/manifest/parser.js"() {
     "use strict";
-    import_yaml3 = __toESM(require_dist(), 1);
+    import_yaml2 = __toESM(require_dist(), 1);
     init_dist();
     init_schema();
   }
@@ -19218,6 +19271,44 @@ var init_api_client = __esm({
         const resp = await this.get("/api/agent-kinds");
         return resp.data;
       }
+      async createAgentKind(body) {
+        const resp = await this.post("/api/agent-kinds", body);
+        return resp.data;
+      }
+      async updateAgentKind(id, body) {
+        await this.patch("/api/agent-kinds/" + id, body);
+      }
+      // ─── Coaching Guidelines ────────────────────────────────
+      async createCoachingGuideline(body) {
+        const resp = await this.post("/api/coaching-guidelines", body);
+        return resp.data;
+      }
+      // ─── Search & Entities ──────────────────────────────────
+      async search(body) {
+        const resp = await this.post("/api/search", body);
+        return resp.data;
+      }
+      async listEntities(params) {
+        const query2 = new URLSearchParams();
+        if (params?.types)
+          query2.set("types", params.types);
+        if (params?.search)
+          query2.set("search", params.search);
+        if (params?.limit)
+          query2.set("limit", String(params.limit));
+        const qs = query2.toString();
+        const resp = await this.get(`/api/entities${qs ? "?" + qs : ""}`);
+        return resp.data;
+      }
+      async getEntity(id) {
+        const resp = await this.get(`/api/entities/${id}`);
+        return resp.data;
+      }
+      // ─── Extensions ─────────────────────────────────────────
+      async listExtensions() {
+        const resp = await this.get("/api/extensions");
+        return resp.data;
+      }
       // ─── Context Spaces (workspaces) ─────────────────────────
       // The CTX API uses "context-spaces" not "workspaces".
       async listWorkspaces() {
@@ -19228,8 +19319,46 @@ var init_api_client = __esm({
         const resp = await this.post("/api/context-spaces", body);
         return resp.data;
       }
+      async getWorkspace(id) {
+        const resp = await this.get(`/api/context-spaces/${id}`);
+        return resp.data;
+      }
+      async updateWorkspace(id, body) {
+        const resp = await this.patch(`/api/context-spaces/${id}`, body);
+        return resp.data;
+      }
+      async deleteWorkspace(id) {
+        await this.delete(`/api/context-spaces/${id}`);
+      }
       async addDataSourceToWorkspace(workspaceId, dataSourceId) {
         await this.post(`/api/context-spaces/${workspaceId}/data-sources/${dataSourceId}`, {});
+      }
+      async removeDataSourceFromWorkspace(workspaceId, dataSourceId) {
+        await this.delete(`/api/context-spaces/${workspaceId}/data-sources/${dataSourceId}`);
+      }
+      async setPrimaryDataSource(workspaceId, dataSourceId) {
+        const resp = await this.put(`/api/context-spaces/${workspaceId}/primary-data-source`, { dataSourceId });
+        return resp.data;
+      }
+      async validateWorkspace(id) {
+        const resp = await this.post(`/api/context-spaces/${id}/validate`, {});
+        return resp.data;
+      }
+      async getWorkspaceStats() {
+        const resp = await this.get("/api/context-spaces/stats/summary");
+        return resp.data;
+      }
+      async getWorkspaceAgentRuns(workspaceId, params) {
+        const query2 = new URLSearchParams();
+        if (params?.status)
+          query2.set("status", params.status);
+        if (params?.limit)
+          query2.set("limit", String(params.limit));
+        if (params?.offset)
+          query2.set("offset", String(params.offset));
+        const qs = query2.toString();
+        const resp = await this.get(`/api/context-spaces/${workspaceId}/agent-runs${qs ? "?" + qs : ""}`);
+        return resp.data;
       }
       // ─── Health ─────────────────────────────────────────────
       async health() {
@@ -19242,6 +19371,12 @@ var init_api_client = __esm({
       }
       async post(path, body) {
         return this.request("POST", path, body);
+      }
+      async patch(path, body) {
+        return this.request("PATCH", path, body);
+      }
+      async put(path, body) {
+        return this.request("PUT", path, body);
       }
       async delete(path) {
         return this.request("DELETE", path);
@@ -19351,10 +19486,22 @@ var init_stage_machine = __esm({
   }
 });
 
+// loader/dist/pipeline/dependency-resolver.js
+var logger;
+var init_dependency_resolver = __esm({
+  "loader/dist/pipeline/dependency-resolver.js"() {
+    "use strict";
+    init_dist();
+    logger = createLogger({ name: "dependency-resolver" });
+  }
+});
+
 // loader/dist/pipeline/orchestrator.js
+var log;
 var init_orchestrator = __esm({
   "loader/dist/pipeline/orchestrator.js"() {
     "use strict";
+    init_dist();
     init_types2();
     init_checkpoint();
     init_api_client();
@@ -19362,6 +19509,8 @@ var init_orchestrator = __esm({
     init_pause_controller();
     init_concurrency_pool();
     init_stage_machine();
+    init_dependency_resolver();
+    log = createLogger({ name: "orchestrator" });
   }
 });
 
@@ -19592,11 +19741,8 @@ async function executeStep0(options) {
   const supportedDataSourceTypes = ["github", "gitlab", "jira", "slack", "confluence", "pagerduty", "linear"];
   let extensionInstallAvailable = false;
   try {
-    const resp = await fetch(`${options.ctxApiUrl.replace(/\/$/, "")}/api/extensions`, {
-      headers: { Authorization: `Bearer ${options.ctxApiKey}` },
-      signal: AbortSignal.timeout(5e3)
-    });
-    extensionInstallAvailable = resp.ok;
+    await client.listExtensions();
+    extensionInstallAvailable = true;
   } catch {
     warnings.push("Extension install endpoint not reachable \u2014 domain ontology will use guideline-only mode");
   }
@@ -19834,14 +19980,14 @@ async function executeStep2(options) {
       env: process.env
     }
   );
-  const log = (0, import_node_fs5.createWriteStream)(logFile, { flags: "w" });
-  child.stdout?.on("data", (data) => log.write(data));
+  const log2 = (0, import_node_fs5.createWriteStream)(logFile, { flags: "w" });
+  child.stdout?.on("data", (data) => log2.write(data));
   child.stderr?.on("data", (data) => {
     process.stderr.write(data);
-    log.write(data);
+    log2.write(data);
   });
   child.on("close", async (code) => {
-    log.end();
+    log2.end();
     const mgr = new OnboardingStateManager(options.baseDir);
     const st = await mgr.load();
     if (st) {
@@ -20636,29 +20782,14 @@ async function operationalizeDomain(model, client, extensionInstallAvailable, op
   return result;
 }
 async function createCoachingGuideline(client, guideline) {
-  const resp = await fetch(
-    `${client.baseUrl}/api/coaching-guidelines`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${client.apiKey}`
-      },
-      body: JSON.stringify({
-        name: guideline.name,
-        description: guideline.description,
-        severity: guideline.severity,
-        pattern: guideline.pattern,
-        suggestion: guideline.suggestion,
-        category: guideline.category
-      })
-    }
-  );
-  if (!resp.ok) {
-    throw catalogError("ONBOARD_DOMAIN_002", `Failed to create coaching guideline: ${guideline.name}`, {
-      details: { status: resp.status, name: guideline.name }
-    });
-  }
+  await client.createCoachingGuideline({
+    name: guideline.name,
+    description: guideline.description,
+    severity: guideline.severity,
+    pattern: guideline.pattern,
+    suggestion: guideline.suggestion,
+    category: guideline.category
+  });
 }
 async function createOrUpdateAgent(client, agent) {
   const kinds = await client.listAgentKinds();
@@ -20670,35 +20801,9 @@ async function createOrUpdateAgent(client, agent) {
     prompt: agent.prompt
   };
   if (existing) {
-    const resp = await fetch(
-      `${client.baseUrl}/api/agent-kinds/${existing.id}`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${client.apiKey}`
-        },
-        body: JSON.stringify(body)
-      }
-    );
-    if (!resp.ok) {
-      throw catalogError("ONBOARD_DOMAIN_002", `Failed to update agent: ${agent.name}`);
-    }
+    await client.updateAgentKind(existing.id, body);
   } else {
-    const resp = await fetch(
-      `${client.baseUrl}/api/agent-kinds`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${client.apiKey}`
-        },
-        body: JSON.stringify(body)
-      }
-    );
-    if (!resp.ok) {
-      throw catalogError("ONBOARD_DOMAIN_002", `Failed to create agent: ${agent.name}`);
-    }
+    await client.createAgentKind(body);
   }
 }
 function convertOntologyToGuidelines(model) {
@@ -20741,7 +20846,6 @@ function toErrorJSON(err, component, name) {
 var init_operationalize = __esm({
   "onboarder/src/domain/operationalize.ts"() {
     "use strict";
-    init_dist();
   }
 });
 
@@ -20922,11 +21026,12 @@ var {
 
 // onboarder/src/cli.ts
 var import_node_path8 = require("node:path");
+init_dist2();
 
 // onboarder/src/config/settings.ts
 var import_node_fs = require("node:fs");
 var import_node_path = require("node:path");
-var import_yaml = __toESM(require_dist(), 1);
+var import_yaml3 = __toESM(require_dist(), 1);
 var DATA_VOLUME_PRESETS = {
   "ultra-light": {
     sinceDays: 1,
@@ -20954,7 +21059,7 @@ function loadSettings(baseDir) {
   if ((0, import_node_fs.existsSync)(settingsPath)) {
     try {
       const raw = (0, import_node_fs.readFileSync)(settingsPath, "utf-8");
-      const parsed = (0, import_yaml.parse)(raw);
+      const parsed = (0, import_yaml3.parse)(raw);
       const apiUrl2 = parsed.CTX_API_URL || parsed.ctx_api_url || parsed.apiUrl;
       const apiKey2 = parsed.CTX_API_KEY || parsed.ctx_api_key || parsed.apiKey;
       if (apiUrl2 && apiKey2) {
@@ -21457,37 +21562,28 @@ program2.command("reset").description("Reset onboarding state (start over)").opt
 var query = program2.command("query").description("Query the Context Engine knowledge graph");
 query.command("search <terms>").description("Semantic search across the knowledge graph").option("--limit <n>", "Max results", "10").option("--types <types>", "Comma-separated entity types to filter").action(async (terms, opts) => {
   const settings = requireSettings(true);
-  const body = { query: terms, limit: parseInt(opts.limit, 10) };
-  if (opts.types) {
-    body.entityTypes = opts.types.split(",");
-  }
-  const resp = await fetch(`${settings.apiUrl}/api/search`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${settings.apiKey}` },
-    body: JSON.stringify(body)
+  const client = new CtxApiClient({ apiUrl: settings.apiUrl, apiKey: settings.apiKey });
+  const results = await client.search({
+    query: terms,
+    limit: parseInt(opts.limit, 10),
+    entityTypes: opts.types ? opts.types.split(",") : void 0
   });
-  console.log(JSON.stringify(await resp.json(), null, 2));
+  console.log(JSON.stringify(results, null, 2));
 });
 query.command("entities").description("List or search entities").option("--type <type>", "Entity type (e.g. Service, CodeClass, Library)").option("--search <term>", "Search by name").option("--limit <n>", "Max results", "20").action(async (opts) => {
   const settings = requireSettings(true);
-  const params = new URLSearchParams();
-  if (opts.type) {
-    params.set("types", opts.type);
-  }
-  if (opts.search) {
-    params.set("search", opts.search);
-  }
-  params.set("limit", opts.limit);
-  const resp = await fetch(`${settings.apiUrl}/api/entities?${params}`, {
-    headers: { Authorization: `Bearer ${settings.apiKey}` }
+  const client = new CtxApiClient({ apiUrl: settings.apiUrl, apiKey: settings.apiKey });
+  const results = await client.listEntities({
+    types: opts.type,
+    search: opts.search,
+    limit: parseInt(opts.limit, 10)
   });
-  console.log(JSON.stringify(await resp.json(), null, 2));
+  console.log(JSON.stringify(results, null, 2));
 });
 query.command("entity <id>").description("Get a specific entity by ID").action(async (id) => {
   const settings = requireSettings(true);
-  const resp = await fetch(`${settings.apiUrl}/api/entities/${id}`, {
-    headers: { Authorization: `Bearer ${settings.apiKey}` }
-  });
-  console.log(JSON.stringify(await resp.json(), null, 2));
+  const client = new CtxApiClient({ apiUrl: settings.apiUrl, apiKey: settings.apiKey });
+  const result = await client.getEntity(id);
+  console.log(JSON.stringify(result, null, 2));
 });
 program2.parse();
