@@ -114,8 +114,34 @@ def send_to_remote(payload: dict) -> str | None:
         })
 
 
+SERVER_NAME = "ctx-cloud"
+SERVER_VERSION = "0.1.0"
+
+
+def handle_locally(payload: dict) -> str | None:
+    """Handle protocol messages locally; return None to forward to remote."""
+    method = payload.get("method", "")
+    msg_id = payload.get("id")
+
+    if method == "initialize":
+        return json.dumps({
+            "jsonrpc": "2.0", "id": msg_id,
+            "result": {
+                "protocolVersion": "2024-11-05",
+                "capabilities": {"tools": {}},
+                "serverInfo": {"name": SERVER_NAME, "version": SERVER_VERSION},
+            },
+        })
+
+    if method == "notifications/initialized":
+        return None  # No response needed
+
+    # tools/list and tools/call get forwarded to remote
+    return None
+
+
 def main():
-    """Read JSON-RPC from stdin, forward to CTX, write response to stdout."""
+    """Read JSON-RPC from stdin, handle protocol locally, forward tool calls to CTX."""
     for line in sys.stdin:
         line = line.strip()
         if not line:
@@ -124,6 +150,17 @@ def main():
         try:
             payload = json.loads(line)
         except json.JSONDecodeError:
+            continue
+
+        # Handle initialize/notifications locally so server starts even without credentials
+        local_response = handle_locally(payload)
+        if local_response:
+            sys.stdout.write(local_response + "\n")
+            sys.stdout.flush()
+            continue
+
+        # Skip notifications (no id = no response expected)
+        if "id" not in payload:
             continue
 
         response = send_to_remote(payload)
