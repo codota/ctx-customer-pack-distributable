@@ -7,7 +7,7 @@ Interact with Jira from the command line via the Context Engine MCP integration.
 ## Get an Issue
 
 ```bash
-ctx-cli mcp call get_jira_issue -p issue_key=PAY-1234 -o json
+ctx-cli mcp call get_jira_issue -p issue_key=PAY-1234 --raw
 ```
 
 ## Create an Issue
@@ -18,17 +18,17 @@ ctx-cli mcp call create_jira_issue \
   -p summary="Fix timeout in payment retry logic" \
   -p description="The retry loop does not respect the configured backoff interval." \
   -p issue_type=Bug \
-  -o json
+  --raw
 ```
 
 ## Transition an Issue
 
 ```bash
 # Move an issue to "In Progress"
-ctx-cli mcp call transition_jira_issue -p issue_key=PAY-1234 -p transition="In Progress" -o json
+ctx-cli mcp call transition_jira_issue -p issue_key=PAY-1234 -p transition="In Progress" --raw
 
 # Close an issue
-ctx-cli mcp call transition_jira_issue -p issue_key=PAY-1234 -p transition="Done" -o json
+ctx-cli mcp call transition_jira_issue -p issue_key=PAY-1234 -p transition="Done" --raw
 ```
 
 ## Add a Comment
@@ -37,7 +37,7 @@ ctx-cli mcp call transition_jira_issue -p issue_key=PAY-1234 -p transition="Done
 ctx-cli mcp call add_jira_comment \
   -p issue_key=PAY-1234 \
   -p comment="Root cause identified: missing null check in retry handler. Fix in PR #892." \
-  -o json
+  --raw
 ```
 
 ## When to Use

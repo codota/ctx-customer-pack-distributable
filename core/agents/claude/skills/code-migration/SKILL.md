@@ -13,7 +13,7 @@ Plan and execute code migrations with Context Engine guidance. Find equivalent f
 
 ```bash
 # Get migration guidance for a service
-ctx-cli mcp call code_migration -p service_name=payments-api -o json
+ctx-cli mcp call code_migration -p service_name=payments-api --raw
 ```
 
 The response includes:
@@ -26,13 +26,13 @@ The response includes:
 
 ```bash
 # Find field mappings for a schema migration
-ctx-cli mcp call code_migration -p service_name=order-service -p source_version=v1 -p target_version=v2 -o json
+ctx-cli mcp call code_migration -p service_name=order-service -p source_version=v1 -p target_version=v2 --raw
 
-# Get migration examples
-ctx-cli mcp call code_migration -p service_name=user-service -o json | jq '.migration_examples'
+# Get migration guidance for user-service
+ctx-cli mcp call code_migration -p service_name=user-service --raw
 
-# List breaking changes
-ctx-cli mcp call code_migration -p service_name=inventory-api -o json | jq '.breaking_changes'
+# Get migration guidance for inventory-api
+ctx-cli mcp call code_migration -p service_name=inventory-api --raw
 ```
 
 ## When to Use

@@ -20891,10 +20891,11 @@ init_parser();
 init_orchestrator();
 init_api_client();
 function requireApiConfig(json) {
-  const apiUrl = process.env.CTX_API_URL;
-  const apiKey = process.env.CTX_API_KEY;
+  const opts = program2.opts();
+  const apiUrl = opts.apiUrl || process.env.CTX_API_URL;
+  const apiKey = opts.apiKey || process.env.CTX_API_KEY;
   if (!apiUrl || !apiKey) {
-    const msg = "CTX_API_URL and CTX_API_KEY environment variables are required.";
+    const msg = "CTX API connection required. Use --api-url/--api-key flags or set CTX_API_URL/CTX_API_KEY environment variables.";
     if (json) {
       console.error(JSON.stringify({ error: msg }));
     } else {
@@ -20905,7 +20906,7 @@ function requireApiConfig(json) {
   return { apiUrl, apiKey };
 }
 var program2 = new Command();
-program2.name("ctx-loader").description("Bulk data loader for Context Engine").version("0.1.0");
+program2.name("ctx-loader").description("Bulk data loader for Context Engine").version("0.1.0").option("--api-url <url>", "CTX API URL (or set CTX_API_URL)").option("--api-key <key>", "CTX API key (or set CTX_API_KEY)");
 program2.command("init").description("Generate a manifest from a template").option("--template <name>", "Template name (minimal, github-jira-slack, gitlab-linear-pagerduty)", "minimal").option("--output <path>", "Output file path", "ctx-loader.yaml").option("--json", "Output as JSON").action(async (opts) => {
   try {
     const { readFileSync: readFileSync3, writeFileSync: writeFileSync2, existsSync: existsSync3 } = await import("node:fs");

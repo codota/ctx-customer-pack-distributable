@@ -4,27 +4,57 @@ Query the Context Engine knowledge graph — investigate services, check blast r
 
 ## Prerequisites
 
-1. Install ctx-cli (see your organization's setup guide).
-2. Set the `CTX_API_KEY` environment variable with your Context Engine API key.
-3. Verify connectivity: `ctx-cli mcp call search_knowledge -p query="hello" -o json`
+1. Install the CTX distributable (ctx-loader, ctx-onboard, ctx-cli).
+2. Set the `CTX_API_KEY` and `CTX_API_URL` environment variables. Or pass them as flags: `--api-key` and `--api-url`.
+3. Verify connectivity: `ctx-loader query search "hello"`
 
 ## Quick Start
 
 ```bash
-# Investigate a service
-ctx-cli mcp call investigate_service -p service_name=payments-api -o json
+# Search for any entity in the knowledge graph
+ctx-loader query search "authentication" --fields entityType,entityName,similarity
+
+# List entities by type
+ctx-loader query entities --type service --search "payment"
+
+# Investigate a service (composite tool — uses ctx-cli)
+ctx-cli mcp call investigate_service -p service_name=payments-api --raw
 
 # Check blast radius before a change
-ctx-cli mcp call blast_radius -p service_name=payments-api -o json
-
-# Search for any entity in the knowledge graph
-ctx-cli mcp call find_entities -p query="authentication" -o json
+ctx-cli mcp call blast_radius -p service_name=payments-api --raw
 
 # Get change confidence score for a file
-ctx-cli mcp call get_change_confidence -p file_path=src/checkout/handler.ts -o json
+ctx-cli mcp call get_change_confidence -p file_path=src/checkout/handler.ts --raw
+```
 
-# Free-text search across all knowledge
-ctx-cli mcp call search_knowledge -p query="rate limiting strategy" -o json
+## Searching the Knowledge Graph
+
+Use `ctx-loader query` for all search and entity lookups. It outputs clean JSON with optional `--fields` selection.
+
+```bash
+# Free-text search
+ctx-loader query search "rate limiting strategy"
+
+# Search with field selection
+ctx-loader query search "checkout" --fields entityType,entityName,similarity
+
+# List entities by type
+ctx-loader query entities --type service --limit 20
+
+# Get a specific entity by ID
+ctx-loader query entity <id>
+```
+
+## Composite Tools (via ctx-cli)
+
+For aggregated investigations that combine multiple queries server-side, use `ctx-cli mcp call`:
+
+```bash
+# Service investigation (dependencies, ownership, incidents)
+ctx-cli mcp call investigate_service -p service_name=order-service --raw
+
+# Change confidence score
+ctx-cli mcp call get_change_confidence -p file_path=src/payments/processor.ts --raw
 ```
 
 ## Discover Available Tools
@@ -35,28 +65,4 @@ ctx-cli mcp list
 
 # Get help for a specific tool
 ctx-cli mcp describe investigate_service
-```
-
-## Service Investigation
-
-Use `investigate_service` to get a complete picture of a service: its dependencies, dependents, owning team, ADRs, and recent incidents.
-
-```bash
-ctx-cli mcp call investigate_service -p service_name=order-service -o json
-```
-
-## Entity Search
-
-Use `find_entities` to locate services, teams, flows, or ADRs by name or keyword.
-
-```bash
-ctx-cli mcp call find_entities -p query="checkout" -p entity_type=service -o json
-```
-
-## Change Confidence
-
-Use `get_change_confidence` to assess risk before merging. Returns a confidence score, related ADRs, and hotspot data.
-
-```bash
-ctx-cli mcp call get_change_confidence -p file_path=src/payments/processor.ts -o json
 ```

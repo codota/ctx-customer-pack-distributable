@@ -8,7 +8,7 @@ Trace a business flow end-to-end through the service graph. See every service in
 
 ```bash
 # Understand a business flow
-ctx-cli mcp call understand_flow -p flow_name=checkout -o json
+ctx-cli mcp call understand_flow -p flow_name=checkout --raw
 ```
 
 The response includes:
@@ -21,13 +21,13 @@ The response includes:
 
 ```bash
 # Trace the full checkout flow
-ctx-cli mcp call understand_flow -p flow_name=checkout -o json
+ctx-cli mcp call understand_flow -p flow_name=checkout --raw
 
-# List services in the payment processing flow
-ctx-cli mcp call understand_flow -p flow_name=payment-processing -o json | jq '.services'
+# Understand the payment processing flow
+ctx-cli mcp call understand_flow -p flow_name=payment-processing --raw
 
-# Check SLOs for the user registration flow
-ctx-cli mcp call understand_flow -p flow_name=user-registration -o json | jq '.slos'
+# Understand the user registration flow
+ctx-cli mcp call understand_flow -p flow_name=user-registration --raw
 ```
 
 ## When to Use

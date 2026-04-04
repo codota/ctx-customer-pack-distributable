@@ -22,10 +22,10 @@ Get a risk score for changed files. Higher confidence means lower risk.
 
 ```bash
 # Check confidence for a specific file
-ctx-cli mcp call get_change_confidence -p file_path=src/payments/processor.ts -o json
+ctx-cli mcp call get_change_confidence -p file_path=src/payments/processor.ts --raw
 
 # Check confidence for another changed file
-ctx-cli mcp call get_change_confidence -p file_path=src/checkout/cart.ts -o json
+ctx-cli mcp call get_change_confidence -p file_path=src/checkout/cart.ts --raw
 ```
 
 ## Get File Context
@@ -33,7 +33,7 @@ ctx-cli mcp call get_change_confidence -p file_path=src/checkout/cart.ts -o json
 Retrieve architectural context for a file: which service it belongs to, relevant ADRs, and whether it is a hotspot.
 
 ```bash
-ctx-cli mcp call get_file_context -p file_path=src/payments/processor.ts -o json
+ctx-cli mcp call get_file_context -p file_path=src/payments/processor.ts --raw
 ```
 
 ## Check Blast Radius
@@ -41,7 +41,7 @@ ctx-cli mcp call get_file_context -p file_path=src/payments/processor.ts -o json
 If the PR modifies a service, check what downstream services and flows are affected.
 
 ```bash
-ctx-cli mcp call blast_radius -p service_name=payments-api -o json
+ctx-cli mcp call blast_radius -p service_name=payments-api --raw
 ```
 
 ## Recommended Review Workflow

@@ -13,7 +13,7 @@ Pull incident response context from the knowledge graph: runbooks, escalation co
 
 ```bash
 # Get incident response context for a service
-ctx-cli mcp call incident_response -p service_name=payments-api -o json
+ctx-cli mcp call incident_response -p service_name=payments-api --raw
 ```
 
 The response includes:
@@ -25,14 +25,14 @@ The response includes:
 ## Examples
 
 ```bash
-# Get runbooks during an active incident
-ctx-cli mcp call incident_response -p service_name=checkout-service -o json | jq '.runbooks'
+# Get incident response context for checkout-service
+ctx-cli mcp call incident_response -p service_name=checkout-service --raw
 
-# Find escalation contacts quickly
-ctx-cli mcp call incident_response -p service_name=auth-service -o json | jq '.escalation_contacts'
+# Get incident response context for auth-service
+ctx-cli mcp call incident_response -p service_name=auth-service --raw
 
-# Review recent incidents for a service
-ctx-cli mcp call incident_response -p service_name=order-service -o json | jq '.recent_incidents'
+# Get incident response context for order-service
+ctx-cli mcp call incident_response -p service_name=order-service --raw
 ```
 
 ## When to Use

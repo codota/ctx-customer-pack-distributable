@@ -18,7 +18,7 @@ Assess the impact of a change before deploying. Returns the set of services, bus
 
 ```bash
 # Check blast radius for a service change
-ctx-cli mcp call blast_radius -p service_name=payments-api -o json
+ctx-cli mcp call blast_radius -p service_name=payments-api --raw
 ```
 
 The response includes:
@@ -31,13 +31,13 @@ The response includes:
 
 ```bash
 # Assess blast radius before a database migration
-ctx-cli mcp call blast_radius -p service_name=inventory-db -o json
+ctx-cli mcp call blast_radius -p service_name=inventory-db --raw
 
-# Extract just the affected teams
-ctx-cli mcp call blast_radius -p service_name=auth-service -o json | jq '.affected_teams'
+# Check blast radius for the auth service
+ctx-cli mcp call blast_radius -p service_name=auth-service --raw
 
-# Check how many flows are impacted
-ctx-cli mcp call blast_radius -p service_name=order-service -o json | jq '.affected_flows | length'
+# Check blast radius for the order service
+ctx-cli mcp call blast_radius -p service_name=order-service --raw
 ```
 
 ## When to Use

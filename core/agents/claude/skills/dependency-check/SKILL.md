@@ -11,7 +11,7 @@ Check the health of a service's dependencies, surface known vulnerabilities, and
 
 ```bash
 # Check dependencies for a service
-ctx-cli mcp call dependency_check -p service_name=payments-api -o json
+ctx-cli mcp call dependency_check -p service_name=payments-api --raw
 ```
 
 The response includes:
@@ -23,14 +23,14 @@ The response includes:
 ## Examples
 
 ```bash
-# List all unhealthy dependencies
-ctx-cli mcp call dependency_check -p service_name=user-service -o json | jq '.vulnerabilities'
+# Check dependencies for user-service
+ctx-cli mcp call dependency_check -p service_name=user-service --raw
 
-# Check for deprecated dependencies
-ctx-cli mcp call dependency_check -p service_name=order-service -o json | jq '.deprecations'
+# Check dependencies for order-service
+ctx-cli mcp call dependency_check -p service_name=order-service --raw
 
-# Get migration guidance for a specific service
-ctx-cli mcp call dependency_check -p service_name=legacy-gateway -o json | jq '.migration_guidance'
+# Check dependencies for legacy-gateway
+ctx-cli mcp call dependency_check -p service_name=legacy-gateway --raw
 ```
 
 ## When to Use

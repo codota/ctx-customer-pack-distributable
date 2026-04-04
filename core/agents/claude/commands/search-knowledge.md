@@ -8,37 +8,43 @@ Search across the full Context Engine knowledge graph for services, teams, ADRs,
 
 ```bash
 # Free-text search across all knowledge
-ctx-cli mcp call search_knowledge -p query="rate limiting" -o json
+ctx-loader query search "rate limiting"
 
 # Find specific entity types
-ctx-cli mcp call find_entities -p query="checkout" -p entity_type=service -o json
+ctx-loader query entities --type service --search "checkout"
+
+# Search with field selection (returns only the specified fields)
+ctx-loader query search "checkout" --fields entityType,entityName,similarity
 ```
 
-## search_knowledge
+## search
 
 Performs a semantic search across all indexed knowledge: ADRs, runbooks, documentation, and incident postmortems.
 
 ```bash
 # Search for documentation on a topic
-ctx-cli mcp call search_knowledge -p query="database sharding strategy" -o json
+ctx-loader query search "database sharding strategy"
 
 # Find patterns and best practices
-ctx-cli mcp call search_knowledge -p query="retry backoff pattern" -o json
+ctx-loader query search "retry backoff pattern"
+
+# Limit results and select fields
+ctx-loader query search "caching" --limit 5 --fields entityType,entityName
 ```
 
-## find_entities
+## entities
 
 Locates specific entities in the knowledge graph by name, type, or keyword.
 
 ```bash
 # Find all services matching a keyword
-ctx-cli mcp call find_entities -p query="payment" -p entity_type=service -o json
+ctx-loader query entities --type service --search "payment"
 
 # Find teams
-ctx-cli mcp call find_entities -p query="platform" -p entity_type=team -o json
+ctx-loader query entities --type team --search "platform"
 
-# Find ADRs related to a topic
-ctx-cli mcp call find_entities -p query="event sourcing" -p entity_type=adr -o json
+# List all entities of a type
+ctx-loader query entities --type adr --limit 50
 ```
 
 ## When to Use

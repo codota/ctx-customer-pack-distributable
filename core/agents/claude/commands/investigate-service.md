@@ -8,8 +8,7 @@ Deep-dive into any service registered in the Context Engine to understand its ar
 
 ```bash
 # Full investigation of a service
-ctx-cli mcp call investigate_service -p service_name=payments-api -o json
-```
+ctx-cli mcp call investigate_service --raw -p service_name=payments-api```
 
 The response includes:
 - **Dependencies** — upstream services this service calls.
@@ -22,14 +21,11 @@ The response includes:
 
 ```bash
 # Investigate before making changes
-ctx-cli mcp call investigate_service -p service_name=user-auth -o json
-
+ctx-cli mcp call investigate_service --raw -p service_name=user-auth
 # Pipe to jq to extract just dependencies
-ctx-cli mcp call investigate_service -p service_name=order-service -o json | jq '.dependencies'
-
+ctx-cli mcp call investigate_service --raw -p service_name=order-service -o json
 # Get ownership info for an unfamiliar service
-ctx-cli mcp call investigate_service -p service_name=notification-gateway -o json | jq '.ownership'
-```
+ctx-cli mcp call investigate_service --raw -p service_name=notification-gateway -o json```
 
 ## When to Use
 
