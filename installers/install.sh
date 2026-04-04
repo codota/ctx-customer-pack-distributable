@@ -176,11 +176,11 @@ SETTINGS_EOF
       cat > CLAUDE.md <<'CLAUDE_EOF'
 # Tabnine Context Engine
 
-The Context Engine customer pack is fully installed and configured. All skills, MCP tools, and hooks are ALREADY LOADED into your context automatically. Do not read or explore the .claude/ directory — everything is available to you right now.
+IMPORTANT: The customer pack is fully installed. Do not explore, search, or read files outside this directory. Do not look for the customer-pack source repository, installation scripts, or parent directories — they do not exist on customer machines. Everything you need is here and already loaded into your context.
 
-## Step 1: Set up credentials
+## Setup
 
-If `ctx-settings.yaml` does not exist in this directory, create it now:
+The only setup required is creating `ctx-settings.yaml` in this directory (if it doesn't already exist):
 
 ```yaml
 CTX_API_URL: <Context Engine URL>
@@ -192,24 +192,29 @@ DATA_VOLUME: standard
 GH_PAT: <GitHub PAT>
 ```
 
-This file is read automatically by all CLIs — no need to export environment variables.
+All CLIs read this file automatically. No environment variable exports needed.
 
-## Step 2: Use the Context Engine
+## Tools available to you right now
 
-Once `ctx-settings.yaml` exists, use your tools directly:
+Skills (invoke via slash command or Skill tool — do NOT read the skill files, they are already in your context):
+`/ctx`, `/onboard`, `/investigate-service`, `/blast-radius`, `/review-pr`, `/search-knowledge`, `/incident-response`, `/understand-flow`, `/change-confidence-tools`, `/ownership-tools`, `/git-insights-tools`, `/architecture-tools`, `/code-migration`, `/dependency-check`
 
-- **To query the knowledge graph**: use the `/ctx` skill or call MCP tools like `mcp__ctx-cloud__search_knowledge`, `mcp__ctx-cloud__query_entities`
-- **To investigate a service**: `/investigate-service`
-- **To assess change impact**: `/blast-radius` or `mcp__ctx-cloud__blast_radius`
-- **To review a PR**: `/review-pr`
-- **To onboard a new project**: `/onboard` (7-step methodology with data loading)
-- **CLIs**: `ctx-loader` (data loading), `ctx-onboard` (onboarding), `ctx-cli` (queries)
+MCP tools (call directly — the MCP server is already configured):
+`mcp__ctx-cloud__search_knowledge`, `mcp__ctx-cloud__query_entities`, `mcp__ctx-cloud__blast_radius`, `mcp__ctx-cloud__investigate_service`, `mcp__ctx-cloud__get_change_confidence`, `mcp__ctx-cloud__get_service`, `mcp__ctx-cloud__get_service_dependencies`
+
+CLIs (pre-approved, no permission prompt needed):
+`ctx-loader` (data loading, diagnostics), `ctx-onboard` (7-step onboarding), `ctx-cli` (direct queries)
+
+## Onboarding a new project
+
+Invoke `/onboard`. It walks through: validate connectivity → build test lab → load data → measure baseline → domain enrichment → rollout plan.
 
 ## Rules
 
-- Credentials come from `ctx-settings.yaml` or environment variables only. Never pass secrets as CLI arguments.
-- If data loading fails, run `ctx-loader diagnose --json` for structured error output.
-- Do not explore parent directories or the .claude/ directory. Everything is already loaded and configured.
+- Credentials only from `ctx-settings.yaml` or environment variables. Never as CLI arguments.
+- If data loading fails: `ctx-loader diagnose --json`
+- Do not read files in `.claude/` — skills, hooks, MCP config, and scripts are already loaded and configured.
+- Do not access parent directories or search for source repositories.
 CLAUDE_EOF
 
       echo "[core] Done: ${count} skills + ${count} commands + 2 hooks + MCP proxy + settings + CLAUDE.md."
