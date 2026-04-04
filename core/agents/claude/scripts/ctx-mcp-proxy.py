@@ -55,6 +55,41 @@ def get_credentials():
 session_id = None
 
 
+def ensure_remote_session():
+    """Establish a remote MCP session if not already done."""
+    global session_id
+    if session_id:
+        return
+    # Send initialize to the remote server to get a session ID
+    init_payload = {
+        "jsonrpc": "2.0",
+        "id": "__init__",
+        "method": "initialize",
+        "params": {
+            "protocolVersion": "2024-11-05",
+            "capabilities": {},
+            "clientInfo": {"name": "ctx-cloud-proxy", "version": SERVER_VERSION},
+        },
+    }
+    api_url, api_key = get_credentials()
+    if not api_url or not api_key:
+        return
+    url = f"{api_url}/mcp"
+    headers = {
+        "Content-Type": "application/json",
+        "Accept": "text/event-stream, application/json",
+        "Authorization": f"Bearer {api_key}",
+    }
+    req = urllib.request.Request(url, data=json.dumps(init_payload).encode(), headers=headers)
+    try:
+        with urllib.request.urlopen(req, timeout=TIMEOUT) as resp:
+            sid = resp.headers.get("Mcp-Session-Id")
+            if sid:
+                session_id = sid
+    except Exception:
+        pass  # Session init failed — tool calls will try without session
+
+
 def send_to_remote(payload: dict) -> str | None:
     """Send a JSON-RPC message to the remote MCP server."""
     global session_id
@@ -66,6 +101,9 @@ def send_to_remote(payload: dict) -> str | None:
             "id": payload.get("id"),
             "error": {"code": -32600, "message": "CTX_API_URL and CTX_API_KEY must be set. Create ctx-settings.yaml with your credentials."},
         })
+
+    # Establish remote session on first tool call
+    ensure_remote_session()
 
     url = f"{api_url}/mcp"
     headers = {
@@ -117,23 +155,64 @@ def send_to_remote(payload: dict) -> str | None:
 SERVER_NAME = "ctx-cloud"
 SERVER_VERSION = "0.1.0"
 
-# Load tool schemas from the static file bundled alongside this script.
-# This allows tools/list to work without credentials (tools are known at install time).
-TOOLS: list[dict] = []
+# Static tool schemas as fallback (loaded from file bundled alongside this script).
+STATIC_TOOLS: list[dict] = []
 _schema_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tool-schemas.json")
 if os.path.exists(_schema_path):
     try:
         with open(_schema_path) as _f:
             _raw = json.load(_f)
-        # tool-schemas.json is { "tool_name": { name, description, parameters }, ... }
         for _tool in _raw.values():
-            TOOLS.append({
+            STATIC_TOOLS.append({
                 "name": _tool.get("name", ""),
                 "description": _tool.get("description", ""),
                 "inputSchema": _tool.get("parameters", {"type": "object", "properties": {}}),
             })
     except Exception:
-        pass  # If schemas can't load, tools/list will return empty — agent falls back to CLI
+        pass
+
+# Cached live tools from the remote server (populated on first tools/list with credentials).
+_live_tools: list[dict] | None = None
+
+
+def fetch_live_tools() -> list[dict] | None:
+    """Fetch tools/list from the remote server and cache the result."""
+    global _live_tools
+    if _live_tools is not None:
+        return _live_tools
+
+    api_url, api_key = get_credentials()
+    if not api_url or not api_key:
+        return None
+
+    try:
+        ensure_remote_session()
+        list_payload = {"jsonrpc": "2.0", "id": "__tools_list__", "method": "tools/list", "params": {}}
+        url = f"{api_url}/mcp"
+        headers = {
+            "Content-Type": "application/json",
+            "Accept": "text/event-stream, application/json",
+            "Authorization": f"Bearer {api_key}",
+        }
+        if session_id:
+            headers["Mcp-Session-Id"] = session_id
+
+        req = urllib.request.Request(url, data=json.dumps(list_payload).encode(), headers=headers)
+        with urllib.request.urlopen(req, timeout=TIMEOUT) as resp:
+            body = resp.read().decode()
+            # Handle SSE
+            if "text/event-stream" in resp.headers.get("Content-Type", ""):
+                for line in body.splitlines():
+                    if line.startswith("data: "):
+                        data = json.loads(line[6:])
+                        _live_tools = data.get("result", {}).get("tools", [])
+                        return _live_tools
+            else:
+                data = json.loads(body)
+                _live_tools = data.get("result", {}).get("tools", [])
+                return _live_tools
+    except Exception:
+        return None
 
 
 def handle_locally(payload: dict) -> str | None:
@@ -155,9 +234,11 @@ def handle_locally(payload: dict) -> str | None:
         return None  # No response needed
 
     if method == "tools/list":
+        # Try live tools from server first (accurate), fall back to static schemas
+        tools = fetch_live_tools() or STATIC_TOOLS
         return json.dumps({
             "jsonrpc": "2.0", "id": msg_id,
-            "result": {"tools": TOOLS},
+            "result": {"tools": tools},
         })
 
     # Only tools/call gets forwarded to remote
