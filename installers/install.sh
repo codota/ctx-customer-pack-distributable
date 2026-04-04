@@ -236,6 +236,7 @@ Invoke `/onboard`. It walks through: validate connectivity → build test lab �
 
 - Credentials only from `ctx-settings.yaml` or environment variables. Never as CLI arguments.
 - If data loading fails: `ctx-loader diagnose --json`
+- To collect debug logs for support: call `mcp__ctx-loader__loader_collect_logs` or run `ctx-loader collect-logs`
 - Do not read files in `.claude/` — skills, hooks, MCP config, and scripts are already loaded and configured.
 - Do not access parent directories or search for source repositories.
 CLAUDE_EOF

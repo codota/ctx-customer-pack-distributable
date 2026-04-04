@@ -21757,44 +21757,76 @@ program2.command("diagnose").description("Diagnose failures in the latest load r
     process.exit(1);
   }
 });
-program2.command("collect-logs").description("Package debug bundle for support (client-side traces only)").option("--json", "Output as JSON").action(async (opts) => {
+program2.command("collect-logs").description("Package support bundle: logs, checkpoints, state \u2192 redacted tar.gz").option("--output <path>", "Output file path (default: ctx-support-bundle-<timestamp>.tar.gz)").option("--json", "Output as JSON").action(async (opts) => {
   try {
-    const { existsSync: existsSync4, readFileSync: readFS } = await import("node:fs");
-    const { join: join6 } = await import("node:path");
-    const { CheckpointStore: CheckpointStore2 } = await Promise.resolve().then(() => (init_checkpoint(), checkpoint_exports));
+    let stageFile2 = function(srcPath, destName) {
+      if (!existsSync4(srcPath)) return;
+      try {
+        let content = readFS(srcPath, "utf-8");
+        content = content.replace(SECRET_PATTERNS, "[REDACTED]");
+        writeFileSync3(join6(stageDir, destName), content, "utf-8");
+        collected.push(destName);
+      } catch {
+      }
+    };
+    var stageFile = stageFile2;
+    const { existsSync: existsSync4, readFileSync: readFS, writeFileSync: writeFileSync3, readdirSync, mkdirSync: mkdirSync4, copyFileSync: copyFileSync2, rmSync } = await import("node:fs");
+    const { join: join6, basename } = await import("node:path");
+    const { execSync } = await import("node:child_process");
     const cwd = process.cwd();
-    const bundle = { collectedAt: (/* @__PURE__ */ new Date()).toISOString() };
-    const store = new CheckpointStore2(cwd);
-    const latestRun = await store.loadLatest();
-    if (latestRun) {
-      bundle.checkpoint = latestRun;
-    }
-    const onboardStatePath = join6(cwd, ".ctx-onboarding", "state.json");
-    if (existsSync4(onboardStatePath)) {
-      try {
-        bundle.onboardingState = JSON.parse(readFS(onboardStatePath, "utf-8"));
-      } catch {
-        bundle.onboardingState = { error: "Failed to parse state.json" };
-      }
-    }
-    const logPath = join6(cwd, ".ctx-onboarding", "loader-output.log");
-    if (existsSync4(logPath)) {
-      try {
-        const fullLog = readFS(logPath, "utf-8");
-        bundle.loaderLog = fullLog.length > 5e3 ? fullLog.slice(-5e3) : fullLog;
-      } catch {
-        bundle.loaderLog = { error: "Failed to read loader-output.log" };
-      }
-    }
+    const ts = (/* @__PURE__ */ new Date()).toISOString().replace(/[:.]/g, "-").slice(0, 19);
+    const outputPath = (0, import_node_path6.resolve)(opts.output || `ctx-support-bundle-${ts}.tar.gz`);
+    const stageDir = join6(cwd, `.ctx-support-bundle-${ts}`);
+    mkdirSync4(stageDir, { recursive: true });
+    const collected = [];
     const SECRET_PATTERNS = /ctx_[a-f0-9]{64}|ghp_[A-Za-z0-9_]+|ghs_[A-Za-z0-9_]+|glpat-[A-Za-z0-9_-]+/g;
-    const sanitized = JSON.stringify(bundle, null, 2).replace(SECRET_PATTERNS, "[REDACTED]");
+    const logsDir = join6(cwd, ".ctx-logs");
+    if (existsSync4(logsDir)) {
+      const logFiles = readdirSync(logsDir).filter((f) => f.endsWith(".log"));
+      for (const f of logFiles) {
+        stageFile2(join6(logsDir, f), `logs/${f}`);
+      }
+    }
+    const runsDir = join6(cwd, ".ctx-loader", "runs");
+    if (existsSync4(runsDir)) {
+      const runFiles = readdirSync(runsDir).filter((f) => f.endsWith(".json"));
+      for (const f of runFiles) {
+        stageFile2(join6(runsDir, f), `loader-runs/${f}`);
+      }
+      stageFile2(join6(runsDir, "latest-run"), "loader-runs/latest-run");
+    }
+    stageFile2(join6(cwd, ".ctx-loader", "run-status.txt"), "loader-status.txt");
+    const onboardDir = join6(cwd, ".ctx-onboarding");
+    if (existsSync4(onboardDir)) {
+      stageFile2(join6(onboardDir, "state.json"), "onboarding-state.json");
+      stageFile2(join6(onboardDir, "loader-output.log"), "onboarding-loader-output.log");
+      stageFile2(join6(onboardDir, "test-plan.yaml"), "onboarding-test-plan.yaml");
+    }
+    for (const manifest of ["ctx-loader.yaml", "ctx-loader-patched.yaml"]) {
+      stageFile2(join6(cwd, manifest), manifest);
+      stageFile2(join6(onboardDir, manifest), `onboarding-${manifest}`);
+    }
+    writeFileSync3(
+      join6(stageDir, "bundle-info.json"),
+      JSON.stringify(
+        { collectedAt: (/* @__PURE__ */ new Date()).toISOString(), files: collected, cwd, platform: process.platform, nodeVersion: process.version },
+        null,
+        2
+      ),
+      "utf-8"
+    );
+    const stageName = basename(stageDir);
+    execSync(`tar czf "${outputPath}" -C "${cwd}" "${stageName}"`, { stdio: "ignore" });
+    rmSync(stageDir, { recursive: true, force: true });
+    const { statSync } = await import("node:fs");
+    const size = statSync(outputPath).size;
+    const sizeStr = size > 1024 * 1024 ? `${(size / 1024 / 1024).toFixed(1)}MB` : `${(size / 1024).toFixed(1)}KB`;
     if (opts.json) {
-      console.log(sanitized);
+      console.log(JSON.stringify({ bundle: outputPath, files: collected.length, size: sizeStr }));
     } else {
-      console.log("Debug bundle collected. Pipe with --json to capture output.");
-      console.log(`Checkpoint: ${latestRun ? latestRun.id : "none"}`);
-      console.log(`Onboarding state: ${existsSync4(onboardStatePath) ? "found" : "not found"}`);
-      console.log(`Loader log: ${existsSync4(logPath) ? "found" : "not found"}`);
+      console.log(`Support bundle created: ${outputPath}`);
+      console.log(`Files: ${collected.length}, Size: ${sizeStr}`);
+      console.log("Send this file to support for debugging assistance.");
     }
   } catch (err) {
     const msg = `Collect-logs failed: ${err instanceof Error ? err.message : String(err)}`;

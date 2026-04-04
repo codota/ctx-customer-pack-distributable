@@ -12,6 +12,7 @@ import json
 import os
 import subprocess
 import sys
+from datetime import datetime
 
 
 def load_settings():
@@ -155,6 +156,33 @@ TOOLS = [
 ]
 
 
+LOG_DIR = os.path.join(os.getcwd(), ".ctx-logs")
+MAX_LOG_FILES = 50
+
+
+def write_log(tool_name: str, cmd: list[str], exit_code: int, stdout: str, stderr: str):
+    """Write full CLI output to .ctx-logs/ for support debugging."""
+    try:
+        os.makedirs(LOG_DIR, exist_ok=True)
+        ts = datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
+        path = os.path.join(LOG_DIR, f"ctx-onboard-{tool_name}-{ts}.log")
+        with open(path, "w") as f:
+            f.write(f"timestamp: {datetime.now().isoformat()}\n")
+            f.write(f"command: {' '.join(cmd)}\n")
+            f.write(f"exit_code: {exit_code}\n")
+            f.write(f"--- stdout ---\n{stdout}\n")
+            if stderr:
+                f.write(f"--- stderr ---\n{stderr}\n")
+        # Rotate: keep only MAX_LOG_FILES most recent
+        files = sorted(
+            [f for f in os.listdir(LOG_DIR) if f.startswith("ctx-onboard-")],
+        )
+        for old in files[:-MAX_LOG_FILES]:
+            os.remove(os.path.join(LOG_DIR, old))
+    except Exception:
+        pass  # Logging must never break the tool call
+
+
 def run_cli(args: list[str], timeout: int = 120) -> dict:
     """Run ctx-onboard with args and return parsed JSON output."""
     load_settings()  # Re-read each time — ctx-settings.yaml may be created mid-session
@@ -163,6 +191,8 @@ def run_cli(args: list[str], timeout: int = 120) -> dict:
         result = subprocess.run(
             cmd, capture_output=True, text=True, timeout=timeout, cwd=os.getcwd()
         )
+        # Log full output for support before parsing
+        write_log(args[0] if args else "unknown", cmd, result.returncode, result.stdout, result.stderr)
         output = result.stdout.strip() or result.stderr.strip()
         try:
             return json.loads(output)
