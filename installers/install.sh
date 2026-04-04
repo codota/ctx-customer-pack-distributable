@@ -112,14 +112,16 @@ install_core() {
         fetch "${RAW_BASE}/core/agents/claude/skills/${skill}/SKILL.md" ".claude/skills/${skill}/SKILL.md" || true
       done
       echo ""
-      echo "[core] Downloading hooks + MCP proxy..."
+      echo "[core] Downloading hooks + MCP servers..."
       mkdir -p .claude/hooks .claude/scripts
       fetch "${RAW_BASE}/core/agents/claude/hooks/decision-context.py" ".claude/hooks/decision-context.py" || true
       fetch "${RAW_BASE}/core/agents/claude/hooks/change-confidence.py" ".claude/hooks/change-confidence.py" || true
       fetch "${RAW_BASE}/core/agents/claude/scripts/ctx-mcp-proxy.py" ".claude/scripts/ctx-mcp-proxy.py" || true
+      fetch "${RAW_BASE}/core/agents/claude/scripts/ctx-loader-mcp.py" ".claude/scripts/ctx-loader-mcp.py" || true
+      fetch "${RAW_BASE}/core/agents/claude/scripts/ctx-onboard-mcp.py" ".claude/scripts/ctx-onboard-mcp.py" || true
       chmod +x .claude/hooks/*.py .claude/scripts/*.py 2>/dev/null || true
 
-      # Configure MCP server, hooks, and permissions in settings.local.json
+      # Configure MCP servers, hooks, and permissions in settings.local.json
       echo "[core] Configuring Claude Code settings..."
       local abs_scripts
       abs_scripts="$(cd .claude/scripts 2>/dev/null && pwd)"
@@ -141,6 +143,14 @@ install_core() {
     "ctx-cloud": {
       "command": "python3",
       "args": ["${abs_scripts}/ctx-mcp-proxy.py"]
+    },
+    "ctx-loader": {
+      "command": "python3",
+      "args": ["${abs_scripts}/ctx-loader-mcp.py"]
+    },
+    "ctx-onboard": {
+      "command": "python3",
+      "args": ["${abs_scripts}/ctx-onboard-mcp.py"]
     }
   },
   "hooks": {
@@ -201,10 +211,12 @@ Skills (invoke via slash command or Skill tool — do NOT read the skill files, 
 MCP tools (call directly — the MCP server is already configured):
 `mcp__ctx-cloud__search_knowledge`, `mcp__ctx-cloud__query_entities`, `mcp__ctx-cloud__blast_radius`, `mcp__ctx-cloud__investigate_service`, `mcp__ctx-cloud__get_change_confidence`, `mcp__ctx-cloud__get_service`, `mcp__ctx-cloud__get_service_dependencies`
 
-CLIs (pre-approved, no permission prompt needed):
-`ctx-loader` (data loading, queries, diagnostics), `ctx-onboard` (7-step onboarding), `ctx-cli` (MCP tool calls, entity queries)
+MCP servers for data loading and onboarding (call directly, no Bash needed):
+`mcp__ctx-loader__loader_init`, `mcp__ctx-loader__loader_load`, `mcp__ctx-loader__loader_status`, `mcp__ctx-loader__loader_diagnose`, `mcp__ctx-loader__loader_query_search`, `mcp__ctx-loader__loader_query_entities`
+`mcp__ctx-onboard__onboard_step_0` through `mcp__ctx-onboard__onboard_step_7`, `mcp__ctx-onboard__onboard_status`
 
-All CLIs read `ctx-settings.yaml` automatically. Do not prefix commands with environment variable exports.
+Fallback CLIs (if MCP is unavailable):
+`ctx-loader` (data loading), `ctx-onboard` (onboarding), `ctx-cli` (queries) — all read `ctx-settings.yaml` automatically.
 
 ## Onboarding a new project
 
@@ -233,12 +245,14 @@ CLAUDE_EOF
         fetch "${RAW_BASE}/core/agents/cursor/.cursor/rules/${skill}.mdc" ".cursor/rules/${skill}.mdc" 2>/dev/null || true
       done
       echo ""
-      echo "[core] Downloading MCP proxy..."
+      echo "[core] Downloading MCP servers..."
       mkdir -p .cursor/scripts
       fetch "${RAW_BASE}/core/agents/claude/scripts/ctx-mcp-proxy.py" ".cursor/scripts/ctx-mcp-proxy.py" || true
+      fetch "${RAW_BASE}/core/agents/claude/scripts/ctx-loader-mcp.py" ".cursor/scripts/ctx-loader-mcp.py" || true
+      fetch "${RAW_BASE}/core/agents/claude/scripts/ctx-onboard-mcp.py" ".cursor/scripts/ctx-onboard-mcp.py" || true
       chmod +x .cursor/scripts/*.py 2>/dev/null || true
 
-      # Configure MCP server for Cursor (.cursor/mcp.json)
+      # Configure MCP servers for Cursor (.cursor/mcp.json)
       echo "[core] Configuring Cursor MCP..."
       local abs_cursor_scripts
       abs_cursor_scripts="$(cd .cursor/scripts 2>/dev/null && pwd)"
@@ -248,6 +262,14 @@ CLAUDE_EOF
     "ctx-cloud": {
       "command": "python3",
       "args": ["${abs_cursor_scripts}/ctx-mcp-proxy.py"]
+    },
+    "ctx-loader": {
+      "command": "python3",
+      "args": ["${abs_cursor_scripts}/ctx-loader-mcp.py"]
+    },
+    "ctx-onboard": {
+      "command": "python3",
+      "args": ["${abs_cursor_scripts}/ctx-onboard-mcp.py"]
     }
   }
 }
@@ -267,12 +289,14 @@ CURSOR_MCP_EOF
         fetch "${RAW_BASE}/core/agents/gemini/.gemini/skills/${skill}/SKILL.md" ".gemini/skills/${skill}/SKILL.md" || true
       done
       echo ""
-      echo "[core] Downloading MCP proxy..."
+      echo "[core] Downloading MCP servers..."
       mkdir -p .gemini/scripts
       fetch "${RAW_BASE}/core/agents/claude/scripts/ctx-mcp-proxy.py" ".gemini/scripts/ctx-mcp-proxy.py" || true
+      fetch "${RAW_BASE}/core/agents/claude/scripts/ctx-loader-mcp.py" ".gemini/scripts/ctx-loader-mcp.py" || true
+      fetch "${RAW_BASE}/core/agents/claude/scripts/ctx-onboard-mcp.py" ".gemini/scripts/ctx-onboard-mcp.py" || true
       chmod +x .gemini/scripts/*.py 2>/dev/null || true
 
-      # Configure MCP server for Gemini (.gemini/settings.json)
+      # Configure MCP servers for Gemini (.gemini/settings.json)
       echo "[core] Configuring Gemini MCP..."
       local abs_gemini_scripts
       abs_gemini_scripts="$(cd .gemini/scripts 2>/dev/null && pwd)"
@@ -282,6 +306,14 @@ CURSOR_MCP_EOF
     "ctx-cloud": {
       "command": "python3",
       "args": ["${abs_gemini_scripts}/ctx-mcp-proxy.py"]
+    },
+    "ctx-loader": {
+      "command": "python3",
+      "args": ["${abs_gemini_scripts}/ctx-loader-mcp.py"]
+    },
+    "ctx-onboard": {
+      "command": "python3",
+      "args": ["${abs_gemini_scripts}/ctx-onboard-mcp.py"]
     }
   }
 }
