@@ -5,13 +5,37 @@ Stdio MCP server for ctx-onboard CLI.
 Exposes ctx-onboard commands as MCP tools so agents can drive the
 7-step onboarding methodology without Bash permission prompts.
 
-Reads ctx-settings.yaml automatically (ctx-onboard handles this).
+Reads ctx-settings.yaml and injects into env so ctx-onboard picks them up.
 """
 
 import json
 import os
 import subprocess
 import sys
+
+
+def load_settings():
+    """Load ctx-settings.yaml into env if it exists."""
+    settings_path = os.path.join(os.getcwd(), "ctx-settings.yaml")
+    if not os.path.exists(settings_path):
+        return
+    try:
+        with open(settings_path) as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                if ":" not in line:
+                    continue
+                key, _, value = line.partition(":")
+                key, value = key.strip(), value.strip()
+                if key and value and key not in os.environ:
+                    os.environ[key] = value
+    except Exception:
+        pass
+
+
+load_settings()
 
 SERVER_NAME = "ctx-onboard"
 SERVER_VERSION = "0.1.0"

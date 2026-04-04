@@ -5,13 +5,37 @@ Stdio MCP server for ctx-loader CLI.
 Exposes ctx-loader commands as MCP tools so agents can call them
 directly without Bash permission prompts or env var prefixes.
 
-Reads ctx-settings.yaml automatically (ctx-loader handles this).
+Reads ctx-settings.yaml and injects into env so ctx-loader picks them up.
 """
 
 import json
 import os
 import subprocess
 import sys
+
+
+def load_settings():
+    """Load ctx-settings.yaml into env if it exists."""
+    settings_path = os.path.join(os.getcwd(), "ctx-settings.yaml")
+    if not os.path.exists(settings_path):
+        return
+    try:
+        with open(settings_path) as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                if ":" not in line:
+                    continue
+                key, _, value = line.partition(":")
+                key, value = key.strip(), value.strip()
+                if key and value and key not in os.environ:
+                    os.environ[key] = value
+    except Exception:
+        pass
+
+
+load_settings()
 
 SERVER_NAME = "ctx-loader"
 SERVER_VERSION = "0.1.0"

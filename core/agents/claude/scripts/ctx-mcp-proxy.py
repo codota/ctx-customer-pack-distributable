@@ -9,7 +9,7 @@ Input:  JSON-RPC on stdin (from Claude Code)
 Output: JSON-RPC on stdout (to Claude Code)
 Forward: All messages to CTX_API_URL/mcp via HTTP
 
-Credentials: CTX_API_URL and CTX_API_KEY from environment variables.
+Credentials: from ctx-settings.yaml in cwd, or CTX_API_URL/CTX_API_KEY env vars.
 Never reads secrets from CLI arguments.
 """
 
@@ -18,6 +18,30 @@ import os
 import sys
 import urllib.request
 import urllib.error
+
+
+def load_settings():
+    """Load ctx-settings.yaml into env if it exists (same convention as CLIs)."""
+    settings_path = os.path.join(os.getcwd(), "ctx-settings.yaml")
+    if not os.path.exists(settings_path):
+        return
+    try:
+        with open(settings_path) as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                if ":" not in line:
+                    continue
+                key, _, value = line.partition(":")
+                key, value = key.strip(), value.strip()
+                if key and value and key not in os.environ:
+                    os.environ[key] = value
+    except Exception:
+        pass
+
+
+load_settings()
 
 CTX_API_URL = os.environ.get("CTX_API_URL", "").rstrip("/")
 CTX_API_KEY = os.environ.get("CTX_API_KEY", "")
