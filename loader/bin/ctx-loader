@@ -3026,6 +3026,272 @@ var require_commander = __commonJS({
   }
 });
 
+// shared/dist/errors/categorized-error.js
+var CategorizedError;
+var init_categorized_error = __esm({
+  "shared/dist/errors/categorized-error.js"() {
+    "use strict";
+    CategorizedError = class extends Error {
+      code;
+      category;
+      remediation;
+      retryable;
+      details;
+      constructor(message, options) {
+        super(message, { cause: options.cause });
+        this.name = "CategorizedError";
+        this.code = options.code;
+        this.category = options.category;
+        this.remediation = options.remediation;
+        this.retryable = options.retryable;
+        this.details = options.details;
+      }
+      toJSON() {
+        return {
+          code: this.code,
+          category: this.category,
+          message: this.message,
+          remediation: this.remediation,
+          retryable: this.retryable,
+          details: this.details,
+          cause: this.cause instanceof Error ? this.cause.message : void 0
+        };
+      }
+    };
+  }
+});
+
+// shared/dist/errors/error-catalog.js
+function getErrorDefinition(code) {
+  return ERROR_CATALOG[code];
+}
+function catalogError(code, message, options) {
+  const def = ERROR_CATALOG[code];
+  if (!def) {
+    return new CategorizedError(message, {
+      code,
+      category: "unknown",
+      remediation: "An unexpected error occurred. Check the logs for details.",
+      retryable: false,
+      details: options?.details,
+      cause: options?.cause
+    });
+  }
+  return new CategorizedError(message, {
+    code,
+    category: def.category,
+    remediation: options?.remediationOverride ?? def.remediation,
+    retryable: def.retryable,
+    details: options?.details,
+    cause: options?.cause
+  });
+}
+function classifyHttpStatus(status) {
+  if (status === 401 || status === 403) {
+    return { category: "authentication", retryable: false };
+  }
+  if (status === 404 || status === 410) {
+    return { category: "validation", retryable: false };
+  }
+  if (status === 409) {
+    return { category: "validation", retryable: false };
+  }
+  if (status === 429) {
+    return { category: "rate_limit", retryable: true };
+  }
+  if (status === 400 || status === 422) {
+    return { category: "validation", retryable: false };
+  }
+  if (status >= 500) {
+    return { category: "server_error", retryable: true };
+  }
+  return { category: "unknown", retryable: false };
+}
+function classifyNetworkError(err) {
+  const msg = err.message.toLowerCase();
+  const code = err.code?.toLowerCase() ?? "";
+  if (code === "econnrefused" || msg.includes("econnrefused")) {
+    return { category: "network", retryable: true };
+  }
+  if (code === "etimedout" || code === "esockettimedout" || msg.includes("timeout") || msg.includes("etimedout")) {
+    return { category: "timeout", retryable: true };
+  }
+  if (msg.includes("certificate") || msg.includes("ssl") || msg.includes("tls") || code === "cert_has_expired" || code === "unable_to_verify_leaf_signature") {
+    return { category: "network", retryable: false };
+  }
+  if (code === "econnreset" || code === "epipe" || code === "enotfound" || msg.includes("econnreset") || msg.includes("socket hang up")) {
+    return { category: "network", retryable: true };
+  }
+  return { category: "network", retryable: true };
+}
+var ERROR_CATALOG;
+var init_error_catalog = __esm({
+  "shared/dist/errors/error-catalog.js"() {
+    "use strict";
+    init_categorized_error();
+    ERROR_CATALOG = {
+      // Authentication
+      LOADER_AUTH_001: {
+        category: "authentication",
+        retryable: false,
+        remediation: "CTX API key is invalid or expired. Check ctx-settings.yaml or CTX_API_KEY environment variable. If no settings file exists, create one: see /onboard skill."
+      },
+      LOADER_AUTH_002: {
+        category: "authentication",
+        retryable: false,
+        remediation: "Source credential has expired. Rotate the token and update your environment."
+      },
+      // Network
+      LOADER_NET_001: {
+        category: "network",
+        retryable: true,
+        remediation: "Cannot connect to Context Engine. Verify CTX_API_URL is correct and the server is reachable."
+      },
+      LOADER_NET_002: {
+        category: "network",
+        retryable: false,
+        remediation: "Proxy authentication failed. Check your proxy credentials in HTTPS_PROXY or networking.proxy config."
+      },
+      LOADER_NET_003: {
+        category: "network",
+        retryable: false,
+        remediation: "SSL/TLS certificate error. Add your CA certificate via networking.caCertPath or NODE_EXTRA_CA_CERTS."
+      },
+      // Rate limiting
+      LOADER_RATE_001: {
+        category: "rate_limit",
+        retryable: true,
+        remediation: "API rate limit reached. Reduce defaults.concurrency or wait for the rate limit to reset."
+      },
+      // Configuration
+      LOADER_CFG_001: {
+        category: "configuration",
+        retryable: false,
+        remediation: "Invalid manifest file. Run `ctx-loader validate` for detailed validation errors."
+      },
+      LOADER_CFG_002: {
+        category: "configuration",
+        retryable: false,
+        remediation: "Required environment variable is not set. Create a ctx-settings.yaml file with your credentials (CTX_API_URL, CTX_API_KEY, GH_PAT, etc.), or set the variables in your environment."
+      },
+      LOADER_CFG_003: {
+        category: "configuration",
+        retryable: false,
+        remediation: "Manifest structure changed since last run. Cannot resume safely. Start a new load."
+      },
+      // Compatibility
+      LOADER_COMPAT_001: {
+        category: "compatibility",
+        retryable: false,
+        remediation: "Feature not supported by target CTX server version. Upgrade the server or remove the unsupported configuration."
+      },
+      // Server errors
+      LOADER_SRV_001: {
+        category: "server_error",
+        retryable: true,
+        remediation: "Context Engine returned a server error. Try again or check the engine logs."
+      },
+      // Timeout
+      LOADER_TMO_001: {
+        category: "timeout",
+        retryable: true,
+        remediation: "Operation timed out. Increase defaults.syncTimeout or defaults.agentTimeout in your manifest."
+      },
+      // Budget
+      LOADER_BDG_001: {
+        category: "budget",
+        retryable: false,
+        remediation: "Agent token budget exceeded. Increase defaults.agentBudget in your manifest."
+      },
+      // State
+      LOADER_STATE_001: {
+        category: "validation",
+        retryable: false,
+        remediation: "Invalid state transition. This is a bug \u2014 please report it."
+      },
+      LOADER_STATE_002: {
+        category: "validation",
+        retryable: false,
+        remediation: "Checkpoint file corrupted. The .bak file will be tried automatically."
+      },
+      // Builder
+      BUILDER_PARSE_001: {
+        category: "validation",
+        retryable: false,
+        remediation: "Invalid SKILL.md frontmatter. Check the YAML frontmatter section for syntax errors."
+      },
+      BUILDER_EMIT_001: {
+        category: "unknown",
+        retryable: false,
+        remediation: "Emitter failed to write output. Check the output directory is writable."
+      },
+      // Onboarding
+      ONBOARD_CONN_001: {
+        category: "network",
+        retryable: true,
+        remediation: "Cannot reach Context Engine. Check your CTX_API_URL and network connectivity."
+      },
+      ONBOARD_STATE_001: {
+        category: "validation",
+        retryable: false,
+        remediation: "Onboarding state file is corrupted. Delete .ctx-onboarding/state.json and restart."
+      },
+      ONBOARD_PREREQ_001: {
+        category: "validation",
+        retryable: false,
+        remediation: "Step prerequisite not met. Run the required earlier steps first."
+      }
+    };
+  }
+});
+
+// shared/dist/config/env-interpolation.js
+function interpolateEnv(content, env = process.env) {
+  return content.replace(/\$\{([^}]+)\}/g, (_match, expr) => {
+    const defaultSep = expr.indexOf(":-");
+    if (defaultSep !== -1) {
+      const varName2 = expr.slice(0, defaultSep);
+      const defaultValue = expr.slice(defaultSep + 2);
+      const value2 = env[varName2];
+      return value2 !== void 0 && value2 !== "" ? value2 : defaultValue;
+    }
+    const varName = expr.trim();
+    const value = env[varName];
+    if (value === void 0 || value === "") {
+      throw new CategorizedError(`Environment variable ${varName} is not set`, {
+        code: "LOADER_CFG_002",
+        category: "configuration",
+        remediation: `Set the environment variable ${varName} before running this command.`,
+        retryable: false,
+        details: { varName }
+      });
+    }
+    return value;
+  });
+}
+function interpolateEnvDeep(obj, env = process.env) {
+  if (typeof obj === "string") {
+    return interpolateEnv(obj, env);
+  }
+  if (Array.isArray(obj)) {
+    return obj.map((item) => interpolateEnvDeep(item, env));
+  }
+  if (obj !== null && typeof obj === "object") {
+    const result = {};
+    for (const [key, value] of Object.entries(obj)) {
+      result[key] = interpolateEnvDeep(value, env);
+    }
+    return result;
+  }
+  return obj;
+}
+var init_env_interpolation = __esm({
+  "shared/dist/config/env-interpolation.js"() {
+    "use strict";
+    init_categorized_error();
+  }
+});
+
 // node_modules/yaml/dist/nodes/identity.js
 var require_identity = __commonJS({
   "node_modules/yaml/dist/nodes/identity.js"(exports2) {
@@ -10328,261 +10594,193 @@ var require_dist = __commonJS({
   }
 });
 
-// shared/dist/errors/categorized-error.js
-var CategorizedError;
-var init_categorized_error = __esm({
-  "shared/dist/errors/categorized-error.js"() {
-    "use strict";
-    CategorizedError = class extends Error {
-      code;
-      category;
-      remediation;
-      retryable;
-      details;
-      constructor(message, options) {
-        super(message, { cause: options.cause });
-        this.name = "CategorizedError";
-        this.code = options.code;
-        this.category = options.category;
-        this.remediation = options.remediation;
-        this.retryable = options.retryable;
-        this.details = options.details;
-      }
-      toJSON() {
-        return {
-          code: this.code,
-          category: this.category,
-          message: this.message,
-          remediation: this.remediation,
-          retryable: this.retryable,
-          details: this.details,
-          cause: this.cause instanceof Error ? this.cause.message : void 0
-        };
-      }
-    };
-  }
-});
-
-// shared/dist/errors/error-catalog.js
-function catalogError(code, message, options) {
-  const def = ERROR_CATALOG[code];
-  if (!def) {
-    return new CategorizedError(message, {
-      code,
-      category: "unknown",
-      remediation: "An unexpected error occurred. Check the logs for details.",
+// shared/dist/config/yaml-loader.js
+function loadYaml(filePath, schema, options) {
+  const shouldInterpolate = options?.interpolate !== false;
+  let raw;
+  try {
+    raw = (0, import_node_fs.readFileSync)(filePath, "utf-8");
+  } catch (err) {
+    throw new CategorizedError(`Cannot read file: ${filePath}`, {
+      code: "LOADER_CFG_001",
+      category: "configuration",
+      remediation: `Check that the file exists and is readable: ${filePath}`,
       retryable: false,
-      details: options?.details,
-      cause: options?.cause
+      cause: err instanceof Error ? err : void 0,
+      details: { filePath }
     });
   }
-  return new CategorizedError(message, {
-    code,
-    category: def.category,
-    remediation: options?.remediationOverride ?? def.remediation,
-    retryable: def.retryable,
-    details: options?.details,
-    cause: options?.cause
-  });
+  if (shouldInterpolate) {
+    raw = interpolateEnv(raw, options?.env);
+  }
+  let parsed;
+  try {
+    parsed = (0, import_yaml.parse)(raw);
+  } catch (err) {
+    throw new CategorizedError(`Invalid YAML in ${filePath}`, {
+      code: "LOADER_CFG_001",
+      category: "configuration",
+      remediation: `Fix the YAML syntax error in ${filePath}. ${err instanceof Error ? err.message : ""}`,
+      retryable: false,
+      cause: err instanceof Error ? err : void 0,
+      details: { filePath }
+    });
+  }
+  const result = schema.safeParse(parsed);
+  if (!result.success) {
+    const issues = formatZodErrors(result.error);
+    throw new CategorizedError(`Validation failed for ${filePath}: ${issues}`, {
+      code: "LOADER_CFG_001",
+      category: "validation",
+      remediation: `Fix the validation errors in ${filePath}:
+${issues}`,
+      retryable: false,
+      details: { filePath, issues: result.error.issues }
+    });
+  }
+  return result.data;
 }
-function classifyHttpStatus(status) {
-  if (status === 401 || status === 403) {
-    return { category: "authentication", retryable: false };
+function parseYamlString(content, schema, options) {
+  const shouldInterpolate = options?.interpolate !== false;
+  const interpolated = shouldInterpolate ? interpolateEnv(content, options?.env) : content;
+  let parsed;
+  try {
+    parsed = (0, import_yaml.parse)(interpolated);
+  } catch (err) {
+    throw new CategorizedError("Invalid YAML content", {
+      code: "LOADER_CFG_001",
+      category: "configuration",
+      remediation: `Fix the YAML syntax error. ${err instanceof Error ? err.message : ""}`,
+      retryable: false,
+      cause: err instanceof Error ? err : void 0
+    });
   }
-  if (status === 404 || status === 410) {
-    return { category: "validation", retryable: false };
+  const result = schema.safeParse(parsed);
+  if (!result.success) {
+    const issues = formatZodErrors(result.error);
+    throw new CategorizedError(`Validation failed: ${issues}`, {
+      code: "LOADER_CFG_001",
+      category: "validation",
+      remediation: `Fix the validation errors:
+${issues}`,
+      retryable: false,
+      details: { issues: result.error.issues }
+    });
   }
-  if (status === 409) {
-    return { category: "validation", retryable: false };
-  }
-  if (status === 429) {
-    return { category: "rate_limit", retryable: true };
-  }
-  if (status === 400 || status === 422) {
-    return { category: "validation", retryable: false };
-  }
-  if (status >= 500) {
-    return { category: "server_error", retryable: true };
-  }
-  return { category: "unknown", retryable: false };
+  return result.data;
 }
-function classifyNetworkError(err) {
-  const msg = err.message.toLowerCase();
-  const code = err.code?.toLowerCase() ?? "";
-  if (code === "econnrefused" || msg.includes("econnrefused")) {
-    return { category: "network", retryable: true };
-  }
-  if (code === "etimedout" || code === "esockettimedout" || msg.includes("timeout") || msg.includes("etimedout")) {
-    return { category: "timeout", retryable: true };
-  }
-  if (msg.includes("certificate") || msg.includes("ssl") || msg.includes("tls") || code === "cert_has_expired" || code === "unable_to_verify_leaf_signature") {
-    return { category: "network", retryable: false };
-  }
-  if (code === "econnreset" || code === "epipe" || code === "enotfound" || msg.includes("econnreset") || msg.includes("socket hang up")) {
-    return { category: "network", retryable: true };
-  }
-  return { category: "network", retryable: true };
+function formatZodErrors(error) {
+  return error.issues.map((issue) => {
+    const path = issue.path.length > 0 ? issue.path.join(".") : "(root)";
+    return `  ${path}: ${issue.message}`;
+  }).join("\n");
 }
-var ERROR_CATALOG;
-var init_error_catalog = __esm({
-  "shared/dist/errors/error-catalog.js"() {
-    "use strict";
-    init_categorized_error();
-    ERROR_CATALOG = {
-      // Authentication
-      LOADER_AUTH_001: {
-        category: "authentication",
-        retryable: false,
-        remediation: "Check CTX_API_KEY environment variable. Ensure the key is valid and not expired."
-      },
-      LOADER_AUTH_002: {
-        category: "authentication",
-        retryable: false,
-        remediation: "Source credential has expired. Rotate the token and update your environment."
-      },
-      // Network
-      LOADER_NET_001: {
-        category: "network",
-        retryable: true,
-        remediation: "Cannot connect to Context Engine. Verify CTX_API_URL is correct and the server is reachable."
-      },
-      LOADER_NET_002: {
-        category: "network",
-        retryable: false,
-        remediation: "Proxy authentication failed. Check your proxy credentials in HTTPS_PROXY or networking.proxy config."
-      },
-      LOADER_NET_003: {
-        category: "network",
-        retryable: false,
-        remediation: "SSL/TLS certificate error. Add your CA certificate via networking.caCertPath or NODE_EXTRA_CA_CERTS."
-      },
-      // Rate limiting
-      LOADER_RATE_001: {
-        category: "rate_limit",
-        retryable: true,
-        remediation: "API rate limit reached. Reduce defaults.concurrency or wait for the rate limit to reset."
-      },
-      // Configuration
-      LOADER_CFG_001: {
-        category: "configuration",
-        retryable: false,
-        remediation: "Invalid manifest file. Run `ctx-loader validate` for detailed validation errors."
-      },
-      LOADER_CFG_002: {
-        category: "configuration",
-        retryable: false,
-        remediation: "Required environment variable is not set."
-      },
-      LOADER_CFG_003: {
-        category: "configuration",
-        retryable: false,
-        remediation: "Manifest structure changed since last run. Cannot resume safely. Start a new load."
-      },
-      // Compatibility
-      LOADER_COMPAT_001: {
-        category: "compatibility",
-        retryable: false,
-        remediation: "Feature not supported by target CTX server version. Upgrade the server or remove the unsupported configuration."
-      },
-      // Server errors
-      LOADER_SRV_001: {
-        category: "server_error",
-        retryable: true,
-        remediation: "Context Engine returned a server error. Try again or check the engine logs."
-      },
-      // Timeout
-      LOADER_TMO_001: {
-        category: "timeout",
-        retryable: true,
-        remediation: "Operation timed out. Increase defaults.syncTimeout or defaults.agentTimeout in your manifest."
-      },
-      // Budget
-      LOADER_BDG_001: {
-        category: "budget",
-        retryable: false,
-        remediation: "Agent token budget exceeded. Increase defaults.agentBudget in your manifest."
-      },
-      // State
-      LOADER_STATE_001: {
-        category: "validation",
-        retryable: false,
-        remediation: "Invalid state transition. This is a bug \u2014 please report it."
-      },
-      LOADER_STATE_002: {
-        category: "validation",
-        retryable: false,
-        remediation: "Checkpoint file corrupted. The .bak file will be tried automatically."
-      },
-      // Builder
-      BUILDER_PARSE_001: {
-        category: "validation",
-        retryable: false,
-        remediation: "Invalid SKILL.md frontmatter. Check the YAML frontmatter section for syntax errors."
-      },
-      BUILDER_EMIT_001: {
-        category: "unknown",
-        retryable: false,
-        remediation: "Emitter failed to write output. Check the output directory is writable."
-      },
-      // Onboarding
-      ONBOARD_CONN_001: {
-        category: "network",
-        retryable: true,
-        remediation: "Cannot reach Context Engine. Check your CTX_API_URL and network connectivity."
-      },
-      ONBOARD_STATE_001: {
-        category: "validation",
-        retryable: false,
-        remediation: "Onboarding state file is corrupted. Delete .ctx-onboarding/state.json and restart."
-      },
-      ONBOARD_PREREQ_001: {
-        category: "validation",
-        retryable: false,
-        remediation: "Step prerequisite not met. Run the required earlier steps first."
-      }
-    };
-  }
-});
-
-// shared/dist/config/env-interpolation.js
-function interpolateEnv(content, env = process.env) {
-  return content.replace(/\$\{([^}]+)\}/g, (_match, expr) => {
-    const defaultSep = expr.indexOf(":-");
-    if (defaultSep !== -1) {
-      const varName2 = expr.slice(0, defaultSep);
-      const defaultValue = expr.slice(defaultSep + 2);
-      const value2 = env[varName2];
-      return value2 !== void 0 && value2 !== "" ? value2 : defaultValue;
-    }
-    const varName = expr.trim();
-    const value = env[varName];
-    if (value === void 0 || value === "") {
-      throw new CategorizedError(`Environment variable ${varName} is not set`, {
-        code: "LOADER_CFG_002",
-        category: "configuration",
-        remediation: `Set the environment variable ${varName} before running this command.`,
-        retryable: false,
-        details: { varName }
-      });
-    }
-    return value;
-  });
-}
-var init_env_interpolation = __esm({
-  "shared/dist/config/env-interpolation.js"() {
-    "use strict";
-    init_categorized_error();
-  }
-});
-
-// shared/dist/config/yaml-loader.js
-var import_yaml;
+var import_node_fs, import_yaml;
 var init_yaml_loader = __esm({
   "shared/dist/config/yaml-loader.js"() {
     "use strict";
+    import_node_fs = require("node:fs");
     import_yaml = __toESM(require_dist(), 1);
     init_categorized_error();
     init_env_interpolation();
+  }
+});
+
+// shared/dist/config/settings.js
+function loadSettings(baseDir) {
+  const settingsPath = (0, import_node_path.join)(baseDir, "ctx-settings.yaml");
+  if ((0, import_node_fs2.existsSync)(settingsPath)) {
+    try {
+      const raw = (0, import_node_fs2.readFileSync)(settingsPath, "utf-8");
+      const parsed = (0, import_yaml2.parse)(raw);
+      const apiUrl2 = parsed.CTX_API_URL || parsed.ctx_api_url || parsed.apiUrl;
+      const apiKey2 = parsed.CTX_API_KEY || parsed.ctx_api_key || parsed.apiKey;
+      if (apiUrl2 && apiKey2) {
+        for (const [key, value] of Object.entries(parsed)) {
+          if (typeof value === "string" && value && !process.env[key]) {
+            process.env[key] = value;
+          }
+        }
+        const { preset, config } = resolveDataVolume(parsed);
+        return {
+          apiUrl: apiUrl2,
+          apiKey: apiKey2,
+          projectName: parsed.PROJECT_NAME || parsed.project_name || parsed.projectName,
+          dataVolume: config,
+          dataVolumePreset: preset,
+          all: parsed
+        };
+      }
+    } catch {
+    }
+  }
+  const apiUrl = process.env.CTX_API_URL;
+  const apiKey = process.env.CTX_API_KEY;
+  if (apiUrl && apiKey) {
+    return {
+      apiUrl,
+      apiKey,
+      dataVolume: DATA_VOLUME_PRESETS.standard,
+      dataVolumePreset: "standard",
+      all: {}
+    };
+  }
+  return null;
+}
+function resolveDataVolume(parsed) {
+  const presetName = parsed.DATA_VOLUME || parsed.data_volume || "standard";
+  const preset = DATA_VOLUME_PRESETS[presetName] ?? DATA_VOLUME_PRESETS.standard;
+  const config = { ...preset };
+  const sinceDays = parsed.SINCE_DAYS || parsed.since_days;
+  if (sinceDays) {
+    config.sinceDays = parseInt(sinceDays, 10);
+  }
+  const events = parsed.EVENTS || parsed.events;
+  if (events) {
+    config.events = events.split(",").map((e) => e.trim());
+  }
+  const agentBudget = parsed.AGENT_BUDGET || parsed.agent_budget;
+  if (agentBudget) {
+    config.agentBudget = parseInt(agentBudget, 10);
+  }
+  return { preset: presetName, config };
+}
+function settingsSource(baseDir) {
+  const settingsPath = (0, import_node_path.join)(baseDir, "ctx-settings.yaml");
+  if ((0, import_node_fs2.existsSync)(settingsPath)) {
+    return settingsPath;
+  }
+  return "environment variables";
+}
+var import_node_fs2, import_node_path, import_yaml2, DATA_VOLUME_PRESETS;
+var init_settings = __esm({
+  "shared/dist/config/settings.js"() {
+    "use strict";
+    import_node_fs2 = require("node:fs");
+    import_node_path = require("node:path");
+    import_yaml2 = __toESM(require_dist(), 1);
+    DATA_VOLUME_PRESETS = {
+      "ultra-light": {
+        sinceDays: 1,
+        events: ["push"],
+        agentBudget: 3e4
+      },
+      light: {
+        sinceDays: 7,
+        events: ["push"],
+        agentBudget: 5e4
+      },
+      standard: {
+        sinceDays: 30,
+        events: ["push", "pull_request", "issues"],
+        agentBudget: 1e5
+      },
+      full: {
+        sinceDays: 90,
+        events: ["push", "pull_request", "issues", "release"],
+        agentBudget: 2e5
+      }
+    };
   }
 });
 
@@ -12579,7 +12777,7 @@ var require_thread_stream = __commonJS({
     var { version } = require_package();
     var { EventEmitter } = require("events");
     var { Worker } = require("worker_threads");
-    var { join: join4 } = require("path");
+    var { join: join5 } = require("path");
     var { pathToFileURL } = require("url");
     var { wait } = require_wait();
     var {
@@ -12615,7 +12813,7 @@ var require_thread_stream = __commonJS({
     function createWorker(stream, opts) {
       const { filename, workerData } = opts;
       const bundlerOverrides = "__bundlerPathsOverrides" in globalThis ? globalThis.__bundlerPathsOverrides : {};
-      const toExecute = bundlerOverrides["thread-stream-worker"] || join4(__dirname, "lib", "worker.js");
+      const toExecute = bundlerOverrides["thread-stream-worker"] || join5(__dirname, "lib", "worker.js");
       const worker = new Worker(toExecute, {
         ...opts.workerOpts,
         trackUnmanagedFds: false,
@@ -13001,7 +13199,7 @@ var require_transport = __commonJS({
     "use strict";
     var { createRequire } = require("module");
     var getCallers = require_caller();
-    var { join: join4, isAbsolute, sep } = require("node:path");
+    var { join: join5, isAbsolute, sep } = require("node:path");
     var sleep = require_atomic_sleep();
     var onExit = require_on_exit_leak_free();
     var ThreadStream = require_thread_stream();
@@ -13064,7 +13262,7 @@ var require_transport = __commonJS({
         throw new Error("only one of target or targets can be specified");
       }
       if (targets) {
-        target = bundlerOverrides["pino-worker"] || join4(__dirname, "worker.js");
+        target = bundlerOverrides["pino-worker"] || join5(__dirname, "worker.js");
         options.targets = targets.filter((dest) => dest.target).map((dest) => {
           return {
             ...dest,
@@ -13082,7 +13280,7 @@ var require_transport = __commonJS({
           });
         });
       } else if (pipeline) {
-        target = bundlerOverrides["pino-worker"] || join4(__dirname, "worker.js");
+        target = bundlerOverrides["pino-worker"] || join5(__dirname, "worker.js");
         options.pipelines = [pipeline.map((dest) => {
           return {
             ...dest,
@@ -13104,7 +13302,7 @@ var require_transport = __commonJS({
           return origin;
         }
         if (origin === "pino/file") {
-          return join4(__dirname, "..", "file.js");
+          return join5(__dirname, "..", "file.js");
         }
         let fixTarget2;
         for (const filePath of callers) {
@@ -14093,7 +14291,7 @@ var require_safe_stable_stringify = __commonJS({
               return circularValue;
             }
             let res = "";
-            let join4 = ",";
+            let join5 = ",";
             const originalIndentation = indentation;
             if (Array.isArray(value)) {
               if (value.length === 0) {
@@ -14107,7 +14305,7 @@ var require_safe_stable_stringify = __commonJS({
                 indentation += spacer;
                 res += `
 ${indentation}`;
-                join4 = `,
+                join5 = `,
 ${indentation}`;
               }
               const maximumValuesToStringify = Math.min(value.length, maximumBreadth);
@@ -14115,13 +14313,13 @@ ${indentation}`;
               for (; i < maximumValuesToStringify - 1; i++) {
                 const tmp2 = stringifyFnReplacer(String(i), value, stack, replacer, spacer, indentation);
                 res += tmp2 !== void 0 ? tmp2 : "null";
-                res += join4;
+                res += join5;
               }
               const tmp = stringifyFnReplacer(String(i), value, stack, replacer, spacer, indentation);
               res += tmp !== void 0 ? tmp : "null";
               if (value.length - 1 > maximumBreadth) {
                 const removedKeys = value.length - maximumBreadth - 1;
-                res += `${join4}"... ${getItemCount(removedKeys)} not stringified"`;
+                res += `${join5}"... ${getItemCount(removedKeys)} not stringified"`;
               }
               if (spacer !== "") {
                 res += `
@@ -14142,7 +14340,7 @@ ${originalIndentation}`;
             let separator = "";
             if (spacer !== "") {
               indentation += spacer;
-              join4 = `,
+              join5 = `,
 ${indentation}`;
               whitespace = " ";
             }
@@ -14156,13 +14354,13 @@ ${indentation}`;
               const tmp = stringifyFnReplacer(key2, value, stack, replacer, spacer, indentation);
               if (tmp !== void 0) {
                 res += `${separator}${strEscape(key2)}:${whitespace}${tmp}`;
-                separator = join4;
+                separator = join5;
               }
             }
             if (keyLength > maximumBreadth) {
               const removedKeys = keyLength - maximumBreadth;
               res += `${separator}"...":${whitespace}"${getItemCount(removedKeys)} not stringified"`;
-              separator = join4;
+              separator = join5;
             }
             if (spacer !== "" && separator.length > 1) {
               res = `
@@ -14203,7 +14401,7 @@ ${originalIndentation}`;
             }
             const originalIndentation = indentation;
             let res = "";
-            let join4 = ",";
+            let join5 = ",";
             if (Array.isArray(value)) {
               if (value.length === 0) {
                 return "[]";
@@ -14216,7 +14414,7 @@ ${originalIndentation}`;
                 indentation += spacer;
                 res += `
 ${indentation}`;
-                join4 = `,
+                join5 = `,
 ${indentation}`;
               }
               const maximumValuesToStringify = Math.min(value.length, maximumBreadth);
@@ -14224,13 +14422,13 @@ ${indentation}`;
               for (; i < maximumValuesToStringify - 1; i++) {
                 const tmp2 = stringifyArrayReplacer(String(i), value[i], stack, replacer, spacer, indentation);
                 res += tmp2 !== void 0 ? tmp2 : "null";
-                res += join4;
+                res += join5;
               }
               const tmp = stringifyArrayReplacer(String(i), value[i], stack, replacer, spacer, indentation);
               res += tmp !== void 0 ? tmp : "null";
               if (value.length - 1 > maximumBreadth) {
                 const removedKeys = value.length - maximumBreadth - 1;
-                res += `${join4}"... ${getItemCount(removedKeys)} not stringified"`;
+                res += `${join5}"... ${getItemCount(removedKeys)} not stringified"`;
               }
               if (spacer !== "") {
                 res += `
@@ -14243,7 +14441,7 @@ ${originalIndentation}`;
             let whitespace = "";
             if (spacer !== "") {
               indentation += spacer;
-              join4 = `,
+              join5 = `,
 ${indentation}`;
               whitespace = " ";
             }
@@ -14252,7 +14450,7 @@ ${indentation}`;
               const tmp = stringifyArrayReplacer(key2, value[key2], stack, replacer, spacer, indentation);
               if (tmp !== void 0) {
                 res += `${separator}${strEscape(key2)}:${whitespace}${tmp}`;
-                separator = join4;
+                separator = join5;
               }
             }
             if (spacer !== "" && separator.length > 1) {
@@ -14310,20 +14508,20 @@ ${originalIndentation}`;
               indentation += spacer;
               let res2 = `
 ${indentation}`;
-              const join5 = `,
+              const join6 = `,
 ${indentation}`;
               const maximumValuesToStringify = Math.min(value.length, maximumBreadth);
               let i = 0;
               for (; i < maximumValuesToStringify - 1; i++) {
                 const tmp2 = stringifyIndent(String(i), value[i], stack, spacer, indentation);
                 res2 += tmp2 !== void 0 ? tmp2 : "null";
-                res2 += join5;
+                res2 += join6;
               }
               const tmp = stringifyIndent(String(i), value[i], stack, spacer, indentation);
               res2 += tmp !== void 0 ? tmp : "null";
               if (value.length - 1 > maximumBreadth) {
                 const removedKeys = value.length - maximumBreadth - 1;
-                res2 += `${join5}"... ${getItemCount(removedKeys)} not stringified"`;
+                res2 += `${join6}"... ${getItemCount(removedKeys)} not stringified"`;
               }
               res2 += `
 ${originalIndentation}`;
@@ -14339,16 +14537,16 @@ ${originalIndentation}`;
               return '"[Object]"';
             }
             indentation += spacer;
-            const join4 = `,
+            const join5 = `,
 ${indentation}`;
             let res = "";
             let separator = "";
             let maximumPropertiesToStringify = Math.min(keyLength, maximumBreadth);
             if (isTypedArrayWithEntries(value)) {
-              res += stringifyTypedArray(value, join4, maximumBreadth);
+              res += stringifyTypedArray(value, join5, maximumBreadth);
               keys = keys.slice(value.length);
               maximumPropertiesToStringify -= value.length;
-              separator = join4;
+              separator = join5;
             }
             if (deterministic) {
               keys = sort(keys, comparator);
@@ -14359,13 +14557,13 @@ ${indentation}`;
               const tmp = stringifyIndent(key2, value[key2], stack, spacer, indentation);
               if (tmp !== void 0) {
                 res += `${separator}${strEscape(key2)}: ${tmp}`;
-                separator = join4;
+                separator = join5;
               }
             }
             if (keyLength > maximumBreadth) {
               const removedKeys = keyLength - maximumBreadth;
               res += `${separator}"...": "${getItemCount(removedKeys)} not stringified"`;
-              separator = join4;
+              separator = join5;
             }
             if (separator !== "") {
               res = `
@@ -14967,6 +15165,25 @@ var init_agent_types = __esm({
 });
 
 // shared/dist/index.js
+var dist_exports = {};
+__export(dist_exports, {
+  ALL_AGENTS: () => ALL_AGENTS,
+  CategorizedError: () => CategorizedError,
+  DATA_VOLUME_PRESETS: () => DATA_VOLUME_PRESETS,
+  TIER_1_AGENTS: () => TIER_1_AGENTS,
+  TIER_2_AGENTS: () => TIER_2_AGENTS,
+  catalogError: () => catalogError,
+  classifyHttpStatus: () => classifyHttpStatus,
+  classifyNetworkError: () => classifyNetworkError,
+  createLogger: () => createLogger,
+  getErrorDefinition: () => getErrorDefinition,
+  interpolateEnv: () => interpolateEnv,
+  interpolateEnvDeep: () => interpolateEnvDeep,
+  loadSettings: () => loadSettings,
+  loadYaml: () => loadYaml,
+  parseYamlString: () => parseYamlString,
+  settingsSource: () => settingsSource
+});
 var init_dist = __esm({
   "shared/dist/index.js"() {
     "use strict";
@@ -14974,6 +15191,7 @@ var init_dist = __esm({
     init_error_catalog();
     init_env_interpolation();
     init_yaml_loader();
+    init_settings();
     init_logger();
     init_agent_types();
   }
@@ -19202,7 +19420,7 @@ __export(parser_exports, {
 function parseManifest(filePath, env) {
   let raw;
   try {
-    raw = (0, import_node_fs.readFileSync)(filePath, "utf-8");
+    raw = (0, import_node_fs3.readFileSync)(filePath, "utf-8");
   } catch (err) {
     throw new CategorizedError(`Cannot read manifest: ${filePath}`, {
       code: "LOADER_CFG_001",
@@ -19231,7 +19449,7 @@ function parseManifest(filePath, env) {
   }
   let parsed;
   try {
-    parsed = (0, import_yaml2.parse)(interpolated);
+    parsed = (0, import_yaml3.parse)(interpolated);
   } catch (err) {
     throw new CategorizedError(`Invalid YAML in manifest: ${filePath}`, {
       code: "LOADER_CFG_001",
@@ -19262,7 +19480,7 @@ function computeStructuralFingerprint(raw) {
   const placeholdered = raw.replace(/\$\{[^}]+\}/g, "__ENV_VAR__");
   let parsed;
   try {
-    parsed = (0, import_yaml2.parse)(placeholdered);
+    parsed = (0, import_yaml3.parse)(placeholdered);
   } catch {
     return (0, import_node_crypto.createHash)("sha256").update(raw).digest("hex").slice(0, 16);
   }
@@ -19324,13 +19542,13 @@ function validateUniqueSourceNames(manifest, filePath) {
     }
   }
 }
-var import_node_crypto, import_node_fs, import_yaml2;
+var import_node_crypto, import_node_fs3, import_yaml3;
 var init_parser = __esm({
   "loader/src/manifest/parser.ts"() {
     "use strict";
     import_node_crypto = require("node:crypto");
-    import_node_fs = require("node:fs");
-    import_yaml2 = __toESM(require_dist(), 1);
+    import_node_fs3 = require("node:fs");
+    import_yaml3 = __toESM(require_dist(), 1);
     init_dist();
     init_schema();
   }
@@ -19370,20 +19588,20 @@ var checkpoint_exports = {};
 __export(checkpoint_exports, {
   CheckpointStore: () => CheckpointStore
 });
-var import_node_fs2, import_node_path, import_node_crypto2, CheckpointStore;
+var import_node_fs4, import_node_path2, import_node_crypto2, CheckpointStore;
 var init_checkpoint = __esm({
   "loader/src/state/checkpoint.ts"() {
     "use strict";
-    import_node_fs2 = require("node:fs");
-    import_node_path = require("node:path");
+    import_node_fs4 = require("node:fs");
+    import_node_path2 = require("node:path");
     import_node_crypto2 = require("node:crypto");
     init_dist();
     CheckpointStore = class {
       stateDir;
       writeQueue = Promise.resolve();
       constructor(baseDir) {
-        this.stateDir = (0, import_node_path.join)(baseDir, ".ctx-loader", "runs");
-        (0, import_node_fs2.mkdirSync)(this.stateDir, { recursive: true });
+        this.stateDir = (0, import_node_path2.join)(baseDir, ".ctx-loader", "runs");
+        (0, import_node_fs4.mkdirSync)(this.stateDir, { recursive: true });
       }
       /**
        * Write state atomically: unique temp file → rename.
@@ -19395,22 +19613,22 @@ var init_checkpoint = __esm({
       }
       doCheckpoint(run) {
         run.stateVersion++;
-        const targetPath = (0, import_node_path.join)(this.stateDir, `${run.id}.json`);
+        const targetPath = (0, import_node_path2.join)(this.stateDir, `${run.id}.json`);
         const tempPath = `${targetPath}.tmp.${(0, import_node_crypto2.randomUUID)().slice(0, 8)}`;
         const backupPath = `${targetPath}.bak`;
         const content = JSON.stringify(run, null, 2);
-        (0, import_node_fs2.writeFileSync)(tempPath, content, { mode: 384 });
-        if ((0, import_node_fs2.existsSync)(targetPath)) {
-          (0, import_node_fs2.copyFileSync)(targetPath, backupPath);
+        (0, import_node_fs4.writeFileSync)(tempPath, content, { mode: 384 });
+        if ((0, import_node_fs4.existsSync)(targetPath)) {
+          (0, import_node_fs4.copyFileSync)(targetPath, backupPath);
         }
-        (0, import_node_fs2.renameSync)(tempPath, targetPath);
-        (0, import_node_fs2.writeFileSync)((0, import_node_path.join)(this.stateDir, "latest-run"), run.id, { mode: 384 });
+        (0, import_node_fs4.renameSync)(tempPath, targetPath);
+        (0, import_node_fs4.writeFileSync)((0, import_node_path2.join)(this.stateDir, "latest-run"), run.id, { mode: 384 });
       }
       /**
        * Load a run by ID, with .bak fallback if primary is corrupted.
        */
       async load(runId) {
-        const targetPath = (0, import_node_path.join)(this.stateDir, `${runId}.json`);
+        const targetPath = (0, import_node_path2.join)(this.stateDir, `${runId}.json`);
         try {
           return this.readStateFile(targetPath);
         } catch {
@@ -19426,12 +19644,12 @@ var init_checkpoint = __esm({
        * Load the most recent run.
        */
       async loadLatest() {
-        const pointerPath = (0, import_node_path.join)(this.stateDir, "latest-run");
-        if (!(0, import_node_fs2.existsSync)(pointerPath)) {
+        const pointerPath = (0, import_node_path2.join)(this.stateDir, "latest-run");
+        if (!(0, import_node_fs4.existsSync)(pointerPath)) {
           return null;
         }
         try {
-          const runId = (0, import_node_fs2.readFileSync)(pointerPath, "utf-8").trim();
+          const runId = (0, import_node_fs4.readFileSync)(pointerPath, "utf-8").trim();
           return await this.load(runId);
         } catch {
           return null;
@@ -19452,7 +19670,7 @@ var init_checkpoint = __esm({
         return this.stateDir;
       }
       readStateFile(path) {
-        if (!(0, import_node_fs2.existsSync)(path)) {
+        if (!(0, import_node_fs4.existsSync)(path)) {
           throw new CategorizedError(`State file not found: ${path}`, {
             code: "LOADER_STATE_002",
             category: "validation",
@@ -19460,7 +19678,7 @@ var init_checkpoint = __esm({
             retryable: false
           });
         }
-        const content = (0, import_node_fs2.readFileSync)(path, "utf-8");
+        const content = (0, import_node_fs4.readFileSync)(path, "utf-8");
         return JSON.parse(content);
       }
     };
@@ -19835,12 +20053,12 @@ var init_agent_runner = __esm({
 });
 
 // loader/src/pipeline/pause-controller.ts
-var import_node_fs3, import_node_path2, PauseController;
+var import_node_fs5, import_node_path3, PauseController;
 var init_pause_controller = __esm({
   "loader/src/pipeline/pause-controller.ts"() {
     "use strict";
-    import_node_fs3 = require("node:fs");
-    import_node_path2 = require("node:path");
+    import_node_fs5 = require("node:fs");
+    import_node_path3 = require("node:path");
     PauseController = class {
       _state = "running";
       signalDir;
@@ -19851,7 +20069,7 @@ var init_pause_controller = __esm({
       constructor(signalDir) {
         this.signalDir = signalDir;
         if (signalDir) {
-          (0, import_node_fs3.mkdirSync)(signalDir, { recursive: true });
+          (0, import_node_fs5.mkdirSync)(signalDir, { recursive: true });
         }
       }
       /** Signal a cooperative pause (programmatic). */
@@ -19894,13 +20112,13 @@ var init_pause_controller = __esm({
         if (!this.signalDir) {
           return;
         }
-        const cancelPath = (0, import_node_path2.join)(this.signalDir, "cancel-signal");
-        if ((0, import_node_fs3.existsSync)(cancelPath)) {
+        const cancelPath = (0, import_node_path3.join)(this.signalDir, "cancel-signal");
+        if ((0, import_node_fs5.existsSync)(cancelPath)) {
           this._state = "cancel_requested";
           return;
         }
-        const pausePath = (0, import_node_path2.join)(this.signalDir, "pause-signal");
-        if ((0, import_node_fs3.existsSync)(pausePath)) {
+        const pausePath = (0, import_node_path3.join)(this.signalDir, "pause-signal");
+        if ((0, import_node_fs5.existsSync)(pausePath)) {
           if (this._state === "running") {
             this._state = "pause_requested";
           }
@@ -19914,10 +20132,10 @@ var init_pause_controller = __esm({
           return;
         }
         for (const name of ["pause-signal", "cancel-signal"]) {
-          const path = (0, import_node_path2.join)(this.signalDir, name);
-          if ((0, import_node_fs3.existsSync)(path)) {
+          const path = (0, import_node_path3.join)(this.signalDir, name);
+          if ((0, import_node_fs5.existsSync)(path)) {
             try {
-              (0, import_node_fs3.unlinkSync)(path);
+              (0, import_node_fs5.unlinkSync)(path);
             } catch {
             }
           }
@@ -20218,12 +20436,12 @@ function getAgentsForSource(sourceSpec) {
   }
   return DEFAULT_AGENTS[sourceSpec.type] ?? [];
 }
-var import_node_crypto4, import_node_path3, log, Orchestrator, DEFAULT_AGENTS;
+var import_node_crypto4, import_node_path4, log, Orchestrator, DEFAULT_AGENTS;
 var init_orchestrator = __esm({
   "loader/src/pipeline/orchestrator.ts"() {
     "use strict";
     import_node_crypto4 = require("node:crypto");
-    import_node_path3 = require("node:path");
+    import_node_path4 = require("node:path");
     init_dist();
     init_types2();
     init_checkpoint();
@@ -20238,7 +20456,7 @@ var init_orchestrator = __esm({
       constructor(options) {
         this.options = options;
         this.checkpointStore = new CheckpointStore(options.baseDir);
-        this.pauseController = new PauseController((0, import_node_path3.join)(options.baseDir, ".ctx-loader"));
+        this.pauseController = new PauseController((0, import_node_path4.join)(options.baseDir, ".ctx-loader"));
         this.client = new CtxApiClient({
           apiUrl: options.manifest.ctx.apiUrl,
           apiKey: options.manifest.ctx.apiKey,
@@ -20885,17 +21103,18 @@ var {
 } = import_index.default;
 
 // loader/src/cli.ts
-var import_node_path4 = require("node:path");
+var import_node_path5 = require("node:path");
 var import_node_readline = require("node:readline");
+init_dist();
 init_parser();
 init_orchestrator();
 init_api_client();
 function requireApiConfig(json) {
   const opts = program2.opts();
   const apiUrl = opts.apiUrl || process.env.CTX_API_URL;
-  const apiKey = opts.apiKey || process.env.CTX_API_KEY;
+  const apiKey = process.env.CTX_API_KEY;
   if (!apiUrl || !apiKey) {
-    const msg = "CTX API connection required. Use --api-url/--api-key flags or set CTX_API_URL/CTX_API_KEY environment variables.";
+    const msg = "CTX API connection required. Provide credentials via one of:\n  1. ctx-settings.yaml in the current directory (recommended)\n  2. Environment variables: CTX_API_URL and CTX_API_KEY";
     if (json) {
       console.error(JSON.stringify({ error: msg }));
     } else {
@@ -20906,23 +21125,24 @@ function requireApiConfig(json) {
   return { apiUrl, apiKey };
 }
 var program2 = new Command();
-program2.name("ctx-loader").description("Bulk data loader for Context Engine").version("0.1.0").option("--api-url <url>", "CTX API URL (or set CTX_API_URL)").option("--api-key <key>", "CTX API key (or set CTX_API_KEY)");
-program2.command("init").description("Generate a manifest from a template").option("--template <name>", "Template name (minimal, github-jira-slack, gitlab-linear-pagerduty)", "minimal").option("--output <path>", "Output file path", "ctx-loader.yaml").option("--json", "Output as JSON").action(async (opts) => {
+program2.name("ctx-loader").description("Bulk data loader for Context Engine").version("0.1.0").option("--api-url <url>", "CTX API URL (or set CTX_API_URL)");
+program2.command("init").description("Generate a manifest from a template").option("--template <name>", "Template name (minimal, github-jira-slack, gitlab-linear-pagerduty)", "minimal").option("--output <path>", "Output file path", "ctx-loader.yaml").option("--set <pairs...>", "Set template variables (e.g. --set GITHUB_ORG=microsoft GITHUB_REPO=TypeScript)").option("--owner <org>", "GitHub org/owner (shorthand for --set GITHUB_ORG=<org>)").option("--repo <name>", "GitHub repo name (shorthand for --set GITHUB_REPO=<name>)").option("--resolve", "Also resolve env vars and ctx-settings.yaml values in the template").option("--json", "Output as JSON").action(async (opts) => {
   try {
-    const { readFileSync: readFileSync3, writeFileSync: writeFileSync2, existsSync: existsSync3 } = await import("node:fs");
-    const { dirname, join: join4 } = await import("node:path");
+    const { readFileSync: readFS, writeFileSync: writeFileSync2, existsSync: existsSync4 } = await import("node:fs");
+    const { dirname, join: join5 } = await import("node:path");
+    const { interpolateEnv: interpolateEnv2 } = await Promise.resolve().then(() => (init_dist(), dist_exports));
     const templateName = opts.template.endsWith(".yaml") ? opts.template : `${opts.template}.yaml`;
     const binDir = dirname(process.argv[1] || ".");
     const candidates = [
       // Bundled with the CLI (distributable layout: loader/bin/ctx-loader → loader/templates/)
-      join4(binDir, "..", "templates", templateName),
+      join5(binDir, "..", "templates", templateName),
       // Relative to cwd
-      join4(process.cwd(), "templates", templateName)
+      join5(process.cwd(), "templates", templateName)
     ];
     let templateContent = null;
     for (const candidate of candidates) {
-      if (existsSync3(candidate)) {
-        templateContent = readFileSync3(candidate, "utf-8");
+      if (existsSync4(candidate)) {
+        templateContent = readFS(candidate, "utf-8");
         break;
       }
     }
@@ -20960,7 +21180,33 @@ workspaces:
           - git-insights-analyzer
 `;
     }
-    const outputPath = (0, import_node_path4.resolve)(opts.output);
+    const overrides = {};
+    if (opts.owner) overrides.GITHUB_ORG = opts.owner;
+    if (opts.repo) overrides.GITHUB_REPO = opts.repo;
+    if (opts.set) {
+      for (const pair of opts.set) {
+        const eqIdx = pair.indexOf("=");
+        if (eqIdx > 0) {
+          overrides[pair.slice(0, eqIdx)] = pair.slice(eqIdx + 1);
+        }
+      }
+    }
+    if (opts.resolve || Object.keys(overrides).length > 0) {
+      const mergedEnv = { ...process.env, ...overrides };
+      if (opts.resolve) {
+        templateContent = interpolateEnv2(templateContent, mergedEnv);
+      } else {
+        templateContent = templateContent.replace(/\$\{([^}]+)\}/g, (match, expr) => {
+          const defaultSep = expr.indexOf(":-");
+          const varName = defaultSep !== -1 ? expr.slice(0, defaultSep) : expr.trim();
+          if (varName in overrides) {
+            return overrides[varName];
+          }
+          return match;
+        });
+      }
+    }
+    const outputPath = (0, import_node_path5.resolve)(opts.output);
     writeFileSync2(outputPath, templateContent, "utf-8");
     if (opts.json) {
       console.log(JSON.stringify({ template: opts.template, output: outputPath }));
@@ -20980,7 +21226,7 @@ workspaces:
 });
 program2.command("validate").description("Validate manifest (schema + CTX connectivity)").option("--manifest <path>", "Manifest file path", "ctx-loader.yaml").option("--json", "Output as JSON").action(async (opts) => {
   try {
-    const { manifest, fingerprint } = parseManifest((0, import_node_path4.resolve)(opts.manifest));
+    const { manifest, fingerprint } = parseManifest((0, import_node_path5.resolve)(opts.manifest));
     const sources = Object.values(manifest.workspaces).flatMap((ws) => ws.sources);
     const result = {
       valid: true,
@@ -21016,12 +21262,12 @@ program2.command("validate").description("Validate manifest (schema + CTX connec
 });
 program2.command("load").description("Execute full data load pipeline").option("--manifest <path>", "Manifest file path", "ctx-loader.yaml").option("--mode <mode>", "Load mode", "full").option("--json", "Output as JSON").action(async (opts) => {
   try {
-    const { manifest, fingerprint } = parseManifest((0, import_node_path4.resolve)(opts.manifest));
+    const { manifest, fingerprint } = parseManifest((0, import_node_path5.resolve)(opts.manifest));
     const isJson = opts.json;
     const orchestrator = new Orchestrator({
       manifest,
       manifestFingerprint: fingerprint,
-      manifestPath: (0, import_node_path4.resolve)(opts.manifest),
+      manifestPath: (0, import_node_path5.resolve)(opts.manifest),
       mode: opts.mode,
       baseDir: process.cwd(),
       onProgress: /* @__PURE__ */ (() => {
@@ -21177,13 +21423,13 @@ program2.command("resume").description("Resume from last checkpoint").option("--
       return;
     }
     const { parseManifest: parseManifest2 } = await Promise.resolve().then(() => (init_parser(), parser_exports));
-    const { manifest, fingerprint } = parseManifest2((0, import_node_path4.resolve)(opts.manifest));
+    const { manifest, fingerprint } = parseManifest2((0, import_node_path5.resolve)(opts.manifest));
     store.validateFingerprint(run, fingerprint);
     const { Orchestrator: Orchestrator2 } = await Promise.resolve().then(() => (init_orchestrator(), orchestrator_exports));
     const orchestrator = new Orchestrator2({
       manifest,
       manifestFingerprint: fingerprint,
-      manifestPath: (0, import_node_path4.resolve)(opts.manifest),
+      manifestPath: (0, import_node_path5.resolve)(opts.manifest),
       mode: run.mode,
       baseDir: process.cwd()
     });
@@ -21210,10 +21456,10 @@ program2.command("resume").description("Resume from last checkpoint").option("--
 });
 program2.command("pause").description("Cooperative pause (takes effect at next stage boundary)").option("--json", "Output as JSON").action(async (opts) => {
   const { writeFileSync: writeFileSync2, mkdirSync: mkdirSync3 } = await import("node:fs");
-  const { join: join4 } = await import("node:path");
-  const signalDir = join4(process.cwd(), ".ctx-loader");
+  const { join: join5 } = await import("node:path");
+  const signalDir = join5(process.cwd(), ".ctx-loader");
   mkdirSync3(signalDir, { recursive: true });
-  writeFileSync2(join4(signalDir, "pause-signal"), "", { mode: 384 });
+  writeFileSync2(join5(signalDir, "pause-signal"), "", { mode: 384 });
   if (opts.json) {
     console.log(JSON.stringify({ status: "pause_signalled" }));
   } else {
@@ -21222,10 +21468,10 @@ program2.command("pause").description("Cooperative pause (takes effect at next s
 });
 program2.command("cancel").description("Cooperative cancel (takes effect at next stage boundary)").option("--json", "Output as JSON").action(async (opts) => {
   const { writeFileSync: writeFileSync2, mkdirSync: mkdirSync3 } = await import("node:fs");
-  const { join: join4 } = await import("node:path");
-  const signalDir = join4(process.cwd(), ".ctx-loader");
+  const { join: join5 } = await import("node:path");
+  const signalDir = join5(process.cwd(), ".ctx-loader");
   mkdirSync3(signalDir, { recursive: true });
-  writeFileSync2(join4(signalDir, "cancel-signal"), "", { mode: 384 });
+  writeFileSync2(join5(signalDir, "cancel-signal"), "", { mode: 384 });
   if (opts.json) {
     console.log(JSON.stringify({ status: "cancel_signalled" }));
   } else {
@@ -21250,7 +21496,7 @@ program2.command("rollback").description("Rollback resources created by the last
       process.exit(1);
       return;
     }
-    const { manifest } = parseManifest2((0, import_node_path4.resolve)(opts.manifest));
+    const { manifest } = parseManifest2((0, import_node_path5.resolve)(opts.manifest));
     const client = new CtxApiClient2({
       apiUrl: manifest.ctx.apiUrl,
       apiKey: manifest.ctx.apiKey
@@ -21322,11 +21568,158 @@ program2.command("schedule").description("Set up recurring loads (node-cron daem
     console.log(`Use --daemon for cross-platform node-cron scheduling.`);
   }
 });
-program2.command("collect-logs").description("Package debug bundle for support (client-side traces only)").option("--output <path>", "Output file path", "ctx-loader-debug.tar.gz").option("--json", "Output as JSON").action(async (opts) => {
-  if (opts.json) {
-    console.log(JSON.stringify({ output: opts.output, status: "not_yet_implemented" }));
-  } else {
-    console.log(`Debug bundle collection not yet implemented. Output would go to: ${opts.output}`);
+program2.command("diagnose").description("Diagnose failures in the latest load run").option("--json", "Output as JSON").action(async (opts) => {
+  try {
+    const { CheckpointStore: CheckpointStore2 } = await Promise.resolve().then(() => (init_checkpoint(), checkpoint_exports));
+    const { getErrorDefinition: getErrorDefinition2 } = await Promise.resolve().then(() => (init_dist(), dist_exports));
+    const store = new CheckpointStore2(process.cwd());
+    const run = await store.loadLatest();
+    if (!run) {
+      const msg = "No load run found. Run `ctx-loader load` first.";
+      if (opts.json) {
+        console.error(JSON.stringify({ error: msg }));
+      } else {
+        console.error(msg);
+      }
+      process.exit(1);
+    }
+    const failures = [];
+    let hasRetryable = false;
+    for (const [wsName, ws] of Object.entries(run.workspaces)) {
+      for (const [srcName, src] of Object.entries(ws.sources)) {
+        if (src.status === "failed") {
+          const errDef = src.errorCode ? getErrorDefinition2(src.errorCode) : void 0;
+          const retryable = errDef?.retryable ?? false;
+          if (retryable) hasRetryable = true;
+          const failedAgents = src.agentRuns.filter((a) => a.overallStatus === "failed");
+          if (failedAgents.length > 0) {
+            for (const agent of failedAgents) {
+              const lastRun = agent.runs[agent.runs.length - 1];
+              failures.push({
+                workspace: wsName,
+                source: srcName,
+                stage: src.status,
+                error: agent.error || src.error,
+                errorCode: src.errorCode,
+                remediation: errDef?.remediation,
+                retryable,
+                agent: agent.agentName,
+                agentRunId: lastRun?.runId
+              });
+            }
+          } else {
+            failures.push({
+              workspace: wsName,
+              source: srcName,
+              stage: src.status,
+              error: src.error,
+              errorCode: src.errorCode,
+              remediation: errDef?.remediation,
+              retryable
+            });
+          }
+        }
+      }
+    }
+    let suggestedAction;
+    if (failures.length === 0) {
+      suggestedAction = run.status === "completed" ? "Load completed successfully. No failures to diagnose." : `Run status is "${run.status}". No source failures detected.`;
+    } else if (hasRetryable) {
+      suggestedAction = "Some failures are retryable. Run: ctx-loader resume --manifest ctx-loader.yaml --json";
+    } else {
+      const budgetFailure = failures.find((f) => f.errorCode === "LOADER_BDG_001");
+      if (budgetFailure) {
+        suggestedAction = "Increase defaults.agentBudget in ctx-loader.yaml, then run: ctx-loader resume --manifest ctx-loader.yaml --json";
+      } else {
+        suggestedAction = "Review the errors above. Fix the root cause, then run: ctx-loader resume --manifest ctx-loader.yaml --json";
+      }
+    }
+    const result = {
+      runId: run.id,
+      status: run.status,
+      startedAt: run.startedAt,
+      endedAt: run.endedAt,
+      failures,
+      suggestedAction
+    };
+    if (opts.json) {
+      console.log(JSON.stringify(result, null, 2));
+    } else {
+      if (failures.length === 0) {
+        console.log(`Run ${run.id}: ${run.status}`);
+        console.log(suggestedAction);
+      } else {
+        console.log(`Run ${run.id}: ${run.status} \u2014 ${failures.length} failure(s)
+`);
+        for (const f of failures) {
+          const loc = f.agent ? `${f.workspace}/${f.source} \u2192 agent: ${f.agent}` : `${f.workspace}/${f.source}`;
+          console.log(`  ${loc}`);
+          if (f.error) console.log(`    Error: ${f.error}`);
+          if (f.errorCode) console.log(`    Code:  ${f.errorCode}`);
+          if (f.remediation) console.log(`    Fix:   ${f.remediation}`);
+          console.log(`    Retryable: ${f.retryable}`);
+          console.log();
+        }
+        console.log(`Suggested action: ${suggestedAction}`);
+      }
+    }
+  } catch (err) {
+    const msg = `Diagnose failed: ${err instanceof Error ? err.message : String(err)}`;
+    if (opts.json) {
+      console.error(JSON.stringify({ error: msg }));
+    } else {
+      console.error(msg);
+    }
+    process.exit(1);
+  }
+});
+program2.command("collect-logs").description("Package debug bundle for support (client-side traces only)").option("--json", "Output as JSON").action(async (opts) => {
+  try {
+    const { existsSync: existsSync4, readFileSync: readFS } = await import("node:fs");
+    const { join: join5 } = await import("node:path");
+    const { CheckpointStore: CheckpointStore2 } = await Promise.resolve().then(() => (init_checkpoint(), checkpoint_exports));
+    const cwd = process.cwd();
+    const bundle = { collectedAt: (/* @__PURE__ */ new Date()).toISOString() };
+    const store = new CheckpointStore2(cwd);
+    const latestRun = await store.loadLatest();
+    if (latestRun) {
+      bundle.checkpoint = latestRun;
+    }
+    const onboardStatePath = join5(cwd, ".ctx-onboarding", "state.json");
+    if (existsSync4(onboardStatePath)) {
+      try {
+        bundle.onboardingState = JSON.parse(readFS(onboardStatePath, "utf-8"));
+      } catch {
+        bundle.onboardingState = { error: "Failed to parse state.json" };
+      }
+    }
+    const logPath = join5(cwd, ".ctx-onboarding", "loader-output.log");
+    if (existsSync4(logPath)) {
+      try {
+        const fullLog = readFS(logPath, "utf-8");
+        bundle.loaderLog = fullLog.length > 5e3 ? fullLog.slice(-5e3) : fullLog;
+      } catch {
+        bundle.loaderLog = { error: "Failed to read loader-output.log" };
+      }
+    }
+    const SECRET_PATTERNS = /ctx_[a-f0-9]{64}|ghp_[A-Za-z0-9_]+|ghs_[A-Za-z0-9_]+|glpat-[A-Za-z0-9_-]+/g;
+    const sanitized = JSON.stringify(bundle, null, 2).replace(SECRET_PATTERNS, "[REDACTED]");
+    if (opts.json) {
+      console.log(sanitized);
+    } else {
+      console.log("Debug bundle collected. Pipe with --json to capture output.");
+      console.log(`Checkpoint: ${latestRun ? latestRun.id : "none"}`);
+      console.log(`Onboarding state: ${existsSync4(onboardStatePath) ? "found" : "not found"}`);
+      console.log(`Loader log: ${existsSync4(logPath) ? "found" : "not found"}`);
+    }
+  } catch (err) {
+    const msg = `Collect-logs failed: ${err instanceof Error ? err.message : String(err)}`;
+    if (opts.json) {
+      console.error(JSON.stringify({ error: msg }));
+    } else {
+      console.error(msg);
+    }
+    process.exit(1);
   }
 });
 function projectFields(data, fields) {
@@ -21437,4 +21830,5 @@ program2.command("reset").description("Reset CTX tenant to factory settings (del
     process.exit(1);
   }
 });
+loadSettings(process.cwd());
 program2.parse();

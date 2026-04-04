@@ -10433,7 +10433,7 @@ var init_error_catalog = __esm({
       LOADER_AUTH_001: {
         category: "authentication",
         retryable: false,
-        remediation: "Check CTX_API_KEY environment variable. Ensure the key is valid and not expired."
+        remediation: "CTX API key is invalid or expired. Check ctx-settings.yaml or CTX_API_KEY environment variable. If no settings file exists, create one: see /onboard skill."
       },
       LOADER_AUTH_002: {
         category: "authentication",
@@ -10471,7 +10471,7 @@ var init_error_catalog = __esm({
       LOADER_CFG_002: {
         category: "configuration",
         retryable: false,
-        remediation: "Required environment variable is not set."
+        remediation: "Required environment variable is not set. Create a ctx-settings.yaml file with your credentials (CTX_API_URL, CTX_API_KEY, GH_PAT, etc.), or set the variables in your environment."
       },
       LOADER_CFG_003: {
         category: "configuration",
@@ -10560,6 +10560,104 @@ var init_yaml_loader = __esm({
     import_yaml = __toESM(require_dist(), 1);
     init_categorized_error();
     init_env_interpolation();
+  }
+});
+
+// shared/dist/config/settings.js
+function loadSettings(baseDir) {
+  const settingsPath = (0, import_node_path.join)(baseDir, "ctx-settings.yaml");
+  if ((0, import_node_fs.existsSync)(settingsPath)) {
+    try {
+      const raw = (0, import_node_fs.readFileSync)(settingsPath, "utf-8");
+      const parsed = (0, import_yaml2.parse)(raw);
+      const apiUrl2 = parsed.CTX_API_URL || parsed.ctx_api_url || parsed.apiUrl;
+      const apiKey2 = parsed.CTX_API_KEY || parsed.ctx_api_key || parsed.apiKey;
+      if (apiUrl2 && apiKey2) {
+        for (const [key, value] of Object.entries(parsed)) {
+          if (typeof value === "string" && value && !process.env[key]) {
+            process.env[key] = value;
+          }
+        }
+        const { preset, config } = resolveDataVolume(parsed);
+        return {
+          apiUrl: apiUrl2,
+          apiKey: apiKey2,
+          projectName: parsed.PROJECT_NAME || parsed.project_name || parsed.projectName,
+          dataVolume: config,
+          dataVolumePreset: preset,
+          all: parsed
+        };
+      }
+    } catch {
+    }
+  }
+  const apiUrl = process.env.CTX_API_URL;
+  const apiKey = process.env.CTX_API_KEY;
+  if (apiUrl && apiKey) {
+    return {
+      apiUrl,
+      apiKey,
+      dataVolume: DATA_VOLUME_PRESETS.standard,
+      dataVolumePreset: "standard",
+      all: {}
+    };
+  }
+  return null;
+}
+function resolveDataVolume(parsed) {
+  const presetName = parsed.DATA_VOLUME || parsed.data_volume || "standard";
+  const preset = DATA_VOLUME_PRESETS[presetName] ?? DATA_VOLUME_PRESETS.standard;
+  const config = { ...preset };
+  const sinceDays = parsed.SINCE_DAYS || parsed.since_days;
+  if (sinceDays) {
+    config.sinceDays = parseInt(sinceDays, 10);
+  }
+  const events = parsed.EVENTS || parsed.events;
+  if (events) {
+    config.events = events.split(",").map((e) => e.trim());
+  }
+  const agentBudget = parsed.AGENT_BUDGET || parsed.agent_budget;
+  if (agentBudget) {
+    config.agentBudget = parseInt(agentBudget, 10);
+  }
+  return { preset: presetName, config };
+}
+function settingsSource(baseDir) {
+  const settingsPath = (0, import_node_path.join)(baseDir, "ctx-settings.yaml");
+  if ((0, import_node_fs.existsSync)(settingsPath)) {
+    return settingsPath;
+  }
+  return "environment variables";
+}
+var import_node_fs, import_node_path, import_yaml2, DATA_VOLUME_PRESETS;
+var init_settings = __esm({
+  "shared/dist/config/settings.js"() {
+    "use strict";
+    import_node_fs = require("node:fs");
+    import_node_path = require("node:path");
+    import_yaml2 = __toESM(require_dist(), 1);
+    DATA_VOLUME_PRESETS = {
+      "ultra-light": {
+        sinceDays: 1,
+        events: ["push"],
+        agentBudget: 3e4
+      },
+      light: {
+        sinceDays: 7,
+        events: ["push"],
+        agentBudget: 5e4
+      },
+      standard: {
+        sinceDays: 30,
+        events: ["push", "pull_request", "issues"],
+        agentBudget: 1e5
+      },
+      full: {
+        sinceDays: 90,
+        events: ["push", "pull_request", "issues", "release"],
+        agentBudget: 2e5
+      }
+    };
   }
 });
 
@@ -14951,6 +15049,7 @@ var init_dist = __esm({
     init_error_catalog();
     init_env_interpolation();
     init_yaml_loader();
+    init_settings();
     init_logger();
     init_agent_types();
   }
@@ -19172,11 +19271,11 @@ var init_schema = __esm({
 });
 
 // loader/dist/manifest/parser.js
-var import_yaml2;
+var import_yaml3;
 var init_parser = __esm({
   "loader/dist/manifest/parser.js"() {
     "use strict";
-    import_yaml2 = __toESM(require_dist(), 1);
+    import_yaml3 = __toESM(require_dist(), 1);
     init_dist();
     init_schema();
   }
@@ -21086,96 +21185,7 @@ var import_node_path8 = require("node:path");
 init_dist2();
 
 // onboarder/src/config/settings.ts
-var import_node_fs = require("node:fs");
-var import_node_path = require("node:path");
-var import_yaml3 = __toESM(require_dist(), 1);
-var DATA_VOLUME_PRESETS = {
-  "ultra-light": {
-    sinceDays: 1,
-    events: ["push"],
-    agentBudget: 3e4
-  },
-  light: {
-    sinceDays: 7,
-    events: ["push"],
-    agentBudget: 5e4
-  },
-  standard: {
-    sinceDays: 30,
-    events: ["push", "pull_request", "issues"],
-    agentBudget: 1e5
-  },
-  full: {
-    sinceDays: 90,
-    events: ["push", "pull_request", "issues", "release"],
-    agentBudget: 2e5
-  }
-};
-function loadSettings(baseDir) {
-  const settingsPath = (0, import_node_path.join)(baseDir, "ctx-settings.yaml");
-  if ((0, import_node_fs.existsSync)(settingsPath)) {
-    try {
-      const raw = (0, import_node_fs.readFileSync)(settingsPath, "utf-8");
-      const parsed = (0, import_yaml3.parse)(raw);
-      const apiUrl2 = parsed.CTX_API_URL || parsed.ctx_api_url || parsed.apiUrl;
-      const apiKey2 = parsed.CTX_API_KEY || parsed.ctx_api_key || parsed.apiKey;
-      if (apiUrl2 && apiKey2) {
-        for (const [key, value] of Object.entries(parsed)) {
-          if (typeof value === "string" && value && !process.env[key]) {
-            process.env[key] = value;
-          }
-        }
-        const { preset, config } = resolveDataVolume(parsed);
-        return {
-          apiUrl: apiUrl2,
-          apiKey: apiKey2,
-          projectName: parsed.PROJECT_NAME || parsed.project_name || parsed.projectName,
-          dataVolume: config,
-          dataVolumePreset: preset,
-          all: parsed
-        };
-      }
-    } catch {
-    }
-  }
-  const apiUrl = process.env.CTX_API_URL;
-  const apiKey = process.env.CTX_API_KEY;
-  if (apiUrl && apiKey) {
-    return {
-      apiUrl,
-      apiKey,
-      dataVolume: DATA_VOLUME_PRESETS.standard,
-      dataVolumePreset: "standard",
-      all: {}
-    };
-  }
-  return null;
-}
-function resolveDataVolume(parsed) {
-  const presetName = parsed.DATA_VOLUME || parsed.data_volume || "standard";
-  const preset = DATA_VOLUME_PRESETS[presetName] ?? DATA_VOLUME_PRESETS.standard;
-  const config = { ...preset };
-  const sinceDays = parsed.SINCE_DAYS || parsed.since_days;
-  if (sinceDays) {
-    config.sinceDays = parseInt(sinceDays, 10);
-  }
-  const events = parsed.EVENTS || parsed.events;
-  if (events) {
-    config.events = events.split(",").map((e) => e.trim());
-  }
-  const agentBudget = parsed.AGENT_BUDGET || parsed.agent_budget;
-  if (agentBudget) {
-    config.agentBudget = parseInt(agentBudget, 10);
-  }
-  return { preset: presetName, config };
-}
-function settingsSource(baseDir) {
-  const settingsPath = (0, import_node_path.join)(baseDir, "ctx-settings.yaml");
-  if ((0, import_node_fs.existsSync)(settingsPath)) {
-    return settingsPath;
-  }
-  return "environment variables";
-}
+init_dist();
 
 // onboarder/src/cli.ts
 function requireSettings(json) {

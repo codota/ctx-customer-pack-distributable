@@ -10,13 +10,17 @@ tags: [onboarding, setup]
 
 Validates your Context Engine setup and detects server capabilities.
 
+## Prerequisite
+
+**Before running step-0**, ensure `ctx-settings.yaml` exists in the current directory with at least `CTX_API_URL` and `CTX_API_KEY`. If it doesn't exist, run `/onboard` to create it, or create it manually.
+
 ## Usage
 
 ```bash
 ctx-onboard step-0 --json
 ```
 
-Reads CTX_API_URL and CTX_API_KEY from environment.
+Reads CTX_API_URL and CTX_API_KEY from `ctx-settings.yaml` or environment variables.
 
 ## What it checks
 

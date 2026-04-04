@@ -5,12 +5,17 @@ Walk through the complete 7-step Context Engine onboarding methodology. Validate
 
 Walk through the complete 7-step onboarding methodology to evaluate and adopt the Context Engine.
 
-## Before You Start
+## MANDATORY PREREQUISITE — Do This First
+
+**DO NOT proceed to any step until `ctx-settings.yaml` exists and is valid.**
+
+This file stores all credentials and configuration so that `ctx-loader` and `ctx-onboard` work without passing environment variables on every command.
 
 Check if `ctx-settings.yaml` exists in the project root.
 
 **If it exists**, read it and check:
 - Are `CTX_API_URL` and `CTX_API_KEY` set? If not, ask for them.
+- Are `GITHUB_ORG` and `GITHUB_REPO` set? If not, ask which repository to evaluate.
 - Is `DATA_VOLUME` set? If not, ask the user which volume they want (ultra-light, light, standard, full) and add it to the file. Explain the options:
   - `ultra-light` — 1 day of history, push events only (fastest, for quick testing)
   - `light` — 7 days, push events only
@@ -25,7 +30,7 @@ Check if `ctx-settings.yaml` exists in the project root.
 
 2. **Project info**:
    - Ask for a project name
-   - Ask which repository they want to evaluate
+   - Ask which repository they want to evaluate (owner and repo name)
 
 3. **Data volume** — ask how much data to load:
    - `ultra-light` — 1 day of history, push events only (fastest, for quick testing)
@@ -45,13 +50,17 @@ Check if `ctx-settings.yaml` exists in the project root.
    - **PagerDuty**: `PAGERDUTY_API_KEY`
    - **Linear**: `LINEAR_API_KEY`
 
-4. Create `ctx-settings.yaml` with the collected values:
+5. Create `ctx-settings.yaml` with the collected values:
 
 ```yaml
 # Context Engine
 CTX_API_URL: <their URL>
 CTX_API_KEY: <their key>
 PROJECT_NAME: <their project name>
+
+# Repository (used by ctx-loader init to generate the manifest)
+GITHUB_ORG: <org or owner>
+GITHUB_REPO: <repo name>
 
 # Data volume (ultra-light | light | standard | full)
 DATA_VOLUME: standard
