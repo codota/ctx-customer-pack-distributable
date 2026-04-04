@@ -131,6 +131,9 @@ install_core() {
 {
   "permissions": {
     "allow": [
+      "mcp__ctx-cloud__*",
+      "mcp__ctx-loader__*",
+      "mcp__ctx-onboard__*",
       "Bash(ctx-loader:*)",
       "Bash(ctx-onboard:*)",
       "Bash(ctx-cli:*)",
