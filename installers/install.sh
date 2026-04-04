@@ -118,7 +118,117 @@ install_core() {
       fetch "${RAW_BASE}/core/agents/claude/hooks/decision-context.py" ".claude/hooks/decision-context.py" || true
       fetch "${RAW_BASE}/core/agents/claude/hooks/change-confidence.py" ".claude/hooks/change-confidence.py" || true
       fetch "${RAW_BASE}/core/agents/claude/scripts/ctx-mcp-proxy.py" ".claude/scripts/ctx-mcp-proxy.py" || true
-      echo "[core] Done: ${count} skills + ${count} commands + 2 hooks + MCP proxy."
+      chmod +x .claude/hooks/*.py .claude/scripts/*.py 2>/dev/null || true
+
+      # Configure MCP server, hooks, and permissions in settings.local.json
+      echo "[core] Configuring Claude Code settings..."
+      local abs_scripts
+      abs_scripts="$(cd .claude/scripts 2>/dev/null && pwd)"
+      local abs_hooks
+      abs_hooks="$(cd .claude/hooks 2>/dev/null && pwd)"
+      cat > .claude/settings.local.json <<SETTINGS_EOF
+{
+  "permissions": {
+    "allow": [
+      "Bash(ctx-loader:*)",
+      "Bash(ctx-onboard:*)",
+      "Bash(ctx-cli:*)",
+      "Bash(which ctx-onboard:*)",
+      "Bash(which ctx-loader:*)",
+      "Bash(which ctx-cli:*)"
+    ]
+  },
+  "mcpServers": {
+    "ctx-cloud": {
+      "command": "python3",
+      "args": ["${abs_scripts}/ctx-mcp-proxy.py"]
+    }
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ${abs_hooks}/decision-context.py",
+            "timeout": 3000
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ${abs_hooks}/change-confidence.py",
+            "timeout": 5000
+          }
+        ]
+      }
+    ]
+  }
+}
+SETTINGS_EOF
+
+      # Generate CLAUDE.md project guide
+      echo "[core] Creating CLAUDE.md..."
+      cat > CLAUDE.md <<'CLAUDE_EOF'
+# Tabnine Context Engine
+
+This project has the Tabnine Context Engine customer pack installed.
+
+## Getting Started
+
+Run `/onboard` to walk through the 7-step onboarding methodology. This will:
+1. Create `ctx-settings.yaml` with your credentials (MANDATORY first step)
+2. Validate connectivity
+3. Load project data
+4. Measure Context Engine value
+
+## Available Skills
+
+Use these slash commands to interact with the Context Engine:
+
+- `/ctx` — Query the knowledge graph (services, entities, blast radius, change confidence)
+- `/onboard` — Full onboarding workflow
+- `/investigate-service` — Deep-dive into a service
+- `/blast-radius` — Assess impact of a change
+- `/review-pr` — Review PRs with architectural context
+- `/search-knowledge` — Search the knowledge graph
+- `/incident-response` — Get incident response context
+- `/understand-flow` — Trace business flows end-to-end
+
+## Credentials
+
+All credentials are loaded from `ctx-settings.yaml` in this directory. Create it with:
+
+```yaml
+CTX_API_URL: https://ctx.your-company.com
+CTX_API_KEY: ctx_your_key_here
+PROJECT_NAME: my-project
+GITHUB_ORG: your-org
+GITHUB_REPO: your-repo
+DATA_VOLUME: standard
+GH_PAT: ghp_your_token_here
+```
+
+Or run `/onboard` and it will guide you through creating this file.
+
+## MCP Tools
+
+The Context Engine is connected via MCP. Tools like `mcp__ctx-cloud__search_knowledge`,
+`mcp__ctx-cloud__get_service`, `mcp__ctx-cloud__blast_radius`, etc. are available
+automatically when `ctx-settings.yaml` is configured.
+
+## CLIs
+
+- `ctx-loader` — Bulk data loading (init, load, status, resume, diagnose)
+- `ctx-onboard` — Onboarding methodology (step-0 through step-7)
+- `ctx-cli` — Direct Context Engine queries
+CLAUDE_EOF
+
+      echo "[core] Done: ${count} skills + ${count} commands + 2 hooks + MCP proxy + settings + CLAUDE.md."
       ;;
     cursor)
       skills=$(list_github_dir "core/agents/cursor/.cursor/skills")
@@ -295,14 +405,18 @@ if [[ "$packages" == *"loader"* || "$packages" == *"onboarder"* ]]; then
   echo ""
 fi
 
-echo "To connect to the Context Engine, add to ${rc_file}:"
+echo "Next steps:"
 echo ""
-if [ "$shell_name" = "fish" ]; then
-  echo "  set -Ux CTX_API_URL https://ctx.your-company.com"
-  echo "  set -Ux CTX_API_KEY ctx_your_key_here"
-else
-  echo "  export CTX_API_URL=https://ctx.your-company.com"
-  echo "  export CTX_API_KEY=ctx_your_key_here"
-fi
+echo "  1. Start your AI agent (e.g. Claude Code) in this directory"
+echo "  2. Run /onboard — it will guide you through creating ctx-settings.yaml"
+echo "     with your Context Engine URL, API key, and repository details"
 echo ""
-echo "Then run: source ${rc_file}"
+echo "  Or create ctx-settings.yaml manually:"
+echo ""
+echo "    CTX_API_URL: https://ctx.your-company.com"
+echo "    CTX_API_KEY: ctx_your_key_here"
+echo "    PROJECT_NAME: my-project"
+echo "    GITHUB_ORG: your-org"
+echo "    GITHUB_REPO: your-repo"
+echo "    DATA_VOLUME: standard"
+echo "    GH_PAT: ghp_your_token_here"
