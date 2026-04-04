@@ -19495,9 +19495,9 @@ var init_api_client = __esm({
       }
       // ─── Credentials ────────────────────────────────────────
       async listCredentials(type) {
-        const query = type ? `?type=${encodeURIComponent(type)}` : "";
+        const query2 = type ? `?type=${encodeURIComponent(type)}` : "";
         const resp = await this.get(
-          `/api/credentials${query}`
+          `/api/credentials${query2}`
         );
         return resp.data;
       }
@@ -19573,11 +19573,11 @@ var init_api_client = __esm({
         return resp.data;
       }
       async listEntities(params) {
-        const query = new URLSearchParams();
-        if (params?.types) query.set("types", params.types);
-        if (params?.search) query.set("search", params.search);
-        if (params?.limit) query.set("limit", String(params.limit));
-        const qs = query.toString();
+        const query2 = new URLSearchParams();
+        if (params?.types) query2.set("types", params.types);
+        if (params?.search) query2.set("search", params.search);
+        if (params?.limit) query2.set("limit", String(params.limit));
+        const qs = query2.toString();
         const resp = await this.get(`/api/entities${qs ? "?" + qs : ""}`);
         return resp.data;
       }
@@ -19636,13 +19636,25 @@ var init_api_client = __esm({
         return resp.data;
       }
       async getWorkspaceAgentRuns(workspaceId, params) {
-        const query = new URLSearchParams();
-        if (params?.status) query.set("status", params.status);
-        if (params?.limit) query.set("limit", String(params.limit));
-        if (params?.offset) query.set("offset", String(params.offset));
-        const qs = query.toString();
+        const query2 = new URLSearchParams();
+        if (params?.status) query2.set("status", params.status);
+        if (params?.limit) query2.set("limit", String(params.limit));
+        if (params?.offset) query2.set("offset", String(params.offset));
+        const qs = query2.toString();
         const resp = await this.get(
           `/api/context-spaces/${workspaceId}/agent-runs${qs ? "?" + qs : ""}`
+        );
+        return resp.data;
+      }
+      // ─── Tenant ─────────────────────────────────────────────
+      async getTenantInfo() {
+        const resp = await this.get("/api/tenants/me");
+        return resp.data;
+      }
+      async resetTenant(tenantId) {
+        const resp = await this.post(
+          `/api/tenants/${tenantId}/reset`,
+          {}
         );
         return resp.data;
       }
@@ -20874,8 +20886,24 @@ var {
 
 // loader/src/cli.ts
 var import_node_path4 = require("node:path");
+var import_node_readline = require("node:readline");
 init_parser();
 init_orchestrator();
+init_api_client();
+function requireApiConfig(json) {
+  const apiUrl = process.env.CTX_API_URL;
+  const apiKey = process.env.CTX_API_KEY;
+  if (!apiUrl || !apiKey) {
+    const msg = "CTX_API_URL and CTX_API_KEY environment variables are required.";
+    if (json) {
+      console.error(JSON.stringify({ error: msg }));
+    } else {
+      console.error(msg);
+    }
+    process.exit(1);
+  }
+  return { apiUrl, apiKey };
+}
 var program2 = new Command();
 program2.name("ctx-loader").description("Bulk data loader for Context Engine").version("0.1.0");
 program2.command("init").description("Generate a manifest from a template").option("--template <name>", "Template name (minimal, github-jira-slack, gitlab-linear-pagerduty)", "minimal").option("--output <path>", "Output file path", "ctx-loader.yaml").option("--json", "Output as JSON").action(async (opts) => {
@@ -21298,6 +21326,114 @@ program2.command("collect-logs").description("Package debug bundle for support (
     console.log(JSON.stringify({ output: opts.output, status: "not_yet_implemented" }));
   } else {
     console.log(`Debug bundle collection not yet implemented. Output would go to: ${opts.output}`);
+  }
+});
+function projectFields(data, fields) {
+  let items;
+  if (Array.isArray(data)) {
+    items = data;
+  } else if (typeof data === "object" && data !== null) {
+    const obj = data;
+    if (Array.isArray(obj.results)) items = obj.results;
+    else if (Array.isArray(obj.entities)) items = obj.entities;
+    else items = [obj];
+  } else {
+    return [];
+  }
+  return items.map((item) => {
+    if (typeof item !== "object" || item === null) return {};
+    const row = {};
+    for (const f of fields) {
+      row[f] = item[f];
+    }
+    return row;
+  });
+}
+function outputResult(data, fields) {
+  if (fields) {
+    const fieldList = fields.split(",").map((f) => f.trim());
+    const projected = projectFields(data, fieldList);
+    console.log(JSON.stringify(projected, null, 2));
+  } else {
+    console.log(JSON.stringify(data, null, 2));
+  }
+}
+var query = program2.command("query").description("Query the Context Engine knowledge graph");
+query.command("search <terms>").description("Semantic search across the knowledge graph").option("--limit <n>", "Max results", "10").option("--types <types>", "Comma-separated entity types to filter").option("--fields <fields>", "Comma-separated fields to select from results").action(async (terms, opts) => {
+  const config = requireApiConfig(true);
+  const client = new CtxApiClient(config);
+  const results = await client.search({
+    query: terms,
+    limit: parseInt(opts.limit, 10),
+    entityTypes: opts.types ? opts.types.split(",") : void 0
+  });
+  outputResult(results, opts.fields);
+});
+query.command("entities").description("List or search entities").option("--type <type>", "Entity type (e.g. Service, CodeClass, Library)").option("--search <term>", "Search by name").option("--limit <n>", "Max results", "20").option("--fields <fields>", "Comma-separated fields to select from results").action(async (opts) => {
+  const config = requireApiConfig(true);
+  const client = new CtxApiClient(config);
+  const results = await client.listEntities({
+    types: opts.type,
+    search: opts.search,
+    limit: parseInt(opts.limit, 10)
+  });
+  outputResult(results, opts.fields);
+});
+query.command("entity <id>").description("Get a specific entity by ID").option("--fields <fields>", "Comma-separated fields to select").action(async (id, opts) => {
+  const config = requireApiConfig(true);
+  const client = new CtxApiClient(config);
+  const result = await client.getEntity(id);
+  outputResult(result, opts.fields);
+});
+program2.command("reset").description("Reset CTX tenant to factory settings (deletes all data)").option("--json", "Output as JSON").option("-y, --yes", "Skip confirmation prompt").action(async (opts) => {
+  const config = requireApiConfig(opts.json);
+  const client = new CtxApiClient(config);
+  let tenant;
+  try {
+    tenant = await client.getTenantInfo();
+  } catch (err) {
+    const msg = `Failed to resolve tenant: ${err instanceof Error ? err.message : String(err)}`;
+    if (opts.json) {
+      console.error(JSON.stringify({ error: msg }));
+    } else {
+      console.error(msg);
+    }
+    process.exit(1);
+    return;
+  }
+  if (!opts.yes) {
+    const rl = (0, import_node_readline.createInterface)({ input: process.stdin, output: process.stderr });
+    const answer = await new Promise((resolve2) => {
+      rl.question(
+        `Reset tenant "${tenant.name}" (${tenant.id})? This deletes all data sources, entities, credentials, and agent runs. Type "yes" to confirm: `,
+        resolve2
+      );
+    });
+    rl.close();
+    if (answer.trim().toLowerCase() !== "yes") {
+      if (opts.json) {
+        console.log(JSON.stringify({ status: "cancelled" }));
+      } else {
+        console.log("Reset cancelled.");
+      }
+      return;
+    }
+  }
+  try {
+    const result = await client.resetTenant(tenant.id);
+    if (opts.json) {
+      console.log(JSON.stringify({ status: "reset", tenant: tenant.name, ...result }));
+    } else {
+      console.log(`Tenant "${tenant.name}" has been reset to factory settings.`);
+    }
+  } catch (err) {
+    const msg = `Reset failed: ${err instanceof Error ? err.message : String(err)}`;
+    if (opts.json) {
+      console.error(JSON.stringify({ error: msg }));
+    } else {
+      console.error(msg);
+    }
+    process.exit(1);
   }
 });
 program2.parse();

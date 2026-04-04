@@ -19398,6 +19398,15 @@ var init_api_client = __esm({
         const resp = await this.get(`/api/context-spaces/${workspaceId}/agent-runs${qs ? "?" + qs : ""}`);
         return resp.data;
       }
+      // ─── Tenant ─────────────────────────────────────────────
+      async getTenantInfo() {
+        const resp = await this.get("/api/tenants/me");
+        return resp.data;
+      }
+      async resetTenant(tenantId) {
+        const resp = await this.post(`/api/tenants/${tenantId}/reset`, {});
+        return resp.data;
+      }
       // ─── Health ─────────────────────────────────────────────
       async health() {
         const resp = await this.get("/api/health");
