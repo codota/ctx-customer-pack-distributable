@@ -87,8 +87,8 @@ list_github_dir() {
 resolve_packages() {
   case $1 in
     core) echo "core" ;;
-    loader) echo "core loader" ;;
-    onboarder|all) echo "core loader onboarder" ;;
+    loader) echo "core cli loader" ;;
+    onboarder|all) echo "core cli loader onboarder" ;;
     *) echo "Unknown package: $1" >&2; exit 1 ;;
   esac
 }
@@ -167,6 +167,17 @@ install_core() {
   esac
 }
 
+install_cli() {
+  echo "[cli] Downloading ctx-cli..."
+  mkdir -p "$BIN_DIR"
+  if fetch "${RAW_BASE}/cli/bin/ctx-cli" "${BIN_DIR}/ctx-cli"; then
+    chmod +x "${BIN_DIR}/ctx-cli"
+    echo "[cli] Installed → ${BIN_DIR}/ctx-cli"
+  else
+    echo "[cli] Failed to download (ctx-cli may not be built yet)."
+  fi
+}
+
 install_loader() {
   echo "[loader] Downloading ctx-loader CLI..."
   mkdir -p "$BIN_DIR"
@@ -237,6 +248,7 @@ fi
 for pkg in $packages; do
   case $pkg in
     core) install_core "$AGENT" ;;
+    cli) install_cli ;;
     loader) install_loader ;;
     onboarder) install_onboarder "$AGENT" ;;
   esac
@@ -277,6 +289,7 @@ if [[ "$packages" == *"loader"* || "$packages" == *"onboarder"* ]]; then
   echo "  echo '${path_line}' >> ${rc_file}"
   echo ""
   echo "Verify:"
+  [[ "$packages" == *"cli"* ]] && echo "  ctx-cli --version"
   [[ "$packages" == *"loader"* ]] && echo "  ctx-loader --version"
   [[ "$packages" == *"onboarder"* ]] && echo "  ctx-onboard --version"
   echo ""
