@@ -199,10 +199,12 @@ def write_log(tool_name: str, cmd: list[str], exit_code: int, stdout: str, stder
         pass  # Logging must never break the tool call
 
 
-def run_cli(args: list[str], timeout: int = 120) -> dict:
+def run_cli(args: list[str], timeout: int = 120, use_json: bool = True) -> dict:
     """Run tabnine-ctx-loader with args and return parsed JSON output."""
     load_settings()  # Re-read each time — settings may be created mid-session
-    cmd = ["tabnine-ctx-loader"] + args + ["--json"]
+    cmd = ["tabnine-ctx-loader"] + args
+    if use_json:
+        cmd.append("--json")
     try:
         result = subprocess.run(
             cmd, capture_output=True, text=True, timeout=timeout, cwd=os.getcwd()
@@ -261,17 +263,17 @@ def handle_tool_call(name: str, args: dict) -> dict:
         cmd = ["query", "search", args["terms"]]
         if args.get("limit"): cmd += ["--limit", str(args["limit"])]
         if args.get("types"): cmd += ["--types", args["types"]]
-        return run_cli(cmd)
+        return run_cli(cmd, use_json=False)
 
     elif name == "loader_query_entities":
         cmd = ["query", "entities"]
         if args.get("type"): cmd += ["--type", args["type"]]
         if args.get("search"): cmd += ["--search", args["search"]]
         if args.get("limit"): cmd += ["--limit", str(args["limit"])]
-        return run_cli(cmd)
+        return run_cli(cmd, use_json=False)
 
     elif name == "loader_query_entity":
-        return run_cli(["query", "entity", args["id"]])
+        return run_cli(["query", "entity", args["id"]], use_json=False)
 
     elif name == "loader_reset":
         if not args.get("confirm"):

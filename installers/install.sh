@@ -355,28 +355,13 @@ GEMINI_MCP_EOF
 install_cli() {
   echo "[cli] Downloading tabnine-ctx-cli..."
   mkdir -p "$BIN_DIR"
-  if fetch "${RAW_BASE}/cli/bin/tabnine-ctx-cli" "${BIN_DIR}/tabnine-ctx-cli-bin"; then
-    chmod +x "${BIN_DIR}/tabnine-ctx-cli-bin"
-    # Create wrapper that loads ctx-settings.yaml into env before calling the real binary
-    cat > "${BIN_DIR}/tabnine-ctx-cli" <<'WRAPPER_EOF'
-#!/usr/bin/env bash
-# Wrapper: loads ctx-settings.yaml into environment before calling tabnine-ctx-cli-bin.
-# This ensures credentials from the customer-pack settings file are available.
-if [ -f "ctx-settings.yaml" ]; then
-  while IFS=': ' read -r key value; do
-    # Skip comments, empty lines, and lines without a value
-    case "$key" in \#*|"") continue ;; esac
-    [ -z "$value" ] && continue
-    # Only set if not already in environment
-    if [ -z "${!key}" ]; then
-      export "$key=$value"
-    fi
-  done < ctx-settings.yaml
-fi
-exec "$(dirname "$0")/tabnine-ctx-cli-bin" "$@"
-WRAPPER_EOF
+  # Engine binary is at cli/bin/tabnine-ctx-cli-engine in the distributable;
+  # wrapper script is at cli/bin/tabnine-ctx-cli
+  if fetch "${RAW_BASE}/cli/bin/tabnine-ctx-cli-engine" "${BIN_DIR}/tabnine-ctx-cli-engine"; then
+    chmod +x "${BIN_DIR}/tabnine-ctx-cli-engine"
+    fetch "${RAW_BASE}/cli/bin/tabnine-ctx-cli" "${BIN_DIR}/tabnine-ctx-cli"
     chmod +x "${BIN_DIR}/tabnine-ctx-cli"
-    echo "[cli] Installed → ${BIN_DIR}/tabnine-ctx-cli (with settings wrapper)"
+    echo "[cli] Installed → ${BIN_DIR}/tabnine-ctx-cli (wrapper + engine)"
   else
     echo "[cli] Failed to download (tabnine-ctx-cli may not be built yet)."
   fi
