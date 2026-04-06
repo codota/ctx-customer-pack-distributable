@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-Stdio MCP server for ctx-onboard CLI.
+Stdio MCP server for tabnine-ctx-onboard CLI.
 
-Exposes ctx-onboard commands as MCP tools so agents can drive the
+Exposes tabnine-ctx-onboard commands as MCP tools so agents can drive the
 7-step onboarding methodology without Bash permission prompts.
 
-Reads ctx-settings.yaml and injects into env so ctx-onboard picks them up.
+Reads .tabnine/ctx/ctx-settings.yaml and injects into env so tabnine-ctx-onboard picks them up.
 """
 
 import json
@@ -16,8 +16,9 @@ from datetime import datetime
 
 
 def load_settings():
-    """Load ctx-settings.yaml into env if it exists."""
-    settings_path = os.path.join(os.getcwd(), "ctx-settings.yaml")
+    """Load .tabnine/ctx/ctx-settings.yaml into env if it exists."""
+    # Must match shared/src/paths.ts CTX_RUNTIME_ROOT
+    settings_path = os.path.join(os.getcwd(), ".tabnine", "ctx", "ctx-settings.yaml")
     if not os.path.exists(settings_path):
         return
     try:
@@ -36,7 +37,7 @@ def load_settings():
         pass
 
 
-SERVER_NAME = "ctx-onboard"
+SERVER_NAME = "tabnine-ctx-onboard"
 SERVER_VERSION = "0.1.0"
 
 TOOLS = [
@@ -58,11 +59,11 @@ TOOLS = [
     },
     {
         "name": "onboard_step_2_start",
-        "description": "Start loading project data via ctx-loader (runs in background). Returns immediately.",
+        "description": "Start loading project data via tabnine-ctx-loader (runs in background). Returns immediately.",
         "inputSchema": {
             "type": "object",
             "properties": {
-                "manifest": {"type": "string", "description": "Manifest file path", "default": "ctx-loader.yaml"},
+                "manifest": {"type": "string", "description": "Manifest file path", "default": "tabnine-ctx-loader.yaml"},
             },
         },
     },
@@ -156,16 +157,17 @@ TOOLS = [
 ]
 
 
-LOG_DIR = os.path.join(os.getcwd(), ".ctx-logs")
+# Must match shared/src/paths.ts CTX_RUNTIME_ROOT
+LOG_DIR = os.path.join(os.getcwd(), ".tabnine", "ctx", "logs")
 MAX_LOG_FILES = 50
 
 
 def write_log(tool_name: str, cmd: list[str], exit_code: int, stdout: str, stderr: str):
-    """Write full CLI output to .ctx-logs/ for support debugging."""
+    """Write full CLI output to .tabnine/ctx/logs/ for support debugging."""
     try:
         os.makedirs(LOG_DIR, exist_ok=True)
         ts = datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
-        path = os.path.join(LOG_DIR, f"ctx-onboard-{tool_name}-{ts}.log")
+        path = os.path.join(LOG_DIR, f"tabnine-ctx-onboard-{tool_name}-{ts}.log")
         with open(path, "w") as f:
             f.write(f"timestamp: {datetime.now().isoformat()}\n")
             f.write(f"command: {' '.join(cmd)}\n")
@@ -175,7 +177,7 @@ def write_log(tool_name: str, cmd: list[str], exit_code: int, stdout: str, stder
                 f.write(f"--- stderr ---\n{stderr}\n")
         # Rotate: keep only MAX_LOG_FILES most recent
         files = sorted(
-            [f for f in os.listdir(LOG_DIR) if f.startswith("ctx-onboard-")],
+            [f for f in os.listdir(LOG_DIR) if f.startswith("tabnine-ctx-onboard-")],
         )
         for old in files[:-MAX_LOG_FILES]:
             os.remove(os.path.join(LOG_DIR, old))
@@ -184,9 +186,9 @@ def write_log(tool_name: str, cmd: list[str], exit_code: int, stdout: str, stder
 
 
 def run_cli(args: list[str], timeout: int = 120) -> dict:
-    """Run ctx-onboard with args and return parsed JSON output."""
-    load_settings()  # Re-read each time — ctx-settings.yaml may be created mid-session
-    cmd = ["ctx-onboard"] + args + ["--json"]
+    """Run tabnine-ctx-onboard with args and return parsed JSON output."""
+    load_settings()  # Re-read each time — settings may be created mid-session
+    cmd = ["tabnine-ctx-onboard"] + args + ["--json"]
     try:
         result = subprocess.run(
             cmd, capture_output=True, text=True, timeout=timeout, cwd=os.getcwd()
@@ -201,7 +203,7 @@ def run_cli(args: list[str], timeout: int = 120) -> dict:
     except subprocess.TimeoutExpired:
         return {"error": f"Command timed out after {timeout}s"}
     except FileNotFoundError:
-        return {"error": "ctx-onboard not found. Install with: curl -fsSL .../install.sh | bash -s -- --package all --agent claude"}
+        return {"error": "tabnine-ctx-onboard not found. Install with: curl -fsSL .../install.sh | bash -s -- --package all --agent claude"}
     except Exception as e:
         return {"error": str(e)}
 
@@ -232,7 +234,7 @@ def slim_status(data: dict) -> dict:
 
 
 def handle_tool_call(name: str, args: dict) -> dict:
-    """Map MCP tool name to ctx-onboard CLI invocation."""
+    """Map MCP tool name to tabnine-ctx-onboard CLI invocation."""
     if name == "onboard_step_0":
         return slim_step_0(run_cli(["step-0"]))
 
@@ -241,7 +243,7 @@ def handle_tool_call(name: str, args: dict) -> dict:
         return run_cli(cmd)
 
     elif name == "onboard_step_2_start":
-        cmd = ["step-2", "--manifest", args.get("manifest", "ctx-loader.yaml")]
+        cmd = ["step-2", "--manifest", args.get("manifest", "tabnine-ctx-loader.yaml")]
         return run_cli(cmd, timeout=300)
 
     elif name == "onboard_step_2_status":

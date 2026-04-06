@@ -9,7 +9,7 @@ tags: [onboarding, evaluation]
 # Onboard: Measure with Domain (Step 6)
 
 ```bash
-ctx-onboard step-6 --json
+tabnine-ctx-onboard step-6 --json
 ```
 
 Compares: no-MCP vs with-MCP vs with-domain.

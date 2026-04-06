@@ -4,8 +4,9 @@ description: >-
   Pagerduty tools: acknowledge_pagerduty_incident, add_pagerduty_note,
   resolve_pagerduty_incident
 allowed-tools: >-
-  mcp__ctx-cloud__acknowledge_pagerduty_incident,
-  mcp__ctx-cloud__add_pagerduty_note, mcp__ctx-cloud__resolve_pagerduty_incident
+  mcp__tabnine-ctx-cloud__acknowledge_pagerduty_incident,
+  mcp__tabnine-ctx-cloud__add_pagerduty_note,
+  mcp__tabnine-ctx-cloud__resolve_pagerduty_incident
 ---
 # Pagerduty Tools
 
@@ -15,7 +16,7 @@ allowed-tools: >-
 
 Acknowledge a PagerDuty incident. Requires a connected and enabled PagerDuty data source. The requesterEmail must match a valid PagerDuty user.
 
-Call `mcp__ctx-cloud__acknowledge_pagerduty_incident` with parameters:
+Call `mcp__tabnine-ctx-cloud__acknowledge_pagerduty_incident` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -26,7 +27,7 @@ Call `mcp__ctx-cloud__acknowledge_pagerduty_incident` with parameters:
 
 Add a note to an existing PagerDuty incident. Requires a connected and enabled PagerDuty data source. Notes are visible on the incident timeline.
 
-Call `mcp__ctx-cloud__add_pagerduty_note` with parameters:
+Call `mcp__tabnine-ctx-cloud__add_pagerduty_note` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -38,7 +39,7 @@ Call `mcp__ctx-cloud__add_pagerduty_note` with parameters:
 
 Resolve a PagerDuty incident. Requires a connected and enabled PagerDuty data source. The requesterEmail must match a valid PagerDuty user. Optionally include a resolution note.
 
-Call `mcp__ctx-cloud__resolve_pagerduty_incident` with parameters:
+Call `mcp__tabnine-ctx-cloud__resolve_pagerduty_incident` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|

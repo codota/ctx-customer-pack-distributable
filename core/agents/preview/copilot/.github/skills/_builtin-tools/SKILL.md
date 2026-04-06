@@ -23,7 +23,7 @@ mcp-tools:
 
 Retrieve coding guidelines and best practices from the knowledge base. Use this tool to get team-specific guidelines for code review and development standards.
 
-Call `mcp__ctx-cloud__get_coding_guidelines` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_coding_guidelines` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -36,7 +36,7 @@ Call `mcp__ctx-cloud__get_coding_guidelines` with parameters:
 
 Query CVE resolution status across repositories. Returns CVEResolution entities showing how each CVE was resolved (VEX attestation, auto-fix PR, or human escalation) along with the current status and resolution artifacts.
 
-Call `mcp__ctx-cloud__get_cve_resolution_status` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_cve_resolution_status` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -49,7 +49,7 @@ Call `mcp__ctx-cloud__get_cve_resolution_status` with parameters:
 
 Query the knowledge graph for entities and their relationships using Cypher. Returns entities matching the specified type and optional filters.
 
-Call `mcp__ctx-cloud__query_entities` with parameters:
+Call `mcp__tabnine-ctx-cloud__query_entities` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -61,7 +61,7 @@ Call `mcp__ctx-cloud__query_entities` with parameters:
 
 Query extracted code symbols from repositories. Returns interfaces, structs, classes, functions, and their fields/properties extracted via LSP analysis. Use this to discover configuration APIs, type definitions, and code structure across multiple repositories in a workspace.
 
-Call `mcp__ctx-cloud__query_symbols` with parameters:
+Call `mcp__tabnine-ctx-cloud__query_symbols` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -75,7 +75,7 @@ Call `mcp__ctx-cloud__query_symbols` with parameters:
 
 Search the knowledge graph for entities and information using semantic similarity. Use this tool to find relevant context, code patterns, documentation, or any other knowledge stored in the system.
 
-Call `mcp__ctx-cloud__search_knowledge` with parameters:
+Call `mcp__tabnine-ctx-cloud__search_knowledge` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -88,7 +88,7 @@ Call `mcp__ctx-cloud__search_knowledge` with parameters:
 
 Search for organizational skills learned from past successful agent runs. Skills are reusable patterns that describe how to accomplish specific tasks. Use this tool at the start of a task to find relevant approaches and best practices that have worked for similar tasks in the past.
 
-Call `mcp__ctx-cloud__search_skills` with parameters:
+Call `mcp__tabnine-ctx-cloud__search_skills` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|

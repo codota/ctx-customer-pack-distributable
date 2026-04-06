@@ -10,12 +10,12 @@ tags: [onboarding, evaluation]
 
 ## Step 3: Without MCP
 ```bash
-ctx-onboard step-3 --json
+tabnine-ctx-onboard step-3 --json
 ```
 
 ## Step 4: With MCP
 ```bash
-ctx-onboard step-4 --json
+tabnine-ctx-onboard step-4 --json
 ```
 
 Scores responses on relevance, depth, actionability, accuracy (0-5 each).

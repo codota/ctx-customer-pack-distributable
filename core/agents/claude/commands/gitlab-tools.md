@@ -8,7 +8,7 @@ Gitlab tools: add_gitlab_mr_comment, create_gitlab_merge_request, search_gitlab_
 
 Add a comment (note) to an existing GitLab merge request. Requires a connected and enabled GitLab data source.
 
-Call `mcp__ctx-cloud__add_gitlab_mr_comment` with parameters:
+Call `mcp__tabnine-ctx-cloud__add_gitlab_mr_comment` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -20,7 +20,7 @@ Call `mcp__ctx-cloud__add_gitlab_mr_comment` with parameters:
 
 Create a new merge request in a GitLab project. Requires a connected and enabled GitLab data source. Returns the created merge request details including IID and web URL.
 
-Call `mcp__ctx-cloud__create_gitlab_merge_request` with parameters:
+Call `mcp__tabnine-ctx-cloud__create_gitlab_merge_request` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -35,7 +35,7 @@ Call `mcp__ctx-cloud__create_gitlab_merge_request` with parameters:
 Search GitLab issues in the knowledge graph. Supports filtering by service name, state, and free-text query against title/description. Use this to find open or closed GitLab issues related to a service or topic.
 Prefer investigate_service when you need a full service overview — use this tool when you need a targeted GitLab issue search (e.g. all open issues for a service, issues matching a keyword).
 
-Call `mcp__ctx-cloud__search_gitlab_issues` with parameters:
+Call `mcp__tabnine-ctx-cloud__search_gitlab_issues` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|

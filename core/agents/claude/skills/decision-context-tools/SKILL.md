@@ -4,8 +4,10 @@ description: >-
   Decision context tools: create_code_module, get_file_context,
   list_code_modules, resolve_file_to_service
 allowed-tools: >-
-  mcp__ctx-cloud__create_code_module, mcp__ctx-cloud__get_file_context,
-  mcp__ctx-cloud__list_code_modules, mcp__ctx-cloud__resolve_file_to_service
+  mcp__tabnine-ctx-cloud__create_code_module,
+  mcp__tabnine-ctx-cloud__get_file_context,
+  mcp__tabnine-ctx-cloud__list_code_modules,
+  mcp__tabnine-ctx-cloud__resolve_file_to_service
 ---
 # Decision context Tools
 
@@ -24,7 +26,7 @@ Example: Create a module for payment processing code: create_code_module(
 )
 NOTE: This tool creates the entity. For bulk import, use the code-module-discovery agent.
 
-Call `mcp__ctx-cloud__create_code_module` with parameters:
+Call `mcp__tabnine-ctx-cloud__create_code_module` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -46,7 +48,7 @@ Results are scored by relevance and recency.
 USE THIS WHEN: A developer or agent is about to modify a file and needs to understand the architectural context, past issues, and potential impact before making changes.
 Example: get_file_context(filepath="src/payment/processor.ts") Returns: ADRs about payment idempotency, past payment incidents, PCI security patterns, experts on the payment module, services that depend on payment-service.
 
-Call `mcp__ctx-cloud__get_file_context` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_file_context` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -60,7 +62,7 @@ Call `mcp__ctx-cloud__get_file_context` with parameters:
 List all CodeModule entities, optionally filtered by service or repository.
 Shows file pattern mappings that enable decision context lookup.
 
-Call `mcp__ctx-cloud__list_code_modules` with parameters:
+Call `mcp__tabnine-ctx-cloud__list_code_modules` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -74,7 +76,7 @@ Quick lookup: resolve a file path to its owning service.
 Lighter-weight than get_file_context - just returns the service mapping without all the decision context. Use this for fast service identification.
 Falls back to heuristics if no CodeModule matches: 1. Checks if path contains a known service name 2. Looks for service.json/package.json in parent directories 3. Uses repository name as fallback
 
-Call `mcp__ctx-cloud__resolve_file_to_service` with parameters:
+Call `mcp__tabnine-ctx-cloud__resolve_file_to_service` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|

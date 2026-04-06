@@ -22,7 +22,7 @@ mcp-tools:
 Get the output and entities produced by a completed agent run. Returns the raw output from the agent and optionally the entities it created in the knowledge graph.
 Use this after an agent run completes (status: completed) to retrieve its results.
 
-Call `mcp__ctx-cloud__get_agent_run_output` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_agent_run_output` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -34,7 +34,7 @@ Call `mcp__ctx-cloud__get_agent_run_output` with parameters:
 Get the current status of an agent run. Returns status (queued, running, completed, failed, cancelled), timestamps, and any error information.
 Use this to monitor the progress of an agent started with invoke_agent.
 
-Call `mcp__ctx-cloud__get_agent_run_status` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_agent_run_status` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -46,7 +46,7 @@ Trigger an agent run by name or ID. The agent will execute asynchronously and yo
 Use this to run discovery agents (flow-discovery-agent, service-discovery-agent, etc.) or any other agent defined in the system.
 Returns an agentRunId that can be used to track progress and retrieve results.
 
-Call `mcp__ctx-cloud__invoke_agent` with parameters:
+Call `mcp__tabnine-ctx-cloud__invoke_agent` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -61,7 +61,7 @@ Call `mcp__ctx-cloud__invoke_agent` with parameters:
 List all available agents (agent types) in the system. Returns agent metadata including name, description, input schema, and status.
 Use this to discover what agents are available before invoking them with invoke_agent.
 
-Call `mcp__ctx-cloud__list_agent_kinds` with parameters:
+Call `mcp__tabnine-ctx-cloud__list_agent_kinds` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|

@@ -4,7 +4,7 @@ description: >-
   Query GCP Error Reporting API for error group statistics with time-windowed
   counts. Returns timedCounts arrays for spike detection. Requires a connected
   and enabled gcp_monitoring data source.
-allowed-tools: mcp__ctx-cloud__query_gcp_error_group_stats
+allowed-tools: mcp__tabnine-ctx-cloud__query_gcp_error_group_stats
 ---
 # Gcp Tools
 
@@ -14,7 +14,7 @@ allowed-tools: mcp__ctx-cloud__query_gcp_error_group_stats
 
 Query GCP Error Reporting API for error group statistics with time-windowed counts. Returns timedCounts arrays for spike detection. Requires a connected and enabled gcp_monitoring data source.
 
-Call `mcp__ctx-cloud__query_gcp_error_group_stats` with parameters:
+Call `mcp__tabnine-ctx-cloud__query_gcp_error_group_stats` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|

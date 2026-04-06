@@ -116,9 +116,9 @@ install_core() {
       mkdir -p .claude/hooks .claude/scripts
       fetch "${RAW_BASE}/core/agents/claude/hooks/decision-context.py" ".claude/hooks/decision-context.py" || true
       fetch "${RAW_BASE}/core/agents/claude/hooks/change-confidence.py" ".claude/hooks/change-confidence.py" || true
-      fetch "${RAW_BASE}/core/agents/claude/scripts/ctx-mcp-proxy.py" ".claude/scripts/ctx-mcp-proxy.py" || true
-      fetch "${RAW_BASE}/core/agents/claude/scripts/ctx-loader-mcp.py" ".claude/scripts/ctx-loader-mcp.py" || true
-      fetch "${RAW_BASE}/core/agents/claude/scripts/ctx-onboard-mcp.py" ".claude/scripts/ctx-onboard-mcp.py" || true
+      fetch "${RAW_BASE}/core/agents/claude/scripts/tabnine-ctx-mcp-proxy.py" ".claude/scripts/tabnine-ctx-mcp-proxy.py" || true
+      fetch "${RAW_BASE}/core/agents/claude/scripts/tabnine-ctx-loader-mcp.py" ".claude/scripts/tabnine-ctx-loader-mcp.py" || true
+      fetch "${RAW_BASE}/core/agents/claude/scripts/tabnine-ctx-onboard-mcp.py" ".claude/scripts/tabnine-ctx-onboard-mcp.py" || true
       fetch "${RAW_BASE}/core/tool-schemas.json" ".claude/scripts/tool-schemas.json" || true
       chmod +x .claude/hooks/*.py .claude/scripts/*.py 2>/dev/null || true
 
@@ -132,15 +132,15 @@ install_core() {
 {
   "permissions": {
     "allow": [
-      "mcp__ctx-cloud__*",
-      "mcp__ctx-loader__*",
-      "mcp__ctx-onboard__*",
-      "Bash(ctx-loader:*)",
-      "Bash(ctx-onboard:*)",
-      "Bash(ctx-cli:*)",
-      "Bash(which ctx-onboard:*)",
-      "Bash(which ctx-loader:*)",
-      "Bash(which ctx-cli:*)"
+      "mcp__tabnine-ctx-cloud__*",
+      "mcp__tabnine-ctx-loader__*",
+      "mcp__tabnine-ctx-onboard__*",
+      "Bash(tabnine-ctx-loader:*)",
+      "Bash(tabnine-ctx-onboard:*)",
+      "Bash(tabnine-ctx-cli:*)",
+      "Bash(which tabnine-ctx-onboard:*)",
+      "Bash(which tabnine-ctx-loader:*)",
+      "Bash(which tabnine-ctx-cli:*)"
     ]
   },
   "hooks": {
@@ -174,17 +174,17 @@ SETTINGS_EOF
       cat > .mcp.json <<MCP_EOF
 {
   "mcpServers": {
-    "ctx-cloud": {
+    "tabnine-ctx-cloud": {
       "command": "python3",
-      "args": ["${abs_scripts}/ctx-mcp-proxy.py"]
+      "args": ["${abs_scripts}/tabnine-ctx-mcp-proxy.py"]
     },
-    "ctx-loader": {
+    "tabnine-ctx-loader": {
       "command": "python3",
-      "args": ["${abs_scripts}/ctx-loader-mcp.py"]
+      "args": ["${abs_scripts}/tabnine-ctx-loader-mcp.py"]
     },
-    "ctx-onboard": {
+    "tabnine-ctx-onboard": {
       "command": "python3",
-      "args": ["${abs_scripts}/ctx-onboard-mcp.py"]
+      "args": ["${abs_scripts}/tabnine-ctx-onboard-mcp.py"]
     }
   }
 }
@@ -219,15 +219,15 @@ Skills (invoke via slash command or Skill tool — do NOT read the skill files, 
 `/ctx`, `/onboard`, `/investigate-service`, `/blast-radius`, `/review-pr`, `/search-knowledge`, `/incident-response`, `/understand-flow`, `/change-confidence-tools`, `/ownership-tools`, `/git-insights-tools`, `/architecture-tools`, `/code-migration`, `/dependency-check`
 
 MCP tools (call directly — the MCP server is already configured):
-`mcp__ctx-cloud__search_knowledge`, `mcp__ctx-cloud__query_entities`, `mcp__ctx-cloud__blast_radius`, `mcp__ctx-cloud__investigate_service`, `mcp__ctx-cloud__get_change_confidence`, `mcp__ctx-cloud__get_service`, `mcp__ctx-cloud__get_service_dependencies`
+`mcp__tabnine-ctx-cloud__search_knowledge`, `mcp__tabnine-ctx-cloud__query_entities`, `mcp__tabnine-ctx-cloud__blast_radius`, `mcp__tabnine-ctx-cloud__investigate_service`, `mcp__tabnine-ctx-cloud__get_change_confidence`, `mcp__tabnine-ctx-cloud__get_service`, `mcp__tabnine-ctx-cloud__get_service_dependencies`
 
-For querying the knowledge graph, ALWAYS use `mcp__ctx-cloud__*` tools (search_knowledge, query_entities, blast_radius, investigate_service, etc.)
+For querying the knowledge graph, ALWAYS use `mcp__tabnine-ctx-cloud__*` tools (search_knowledge, query_entities, blast_radius, investigate_service, etc.)
 
-For data loading: `mcp__ctx-loader__loader_init`, `mcp__ctx-loader__loader_load`, `mcp__ctx-loader__loader_status`, `mcp__ctx-loader__loader_diagnose`
-For onboarding: `mcp__ctx-onboard__onboard_step_0` through `mcp__ctx-onboard__onboard_step_7`, `mcp__ctx-onboard__onboard_status`
+For data loading: `mcp__tabnine-ctx-loader__loader_init`, `mcp__tabnine-ctx-loader__loader_load`, `mcp__tabnine-ctx-loader__loader_status`, `mcp__tabnine-ctx-loader__loader_diagnose`
+For onboarding: `mcp__tabnine-ctx-onboard__onboard_step_0` through `mcp__tabnine-ctx-onboard__onboard_step_7`, `mcp__tabnine-ctx-onboard__onboard_status`
 
 Fallback CLIs (if MCP is unavailable):
-`ctx-loader` (data loading), `ctx-onboard` (onboarding), `ctx-cli` (queries) — all read `ctx-settings.yaml` automatically.
+`tabnine-ctx-loader` (data loading), `tabnine-ctx-onboard` (onboarding), `tabnine-ctx-cli` (queries) — all read `ctx-settings.yaml` automatically.
 
 ## Onboarding a new project
 
@@ -236,8 +236,8 @@ Invoke `/onboard`. It walks through: validate connectivity → build test lab �
 ## Rules
 
 - Credentials only from `ctx-settings.yaml` or environment variables. Never as CLI arguments.
-- If data loading fails: `ctx-loader diagnose --json`
-- To collect debug logs for support: call `mcp__ctx-loader__loader_collect_logs` or run `ctx-loader collect-logs`
+- If data loading fails: `tabnine-ctx-loader diagnose --json`
+- To collect debug logs for support: call `mcp__tabnine-ctx-loader__loader_collect_logs` or run `tabnine-ctx-loader collect-logs`
 - Do not read files in `.claude/` — skills, hooks, MCP config, and scripts are already loaded and configured.
 - Do not access parent directories or search for source repositories.
 CLAUDE_EOF
@@ -259,9 +259,9 @@ CLAUDE_EOF
       echo ""
       echo "[core] Downloading MCP servers..."
       mkdir -p .cursor/scripts
-      fetch "${RAW_BASE}/core/agents/claude/scripts/ctx-mcp-proxy.py" ".cursor/scripts/ctx-mcp-proxy.py" || true
-      fetch "${RAW_BASE}/core/agents/claude/scripts/ctx-loader-mcp.py" ".cursor/scripts/ctx-loader-mcp.py" || true
-      fetch "${RAW_BASE}/core/agents/claude/scripts/ctx-onboard-mcp.py" ".cursor/scripts/ctx-onboard-mcp.py" || true
+      fetch "${RAW_BASE}/core/agents/claude/scripts/tabnine-ctx-mcp-proxy.py" ".cursor/scripts/tabnine-ctx-mcp-proxy.py" || true
+      fetch "${RAW_BASE}/core/agents/claude/scripts/tabnine-ctx-loader-mcp.py" ".cursor/scripts/tabnine-ctx-loader-mcp.py" || true
+      fetch "${RAW_BASE}/core/agents/claude/scripts/tabnine-ctx-onboard-mcp.py" ".cursor/scripts/tabnine-ctx-onboard-mcp.py" || true
       fetch "${RAW_BASE}/core/tool-schemas.json" ".cursor/scripts/tool-schemas.json" || true
       chmod +x .cursor/scripts/*.py 2>/dev/null || true
 
@@ -272,17 +272,17 @@ CLAUDE_EOF
       cat > .cursor/mcp.json <<CURSOR_MCP_EOF
 {
   "mcpServers": {
-    "ctx-cloud": {
+    "tabnine-ctx-cloud": {
       "command": "python3",
-      "args": ["${abs_cursor_scripts}/ctx-mcp-proxy.py"]
+      "args": ["${abs_cursor_scripts}/tabnine-ctx-mcp-proxy.py"]
     },
-    "ctx-loader": {
+    "tabnine-ctx-loader": {
       "command": "python3",
-      "args": ["${abs_cursor_scripts}/ctx-loader-mcp.py"]
+      "args": ["${abs_cursor_scripts}/tabnine-ctx-loader-mcp.py"]
     },
-    "ctx-onboard": {
+    "tabnine-ctx-onboard": {
       "command": "python3",
-      "args": ["${abs_cursor_scripts}/ctx-onboard-mcp.py"]
+      "args": ["${abs_cursor_scripts}/tabnine-ctx-onboard-mcp.py"]
     }
   }
 }
@@ -304,9 +304,9 @@ CURSOR_MCP_EOF
       echo ""
       echo "[core] Downloading MCP servers..."
       mkdir -p .gemini/scripts
-      fetch "${RAW_BASE}/core/agents/claude/scripts/ctx-mcp-proxy.py" ".gemini/scripts/ctx-mcp-proxy.py" || true
-      fetch "${RAW_BASE}/core/agents/claude/scripts/ctx-loader-mcp.py" ".gemini/scripts/ctx-loader-mcp.py" || true
-      fetch "${RAW_BASE}/core/agents/claude/scripts/ctx-onboard-mcp.py" ".gemini/scripts/ctx-onboard-mcp.py" || true
+      fetch "${RAW_BASE}/core/agents/claude/scripts/tabnine-ctx-mcp-proxy.py" ".gemini/scripts/tabnine-ctx-mcp-proxy.py" || true
+      fetch "${RAW_BASE}/core/agents/claude/scripts/tabnine-ctx-loader-mcp.py" ".gemini/scripts/tabnine-ctx-loader-mcp.py" || true
+      fetch "${RAW_BASE}/core/agents/claude/scripts/tabnine-ctx-onboard-mcp.py" ".gemini/scripts/tabnine-ctx-onboard-mcp.py" || true
       fetch "${RAW_BASE}/core/tool-schemas.json" ".gemini/scripts/tool-schemas.json" || true
       chmod +x .gemini/scripts/*.py 2>/dev/null || true
 
@@ -317,17 +317,17 @@ CURSOR_MCP_EOF
       cat > .gemini/settings.json <<GEMINI_MCP_EOF
 {
   "mcpServers": {
-    "ctx-cloud": {
+    "tabnine-ctx-cloud": {
       "command": "python3",
-      "args": ["${abs_gemini_scripts}/ctx-mcp-proxy.py"]
+      "args": ["${abs_gemini_scripts}/tabnine-ctx-mcp-proxy.py"]
     },
-    "ctx-loader": {
+    "tabnine-ctx-loader": {
       "command": "python3",
-      "args": ["${abs_gemini_scripts}/ctx-loader-mcp.py"]
+      "args": ["${abs_gemini_scripts}/tabnine-ctx-loader-mcp.py"]
     },
-    "ctx-onboard": {
+    "tabnine-ctx-onboard": {
       "command": "python3",
-      "args": ["${abs_gemini_scripts}/ctx-onboard-mcp.py"]
+      "args": ["${abs_gemini_scripts}/tabnine-ctx-onboard-mcp.py"]
     }
   }
 }
@@ -353,14 +353,14 @@ GEMINI_MCP_EOF
 }
 
 install_cli() {
-  echo "[cli] Downloading ctx-cli..."
+  echo "[cli] Downloading tabnine-ctx-cli..."
   mkdir -p "$BIN_DIR"
-  if fetch "${RAW_BASE}/cli/bin/ctx-cli" "${BIN_DIR}/ctx-cli-bin"; then
-    chmod +x "${BIN_DIR}/ctx-cli-bin"
+  if fetch "${RAW_BASE}/cli/bin/tabnine-ctx-cli" "${BIN_DIR}/tabnine-ctx-cli-bin"; then
+    chmod +x "${BIN_DIR}/tabnine-ctx-cli-bin"
     # Create wrapper that loads ctx-settings.yaml into env before calling the real binary
-    cat > "${BIN_DIR}/ctx-cli" <<'WRAPPER_EOF'
+    cat > "${BIN_DIR}/tabnine-ctx-cli" <<'WRAPPER_EOF'
 #!/usr/bin/env bash
-# Wrapper: loads ctx-settings.yaml into environment before calling ctx-cli-bin.
+# Wrapper: loads ctx-settings.yaml into environment before calling tabnine-ctx-cli-bin.
 # This ensures credentials from the customer-pack settings file are available.
 if [ -f "ctx-settings.yaml" ]; then
   while IFS=': ' read -r key value; do
@@ -373,21 +373,21 @@ if [ -f "ctx-settings.yaml" ]; then
     fi
   done < ctx-settings.yaml
 fi
-exec "$(dirname "$0")/ctx-cli-bin" "$@"
+exec "$(dirname "$0")/tabnine-ctx-cli-bin" "$@"
 WRAPPER_EOF
-    chmod +x "${BIN_DIR}/ctx-cli"
-    echo "[cli] Installed → ${BIN_DIR}/ctx-cli (with settings wrapper)"
+    chmod +x "${BIN_DIR}/tabnine-ctx-cli"
+    echo "[cli] Installed → ${BIN_DIR}/tabnine-ctx-cli (with settings wrapper)"
   else
-    echo "[cli] Failed to download (ctx-cli may not be built yet)."
+    echo "[cli] Failed to download (tabnine-ctx-cli may not be built yet)."
   fi
 }
 
 install_loader() {
-  echo "[loader] Downloading ctx-loader CLI..."
+  echo "[loader] Downloading tabnine-ctx-loader CLI..."
   mkdir -p "$BIN_DIR"
-  if fetch "${RAW_BASE}/loader/bin/ctx-loader" "${BIN_DIR}/ctx-loader"; then
-    chmod +x "${BIN_DIR}/ctx-loader"
-    echo "[loader] Installed → ${BIN_DIR}/ctx-loader"
+  if fetch "${RAW_BASE}/loader/bin/tabnine-ctx-loader" "${BIN_DIR}/tabnine-ctx-loader"; then
+    chmod +x "${BIN_DIR}/tabnine-ctx-loader"
+    echo "[loader] Installed → ${BIN_DIR}/tabnine-ctx-loader"
   else
     echo "[loader] Failed to download."
   fi
@@ -395,11 +395,11 @@ install_loader() {
 
 install_onboarder() {
   local agent=$1
-  echo "[onboarder] Downloading ctx-onboard CLI..."
+  echo "[onboarder] Downloading tabnine-ctx-onboard CLI..."
   mkdir -p "$BIN_DIR"
-  if fetch "${RAW_BASE}/onboarder/bin/ctx-onboard" "${BIN_DIR}/ctx-onboard"; then
-    chmod +x "${BIN_DIR}/ctx-onboard"
-    echo "[onboarder] Installed → ${BIN_DIR}/ctx-onboard"
+  if fetch "${RAW_BASE}/onboarder/bin/tabnine-ctx-onboard" "${BIN_DIR}/tabnine-ctx-onboard"; then
+    chmod +x "${BIN_DIR}/tabnine-ctx-onboard"
+    echo "[onboarder] Installed → ${BIN_DIR}/tabnine-ctx-onboard"
   else
     echo "[onboarder] Failed to download."
     return
@@ -493,9 +493,9 @@ if [[ "$packages" == *"loader"* || "$packages" == *"onboarder"* ]]; then
   echo "  echo '${path_line}' >> ${rc_file}"
   echo ""
   echo "Verify:"
-  [[ "$packages" == *"cli"* ]] && echo "  ctx-cli --version"
-  [[ "$packages" == *"loader"* ]] && echo "  ctx-loader --version"
-  [[ "$packages" == *"onboarder"* ]] && echo "  ctx-onboard --version"
+  [[ "$packages" == *"cli"* ]] && echo "  tabnine-ctx-cli --version"
+  [[ "$packages" == *"loader"* ]] && echo "  tabnine-ctx-loader --version"
+  [[ "$packages" == *"onboarder"* ]] && echo "  tabnine-ctx-onboard --version"
   echo ""
 fi
 

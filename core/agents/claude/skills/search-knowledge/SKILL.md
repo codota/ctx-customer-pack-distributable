@@ -1,7 +1,9 @@
 ---
 name: search-knowledge
 description: 'Search the knowledge graph for entities, documentation, and patterns.'
-allowed-tools: 'mcp__ctx-cloud__search_knowledge, mcp__ctx-cloud__find_entities'
+allowed-tools: >-
+  mcp__tabnine-ctx-cloud__search_knowledge,
+  mcp__tabnine-ctx-cloud__find_entities
 ---
 # Search Knowledge
 
@@ -11,13 +13,13 @@ Search across the full Context Engine knowledge graph for services, teams, ADRs,
 
 ```bash
 # Free-text search across all knowledge
-ctx-loader query search "rate limiting"
+tabnine-ctx-loader query search "rate limiting"
 
 # Find specific entity types
-ctx-loader query entities --type service --search "checkout"
+tabnine-ctx-loader query entities --type service --search "checkout"
 
 # Search with field selection (returns only the specified fields)
-ctx-loader query search "checkout" --fields entityType,entityName,similarity
+tabnine-ctx-loader query search "checkout" --fields entityType,entityName,similarity
 ```
 
 ## search
@@ -26,13 +28,13 @@ Performs a semantic search across all indexed knowledge: ADRs, runbooks, documen
 
 ```bash
 # Search for documentation on a topic
-ctx-loader query search "database sharding strategy"
+tabnine-ctx-loader query search "database sharding strategy"
 
 # Find patterns and best practices
-ctx-loader query search "retry backoff pattern"
+tabnine-ctx-loader query search "retry backoff pattern"
 
 # Limit results and select fields
-ctx-loader query search "caching" --limit 5 --fields entityType,entityName
+tabnine-ctx-loader query search "caching" --limit 5 --fields entityType,entityName
 ```
 
 ## entities
@@ -41,13 +43,13 @@ Locates specific entities in the knowledge graph by name, type, or keyword.
 
 ```bash
 # Find all services matching a keyword
-ctx-loader query entities --type service --search "payment"
+tabnine-ctx-loader query entities --type service --search "payment"
 
 # Find teams
-ctx-loader query entities --type team --search "platform"
+tabnine-ctx-loader query entities --type team --search "platform"
 
 # List all entities of a type
-ctx-loader query entities --type adr --limit 50
+tabnine-ctx-loader query entities --type adr --limit 50
 ```
 
 ## When to Use

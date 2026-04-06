@@ -7,7 +7,7 @@ Pull incident response context from the knowledge graph: runbooks, escalation co
 ## Usage
 
 **Get incident response context for a service**
-Call `mcp__ctx-cloud__incident_response` with service_name=payments-api.
+Call `mcp__tabnine-ctx-cloud__incident_response` with service_name=payments-api.
 
 The response includes:
 - **Runbooks** — links and summaries of operational runbooks.
@@ -18,11 +18,11 @@ The response includes:
 ## Examples
 
 **Get incident response context for checkout-service**
-Call `mcp__ctx-cloud__incident_response` with service_name=checkout-service.
+Call `mcp__tabnine-ctx-cloud__incident_response` with service_name=checkout-service.
 **Get incident response context for auth-service**
-Call `mcp__ctx-cloud__incident_response` with service_name=auth-service.
+Call `mcp__tabnine-ctx-cloud__incident_response` with service_name=auth-service.
 **Get incident response context for order-service**
-Call `mcp__ctx-cloud__incident_response` with service_name=order-service.
+Call `mcp__tabnine-ctx-cloud__incident_response` with service_name=order-service.
 
 ## When to Use
 

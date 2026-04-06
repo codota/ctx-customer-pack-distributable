@@ -12,7 +12,7 @@ Score interpretation: - 90-100 (GREEN): Low risk, safe to merge - 75-89 (YELLOW)
 USE THIS BEFORE: Merging PRs, committing significant changes, deployments
 Example: get_change_confidence(files=["src/payment/processor.ts", "src/payment/api.ts"])
 
-Call `mcp__ctx-cloud__get_change_confidence` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_change_confidence` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -26,7 +26,7 @@ Get detailed risk analysis for a single file.
 Returns all risk signals contributing to the file's risk score: - Churn metrics (change frequency, commit count) - Bug-fix ratio (% of commits that are fixes) - Author analysis (expert count, knowledge concentration) - Historical incidents linked to this file/service - Coupling analysis (files that change together)
 USE THIS WHEN: You want detailed breakdown for a specific file rather than an aggregate score for multiple files.
 
-Call `mcp__ctx-cloud__get_file_risk_factors` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_file_risk_factors` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|

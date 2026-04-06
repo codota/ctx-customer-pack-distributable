@@ -11,7 +11,7 @@ tags: [onboarding, domain]
 ## Usage
 
 ```bash
-ctx-onboard step-5 --repo-path /path/to/repo --json
+tabnine-ctx-onboard step-5 --repo-path /path/to/repo --json
 ```
 
 Capability-gated: uses full ontology mode if extension install is available,

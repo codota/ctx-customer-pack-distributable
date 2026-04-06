@@ -10,7 +10,7 @@ Get all documentation related to a specific service. Returns incidents that affe
 PREFER: Use 'investigate_service' for comprehensive service analysis including documentation, dependencies, ownership, and architectural context in one call.
 USE THIS WHEN: You need only the documentation artifacts without the full service context, or when compiling documentation for multiple services.
 
-Call `mcp__ctx-cloud__get_service_documentation` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_service_documentation` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -21,7 +21,7 @@ Call `mcp__ctx-cloud__get_service_documentation` with parameters:
 
 List all indexed documentation with optional filters. Returns incidents, ADRs, runbooks, flows, and security patterns. Use this to browse available documentation or filter by type/severity.
 
-Call `mcp__ctx-cloud__list_documentation` with parameters:
+Call `mcp__tabnine-ctx-cloud__list_documentation` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -34,7 +34,7 @@ Call `mcp__ctx-cloud__list_documentation` with parameters:
 
 Unified search across all documentation types - incidents, ADRs, runbooks, flows, and security patterns. Returns results from all doc types ranked by relevance. Use this when you need to find any documentation related to a topic.
 
-Call `mcp__ctx-cloud__search_all_documentation` with parameters:
+Call `mcp__tabnine-ctx-cloud__search_all_documentation` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|

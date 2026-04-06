@@ -3,8 +3,8 @@
 This guide is for engineers, tech leads, and platform teams using the Context Engine Customer Pack in day-to-day work. It focuses on three customer-facing parts of the pack:
 
 - `ctx-skills` for common engineering workflows inside your AI coding agent
-- `ctx-loader` for loading and refreshing engineering data
-- `ctx-onboard` for running a structured evaluation and rollout plan
+- `tabnine-ctx-loader` for loading and refreshing engineering data
+- `tabnine-ctx-onboard` for running a structured evaluation and rollout plan
 
 If you want a deeper reference for commands, configuration, and expected outputs, use the companion manual: `docs/customer-pack-manual.md`.
 
@@ -17,16 +17,16 @@ Use the right part of the pack for the job:
 | Use this | When you want to | Best for |
 |----------|------------------|----------|
 | `ctx-skills` | Ask your AI agent questions using your real engineering context | Daily engineering work |
-| `ctx-loader` | Load repositories, issues, chat, docs, and on-call data into Context Engine | Initial setup and refreshes |
-| `ctx-onboard` | Measure impact, compare before/after results, and plan rollout | Evaluation and adoption |
+| `tabnine-ctx-loader` | Load repositories, issues, chat, docs, and on-call data into Context Engine | Initial setup and refreshes |
+| `tabnine-ctx-onboard` | Measure impact, compare before/after results, and plan rollout | Evaluation and adoption |
 
 The usual flow is:
 
 1. Install the pack.
 2. Create `ctx-settings.yaml`.
-3. Load at least one code source with `ctx-loader`.
+3. Load at least one code source with `tabnine-ctx-loader`.
 4. Use `ctx-skills` in your AI agent.
-5. Run `ctx-onboard` if you want a formal evaluation.
+5. Run `tabnine-ctx-onboard` if you want a formal evaluation.
 
 ---
 
@@ -67,8 +67,8 @@ You only need to include credentials for the systems you actually use.
 ### Verify the install
 
 ```bash
-which ctx-loader
-which ctx-onboard
+which tabnine-ctx-loader
+which tabnine-ctx-onboard
 ```
 
 If both commands resolve, you are ready to go.
@@ -84,19 +84,19 @@ This tutorial gets a project from zero to a working context-aware question.
 For GitHub-only projects:
 
 ```bash
-ctx-loader init --template minimal --output ctx-loader.yaml
+tabnine-ctx-loader init --template minimal --output tabnine-ctx-loader.yaml
 ```
 
 For GitHub + Jira + Slack:
 
 ```bash
-ctx-loader init --template github-jira-slack --output ctx-loader.yaml
+tabnine-ctx-loader init --template github-jira-slack --output tabnine-ctx-loader.yaml
 ```
 
 ### Step 2: Validate the manifest
 
 ```bash
-ctx-loader validate --manifest ctx-loader.yaml --json
+tabnine-ctx-loader validate --manifest tabnine-ctx-loader.yaml --json
 ```
 
 You want to see a valid manifest with the expected number of workspaces, sources, and credentials.
@@ -104,13 +104,13 @@ You want to see a valid manifest with the expected number of workspaces, sources
 ### Step 3: Load the data
 
 ```bash
-ctx-loader load --manifest ctx-loader.yaml --json
+tabnine-ctx-loader load --manifest tabnine-ctx-loader.yaml --json
 ```
 
 Then monitor progress:
 
 ```bash
-ctx-loader status --summary
+tabnine-ctx-loader status --summary
 ```
 
 ### Step 4: Ask your first context-aware question
@@ -164,8 +164,8 @@ Best matching skills:
 If you want to inspect the loaded knowledge directly:
 
 ```bash
-ctx-loader query search "checkout service architecture"
-ctx-loader query entities --type Service --search "checkout"
+tabnine-ctx-loader query search "checkout service architecture"
+tabnine-ctx-loader query entities --type Service --search "checkout"
 ```
 
 Use this tutorial whenever you are about to touch a system you do not own or have not worked in recently.
@@ -287,9 +287,9 @@ Best matching skills:
 ### Direct CLI fallback
 
 ```bash
-ctx-loader query search "retry backoff pattern"
-ctx-loader query entities --type ADR --search "event sourcing"
-ctx-loader query entities --type Team --search "platform"
+tabnine-ctx-loader query search "retry backoff pattern"
+tabnine-ctx-loader query entities --type ADR --search "event sourcing"
+tabnine-ctx-loader query entities --type Team --search "platform"
 ```
 
 Use this workflow before writing new docs, inventing a new pattern, or opening a new design thread.
@@ -303,13 +303,13 @@ Use this when answers are too code-centric and you want issues, chat, or on-call
 ### Step 1: Start from the right template
 
 ```bash
-ctx-loader init --template github-jira-slack --output ctx-loader.yaml
+tabnine-ctx-loader init --template github-jira-slack --output tabnine-ctx-loader.yaml
 ```
 
 Or:
 
 ```bash
-ctx-loader init --template gitlab-linear-pagerduty --output ctx-loader.yaml
+tabnine-ctx-loader init --template gitlab-linear-pagerduty --output tabnine-ctx-loader.yaml
 ```
 
 ### Step 2: Fill in the source-specific values
@@ -325,9 +325,9 @@ Typical values include:
 ### Step 3: Validate and load again
 
 ```bash
-ctx-loader validate --manifest ctx-loader.yaml --json
-ctx-loader load --manifest ctx-loader.yaml --json
-ctx-loader status --summary
+tabnine-ctx-loader validate --manifest tabnine-ctx-loader.yaml --json
+tabnine-ctx-loader load --manifest tabnine-ctx-loader.yaml --json
+tabnine-ctx-loader status --summary
 ```
 
 ### What improves after broader loading
@@ -338,27 +338,27 @@ ctx-loader status --summary
 
 ---
 
-## Tutorial 8: Run a Formal Evaluation with `ctx-onboard`
+## Tutorial 8: Run a Formal Evaluation with `tabnine-ctx-onboard`
 
 Use this when you want measured evidence for adoption instead of anecdotes.
 
 ### Recommended sequence
 
 ```bash
-ctx-onboard step-0 --json
-ctx-onboard step-1 --repo-path . --json
-ctx-onboard step-2 --manifest ctx-loader.yaml --json
-ctx-onboard step-2 --status --json
-ctx-onboard step-3 --json
-ctx-onboard step-4 --json
-ctx-onboard step-7 --json
+tabnine-ctx-onboard step-0 --json
+tabnine-ctx-onboard step-1 --repo-path . --json
+tabnine-ctx-onboard step-2 --manifest tabnine-ctx-loader.yaml --json
+tabnine-ctx-onboard step-2 --status --json
+tabnine-ctx-onboard step-3 --json
+tabnine-ctx-onboard step-4 --json
+tabnine-ctx-onboard step-7 --json
 ```
 
 If you want the full evaluation, include:
 
 ```bash
-ctx-onboard step-5 --repo-path . --json
-ctx-onboard step-6 --json
+tabnine-ctx-onboard step-5 --repo-path . --json
+tabnine-ctx-onboard step-6 --json
 ```
 
 ### What each stage does
@@ -420,11 +420,11 @@ Likely causes:
 Check:
 
 ```bash
-ctx-loader status --summary
-ctx-loader query entities --type Service --limit 10
+tabnine-ctx-loader status --summary
+tabnine-ctx-loader query entities --type Service --limit 10
 ```
 
-### `ctx-loader validate` fails
+### `tabnine-ctx-loader validate` fails
 
 Usually one of these:
 
@@ -432,12 +432,12 @@ Usually one of these:
 - a credential name in the manifest does not match the credentials section
 - a source configuration value is incomplete
 
-### `ctx-onboard step-2` is still running
+### `tabnine-ctx-onboard step-2` is still running
 
 That is normal for larger repositories. Check status again:
 
 ```bash
-ctx-onboard step-2 --status --json
+tabnine-ctx-onboard step-2 --status --json
 ```
 
 ### The load failed
@@ -445,7 +445,7 @@ ctx-onboard step-2 --status --json
 Start here:
 
 ```bash
-ctx-loader diagnose --json
+tabnine-ctx-loader diagnose --json
 ```
 
 ---

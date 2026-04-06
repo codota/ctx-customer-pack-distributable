@@ -17,7 +17,7 @@ Plan and execute code migrations with Context Engine guidance. Find equivalent f
 ## Usage
 
 **Get migration guidance for a service**
-Call `mcp__ctx-cloud__code_migration` with service_name=payments-api.
+Call `mcp__tabnine-ctx-cloud__code_migration` with service_name=payments-api.
 
 The response includes:
 - **Field mappings** — equivalent fields between old and new schemas.
@@ -28,11 +28,11 @@ The response includes:
 ## Examples
 
 **Find field mappings for a schema migration**
-Call `mcp__ctx-cloud__code_migration` with service_name=order-service, source_version=v1, target_version=v2.
+Call `mcp__tabnine-ctx-cloud__code_migration` with service_name=order-service, source_version=v1, target_version=v2.
 **Get migration guidance for user-service**
-Call `mcp__ctx-cloud__code_migration` with service_name=user-service.
+Call `mcp__tabnine-ctx-cloud__code_migration` with service_name=user-service.
 **Get migration guidance for inventory-api**
-Call `mcp__ctx-cloud__code_migration` with service_name=inventory-api.
+Call `mcp__tabnine-ctx-cloud__code_migration` with service_name=inventory-api.
 
 ## When to Use
 

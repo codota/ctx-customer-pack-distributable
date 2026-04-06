@@ -5,8 +5,8 @@ This manual is the detailed customer reference for the Context Engine Customer P
 - installation and setup
 - `ctx-settings.yaml`
 - `ctx-skills` for common engineering tasks
-- `ctx-loader` command and manifest reference
-- `ctx-onboard` step-by-step reference
+- `tabnine-ctx-loader` command and manifest reference
+- `tabnine-ctx-onboard` step-by-step reference
 
 It is written for customers and intentionally avoids implementation internals.
 
@@ -19,16 +19,16 @@ The Customer Pack has three customer-facing parts:
 | Component | What it does | Typical user |
 |-----------|--------------|--------------|
 | `ctx-skills` | Gives your AI coding agent context-aware workflows | Engineers and reviewers |
-| `ctx-loader` | Loads and refreshes engineering context in Context Engine | Platform, developer experience, and setup owners |
-| `ctx-onboard` | Runs a structured evaluation and adoption workflow | Engineering leads and pilot owners |
+| `tabnine-ctx-loader` | Loads and refreshes engineering context in Context Engine | Platform, developer experience, and setup owners |
+| `tabnine-ctx-onboard` | Runs a structured evaluation and adoption workflow | Engineering leads and pilot owners |
 
 ### When to use each component
 
 | If you want to... | Use |
 |-------------------|-----|
 | investigate a service, review a PR, or find prior art | `ctx-skills` |
-| load repos, issues, docs, chat, or on-call data | `ctx-loader` |
-| prove value and create a rollout plan | `ctx-onboard` |
+| load repos, issues, docs, chat, or on-call data | `tabnine-ctx-loader` |
+| prove value and create a rollout plan | `tabnine-ctx-onboard` |
 
 ---
 
@@ -39,8 +39,8 @@ The Customer Pack has three customer-facing parts:
 | Install target | Includes |
 |----------------|----------|
 | `core` | `ctx-skills`, hooks, and Context Engine connectivity for your agent |
-| `loader` | `core` plus `ctx-loader` |
-| `all` | `core`, `ctx-loader`, and `ctx-onboard` |
+| `loader` | `core` plus `tabnine-ctx-loader` |
+| `all` | `core`, `tabnine-ctx-loader`, and `tabnine-ctx-onboard` |
 
 ### Recommended install
 
@@ -64,8 +64,8 @@ Replace `claude` with `cursor`, `gemini`, or `tabnine` as needed.
 ### Verify installation
 
 ```bash
-which ctx-loader
-which ctx-onboard
+which tabnine-ctx-loader
+which tabnine-ctx-onboard
 ```
 
 If you installed `core` only, verify the pack from your agent instead by asking a Context Engine question.
@@ -209,14 +209,14 @@ Examples:
 
 ---
 
-## 5. `ctx-loader` Manual
+## 5. `tabnine-ctx-loader` Manual
 
-`ctx-loader` is the CLI for loading engineering context into Context Engine.
+`tabnine-ctx-loader` is the CLI for loading engineering context into Context Engine.
 
 ### Command summary
 
 ```bash
-ctx-loader --help
+tabnine-ctx-loader --help
 ```
 
 Available commands:
@@ -240,10 +240,10 @@ Available commands:
 ### 5.1 Quick-start workflow
 
 ```bash
-ctx-loader init --template minimal --output ctx-loader.yaml
-ctx-loader validate --manifest ctx-loader.yaml --json
-ctx-loader load --manifest ctx-loader.yaml --json
-ctx-loader status --summary
+tabnine-ctx-loader init --template minimal --output tabnine-ctx-loader.yaml
+tabnine-ctx-loader validate --manifest tabnine-ctx-loader.yaml --json
+tabnine-ctx-loader load --manifest tabnine-ctx-loader.yaml --json
+tabnine-ctx-loader status --summary
 ```
 
 ### 5.2 `init`
@@ -251,7 +251,7 @@ ctx-loader status --summary
 Use `init` to generate a manifest from a template.
 
 ```bash
-ctx-loader init --template minimal --output ctx-loader.yaml
+tabnine-ctx-loader init --template minimal --output tabnine-ctx-loader.yaml
 ```
 
 Useful options:
@@ -268,8 +268,8 @@ Useful options:
 Examples:
 
 ```bash
-ctx-loader init --template minimal --owner acme --repo storefront --output ctx-loader.yaml
-ctx-loader init --template github-jira-slack --resolve --output ctx-loader.yaml
+tabnine-ctx-loader init --template minimal --owner acme --repo storefront --output tabnine-ctx-loader.yaml
+tabnine-ctx-loader init --template github-jira-slack --resolve --output tabnine-ctx-loader.yaml
 ```
 
 ### 5.3 Templates
@@ -287,7 +287,7 @@ Available starter templates:
 Validate before every load:
 
 ```bash
-ctx-loader validate --manifest ctx-loader.yaml --json
+tabnine-ctx-loader validate --manifest tabnine-ctx-loader.yaml --json
 ```
 
 Typical validation checks:
@@ -301,13 +301,13 @@ Typical validation checks:
 Run the full data load:
 
 ```bash
-ctx-loader load --manifest ctx-loader.yaml --json
+tabnine-ctx-loader load --manifest tabnine-ctx-loader.yaml --json
 ```
 
 Optional mode:
 
 ```bash
-ctx-loader load --manifest ctx-loader.yaml --mode delta --json
+tabnine-ctx-loader load --manifest tabnine-ctx-loader.yaml --mode delta --json
 ```
 
 Use `full` for first-time loads or major refreshes. Use `delta` for incremental refreshes when your manifest and schedule support it.
@@ -317,13 +317,13 @@ Use `full` for first-time loads or major refreshes. Use `delta` for incremental 
 Check the current state:
 
 ```bash
-ctx-loader status --summary
+tabnine-ctx-loader status --summary
 ```
 
 Use JSON for automation:
 
 ```bash
-ctx-loader status --json
+tabnine-ctx-loader status --json
 ```
 
 ### 5.7 `resume`, `pause`, and `cancel`
@@ -331,9 +331,9 @@ ctx-loader status --json
 Use these when a load is interrupted or needs to be controlled.
 
 ```bash
-ctx-loader resume --manifest ctx-loader.yaml --json
-ctx-loader pause --json
-ctx-loader cancel --json
+tabnine-ctx-loader resume --manifest tabnine-ctx-loader.yaml --json
+tabnine-ctx-loader pause --json
+tabnine-ctx-loader cancel --json
 ```
 
 Use `resume` after temporary interruptions. Use `pause` or `cancel` when you want the run to stop cleanly at a safe boundary.
@@ -343,7 +343,7 @@ Use `resume` after temporary interruptions. Use `pause` or `cancel` when you wan
 Rollback the last run:
 
 ```bash
-ctx-loader rollback --manifest ctx-loader.yaml --json
+tabnine-ctx-loader rollback --manifest tabnine-ctx-loader.yaml --json
 ```
 
 Use this when a recent load created incorrect or unwanted data and you want to undo only that run.
@@ -353,7 +353,7 @@ Use this when a recent load created incorrect or unwanted data and you want to u
 Check freshness:
 
 ```bash
-ctx-loader report --json
+tabnine-ctx-loader report --json
 ```
 
 Use this to see whether sources are stale and need a refresh.
@@ -363,13 +363,13 @@ Use this to see whether sources are stale and need a refresh.
 Install a recurring load:
 
 ```bash
-ctx-loader schedule --manifest ctx-loader.yaml --daemon --json
+tabnine-ctx-loader schedule --manifest tabnine-ctx-loader.yaml --daemon --json
 ```
 
 Remove it:
 
 ```bash
-ctx-loader schedule --remove --json
+tabnine-ctx-loader schedule --remove --json
 ```
 
 Use scheduled loads for teams that want context to stay current without manual reloads.
@@ -379,7 +379,7 @@ Use scheduled loads for teams that want context to stay current without manual r
 Start here when a load fails:
 
 ```bash
-ctx-loader diagnose --json
+tabnine-ctx-loader diagnose --json
 ```
 
 This is the fastest way to get a concise summary of what went wrong in the latest run.
@@ -391,25 +391,25 @@ Use `query` to inspect what is already loaded.
 Semantic search:
 
 ```bash
-ctx-loader query search "database sharding strategy"
+tabnine-ctx-loader query search "database sharding strategy"
 ```
 
 Filter by entity type:
 
 ```bash
-ctx-loader query entities --type Service --search "payment"
+tabnine-ctx-loader query entities --type Service --search "payment"
 ```
 
 Inspect one entity:
 
 ```bash
-ctx-loader query entity <entity-id>
+tabnine-ctx-loader query entity <entity-id>
 ```
 
 ### 5.13 `reset`
 
 ```bash
-ctx-loader reset
+tabnine-ctx-loader reset
 ```
 
 This is destructive. Use it only when you intend to clear the tenant and start over.
@@ -465,14 +465,14 @@ Key sections:
 
 ---
 
-## 6. `ctx-onboard` Manual
+## 6. `tabnine-ctx-onboard` Manual
 
-`ctx-onboard` runs the structured evaluation flow for the Customer Pack.
+`tabnine-ctx-onboard` runs the structured evaluation flow for the Customer Pack.
 
 ### Command summary
 
 ```bash
-ctx-onboard --help
+tabnine-ctx-onboard --help
 ```
 
 Available commands:
@@ -496,25 +496,25 @@ Available commands:
 Quick evaluation:
 
 ```bash
-ctx-onboard step-0 --json
-ctx-onboard step-1 --repo-path . --json
-ctx-onboard step-2 --manifest ctx-loader.yaml --json
-ctx-onboard step-3 --json
-ctx-onboard step-4 --json
-ctx-onboard step-7 --json
+tabnine-ctx-onboard step-0 --json
+tabnine-ctx-onboard step-1 --repo-path . --json
+tabnine-ctx-onboard step-2 --manifest tabnine-ctx-loader.yaml --json
+tabnine-ctx-onboard step-3 --json
+tabnine-ctx-onboard step-4 --json
+tabnine-ctx-onboard step-7 --json
 ```
 
 Full evaluation:
 
 ```bash
-ctx-onboard step-0 --json
-ctx-onboard step-1 --repo-path . --json
-ctx-onboard step-2 --manifest ctx-loader.yaml --json
-ctx-onboard step-3 --json
-ctx-onboard step-4 --json
-ctx-onboard step-5 --repo-path . --json
-ctx-onboard step-6 --json
-ctx-onboard step-7 --json
+tabnine-ctx-onboard step-0 --json
+tabnine-ctx-onboard step-1 --repo-path . --json
+tabnine-ctx-onboard step-2 --manifest tabnine-ctx-loader.yaml --json
+tabnine-ctx-onboard step-3 --json
+tabnine-ctx-onboard step-4 --json
+tabnine-ctx-onboard step-5 --repo-path . --json
+tabnine-ctx-onboard step-6 --json
+tabnine-ctx-onboard step-7 --json
 ```
 
 ### 6.2 Step reference
@@ -522,7 +522,7 @@ ctx-onboard step-7 --json
 #### `step-0`
 
 ```bash
-ctx-onboard step-0 --json
+tabnine-ctx-onboard step-0 --json
 ```
 
 Use this first. It confirms connectivity and reports what capabilities are available for the later steps.
@@ -530,7 +530,7 @@ Use this first. It confirms connectivity and reports what capabilities are avail
 #### `step-1`
 
 ```bash
-ctx-onboard step-1 --repo-path . --json
+tabnine-ctx-onboard step-1 --repo-path . --json
 ```
 
 This generates a test plan from your repository so the evaluation uses realistic questions.
@@ -538,7 +538,7 @@ This generates a test plan from your repository so the evaluation uses realistic
 #### `step-2`
 
 ```bash
-ctx-onboard step-2 --manifest ctx-loader.yaml --json
+tabnine-ctx-onboard step-2 --manifest tabnine-ctx-loader.yaml --json
 ```
 
 This starts the load in the background.
@@ -546,7 +546,7 @@ This starts the load in the background.
 Check status:
 
 ```bash
-ctx-onboard step-2 --status --json
+tabnine-ctx-onboard step-2 --status --json
 ```
 
 Use this form until the load completes.
@@ -554,7 +554,7 @@ Use this form until the load completes.
 #### `step-3`
 
 ```bash
-ctx-onboard step-3 --json
+tabnine-ctx-onboard step-3 --json
 ```
 
 This returns the evaluation questions for the no-Context-Engine baseline.
@@ -562,13 +562,13 @@ This returns the evaluation questions for the no-Context-Engine baseline.
 After you prepare the response file:
 
 ```bash
-ctx-onboard step-3 --responses .ctx-onboarding/step3-answers.json --json
+tabnine-ctx-onboard step-3 --responses .tabnine-ctx-onboarding/step3-answers.json --json
 ```
 
 #### `step-4`
 
 ```bash
-ctx-onboard step-4 --json
+tabnine-ctx-onboard step-4 --json
 ```
 
 This uses the same test plan, but now answers should use loaded Context Engine knowledge.
@@ -576,37 +576,37 @@ This uses the same test plan, but now answers should use loaded Context Engine k
 Submit the results:
 
 ```bash
-ctx-onboard step-4 --responses .ctx-onboarding/step4-answers.json --json
+tabnine-ctx-onboard step-4 --responses .tabnine-ctx-onboarding/step4-answers.json --json
 ```
 
 #### `step-5`
 
 ```bash
-ctx-onboard step-5 --repo-path . --json
+tabnine-ctx-onboard step-5 --repo-path . --json
 ```
 
 Use `--dry-run` first if you want to preview the generated domain model:
 
 ```bash
-ctx-onboard step-5 --repo-path . --dry-run --json
+tabnine-ctx-onboard step-5 --repo-path . --dry-run --json
 ```
 
 #### `step-6`
 
 ```bash
-ctx-onboard step-6 --json
+tabnine-ctx-onboard step-6 --json
 ```
 
 Submit the enriched answers:
 
 ```bash
-ctx-onboard step-6 --responses .ctx-onboarding/step6-answers.json --json
+tabnine-ctx-onboard step-6 --responses .tabnine-ctx-onboarding/step6-answers.json --json
 ```
 
 #### `step-7`
 
 ```bash
-ctx-onboard step-7 --json
+tabnine-ctx-onboard step-7 --json
 ```
 
 This generates the adoption and rollout guidance based on the measured results.
@@ -614,7 +614,7 @@ This generates the adoption and rollout guidance based on the measured results.
 ### 6.3 `status`
 
 ```bash
-ctx-onboard status
+tabnine-ctx-onboard status
 ```
 
 Use the plain output for a readable progress view. Use `--json` for automation or scripting.
@@ -624,9 +624,9 @@ Use the plain output for a readable progress view. Use `--json` for automation o
 During onboarding, use the built-in query helpers to inspect the loaded graph:
 
 ```bash
-ctx-onboard query search "service architecture"
-ctx-onboard query entities --type Service --limit 20
-ctx-onboard query entity <entity-id>
+tabnine-ctx-onboard query search "service architecture"
+tabnine-ctx-onboard query entities --type Service --limit 20
+tabnine-ctx-onboard query entity <entity-id>
 ```
 
 ### 6.5 What onboarding creates for you
@@ -635,9 +635,9 @@ During a normal run you can expect these customer-visible artifacts:
 
 | Artifact | Purpose |
 |----------|---------|
-| `ctx-loader.yaml` | What will be loaded |
-| `.ctx-onboarding/test-plan.yaml` | Generated evaluation questions |
-| `.ctx-onboarding/domain-model.yaml` | Generated domain enrichment output |
+| `tabnine-ctx-loader.yaml` | What will be loaded |
+| `.tabnine-ctx-onboarding/test-plan.yaml` | Generated evaluation questions |
+| `.tabnine-ctx-onboarding/domain-model.yaml` | Generated domain enrichment output |
 
 ### 6.6 When to choose the quick path vs full path
 
@@ -664,37 +664,37 @@ Best first asks:
 
 ### Workflow: setting up a new project
 
-Use `ctx-loader`.
+Use `tabnine-ctx-loader`.
 
 Recommended sequence:
 
 ```bash
-ctx-loader init --template minimal --output ctx-loader.yaml
-ctx-loader validate --manifest ctx-loader.yaml --json
-ctx-loader load --manifest ctx-loader.yaml --json
-ctx-loader status --summary
+tabnine-ctx-loader init --template minimal --output tabnine-ctx-loader.yaml
+tabnine-ctx-loader validate --manifest tabnine-ctx-loader.yaml --json
+tabnine-ctx-loader load --manifest tabnine-ctx-loader.yaml --json
+tabnine-ctx-loader status --summary
 ```
 
 ### Workflow: proving value to stakeholders
 
-Use `ctx-onboard`.
+Use `tabnine-ctx-onboard`.
 
 Recommended sequence:
 
 ```bash
-ctx-onboard step-0 --json
-ctx-onboard step-1 --repo-path . --json
-ctx-onboard step-2 --manifest ctx-loader.yaml --json
-ctx-onboard step-3 --json
-ctx-onboard step-4 --json
-ctx-onboard step-7 --json
+tabnine-ctx-onboard step-0 --json
+tabnine-ctx-onboard step-1 --repo-path . --json
+tabnine-ctx-onboard step-2 --manifest tabnine-ctx-loader.yaml --json
+tabnine-ctx-onboard step-3 --json
+tabnine-ctx-onboard step-4 --json
+tabnine-ctx-onboard step-7 --json
 ```
 
 ### Workflow: stale or weak answers
 
 Usually the next move is not a different prompt. It is one of:
 
-- refresh with `ctx-loader load --mode delta --manifest ctx-loader.yaml --json`
+- refresh with `tabnine-ctx-loader load --mode delta --manifest tabnine-ctx-loader.yaml --json`
 - add more sources to the manifest
 - confirm the right project directory has the right `ctx-settings.yaml`
 
@@ -707,8 +707,8 @@ Usually the next move is not a different prompt. It is one of:
 Check:
 
 ```bash
-ctx-loader status --summary
-ctx-loader query entities --type Service --limit 10
+tabnine-ctx-loader status --summary
+tabnine-ctx-loader query entities --type Service --limit 10
 ```
 
 Likely causes:
@@ -730,13 +730,13 @@ Check for:
 This is normal for larger repositories and multi-source manifests. Use:
 
 ```bash
-ctx-loader status --summary
+tabnine-ctx-loader status --summary
 ```
 
 Or, in onboarding:
 
 ```bash
-ctx-onboard step-2 --status --json
+tabnine-ctx-onboard step-2 --status --json
 ```
 
 ### Problem: a load failed
@@ -744,7 +744,7 @@ ctx-onboard step-2 --status --json
 Start here:
 
 ```bash
-ctx-loader diagnose --json
+tabnine-ctx-loader diagnose --json
 ```
 
 Then decide whether to:
@@ -758,7 +758,7 @@ Then decide whether to:
 Remember that `step-2` starts a background load. Poll using:
 
 ```bash
-ctx-onboard step-2 --status --json
+tabnine-ctx-onboard step-2 --status --json
 ```
 
 ### Problem: you need to start over
@@ -766,11 +766,11 @@ ctx-onboard step-2 --status --json
 Use with care:
 
 ```bash
-ctx-onboard reset
-ctx-loader reset
+tabnine-ctx-onboard reset
+tabnine-ctx-loader reset
 ```
 
-`ctx-loader reset` is destructive because it clears tenant data.
+`tabnine-ctx-loader reset` is destructive because it clears tenant data.
 
 ---
 

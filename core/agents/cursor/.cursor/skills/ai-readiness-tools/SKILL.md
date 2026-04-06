@@ -17,7 +17,7 @@ mcp-tools:
 
 Get the historical AI Readiness snapshots for a repository. Returns all snapshots ordered by date, allowing you to track improvements over time.
 
-Call `mcp__ctx-cloud__get_ai_readiness_history` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_ai_readiness_history` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -29,7 +29,7 @@ Call `mcp__ctx-cloud__get_ai_readiness_history` with parameters:
 
 Get the latest AI Readiness snapshot for a repository. Returns the overall score, grade, dimension scores, and recommendations. Run the ai-readiness-analyzer agent first to populate this data.
 
-Call `mcp__ctx-cloud__get_ai_readiness` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_ai_readiness` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|

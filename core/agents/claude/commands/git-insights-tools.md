@@ -8,7 +8,7 @@ Git insights tools: get_author_expertise, get_codebase_hotspots, get_coupling_is
 
 Get the expertise areas for a specific author or list all experts in the codebase. Shows which parts of the codebase each author knows best based on their commit history. Run the git-insights-analyzer agent first to populate this data.
 
-Call `mcp__ctx-cloud__get_author_expertise` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_author_expertise` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -20,7 +20,7 @@ Call `mcp__ctx-cloud__get_author_expertise` with parameters:
 
 Get the hotspots in the codebase - files that change most frequently. Hotspots often indicate areas of high activity, potential complexity, or code that may need refactoring. Includes churn score, commit count, and risk assessment. Run the git-insights-analyzer agent first to populate this data.
 
-Call `mcp__ctx-cloud__get_codebase_hotspots` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_codebase_hotspots` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -31,7 +31,7 @@ Call `mcp__ctx-cloud__get_codebase_hotspots` with parameters:
 
 Get coupling issues between files or modules in the codebase. Identifies files that frequently change together but belong to different modules, which may indicate hidden dependencies or architectural issues. Run the git-insights-analyzer agent first to populate this data.
 
-Call `mcp__ctx-cloud__get_coupling_issues` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_coupling_issues` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -42,7 +42,7 @@ Call `mcp__ctx-cloud__get_coupling_issues` with parameters:
 
 Get the experts (most knowledgeable contributors) for a specific file based on git history analysis. Returns authors ranked by their expertise score, which considers commit count, lines authored, and recency of contributions. Run the git-insights-analyzer agent first to populate this data.
 
-Call `mcp__ctx-cloud__get_file_experts` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_file_experts` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -54,7 +54,7 @@ Call `mcp__ctx-cloud__get_file_experts` with parameters:
 
 Get the risk assessment for a specific file based on git history analysis. Risk score considers churn rate, bug fix ratio, number of authors, and recency. Returns risk score (0-1) and a recommendation (low/medium/high/critical). Run the git-insights-analyzer agent first to populate this data.
 
-Call `mcp__ctx-cloud__get_file_risk` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_file_risk` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -65,7 +65,7 @@ Call `mcp__ctx-cloud__get_file_risk` with parameters:
 
 Get a summary of the git insights analysis for a repository. Includes overall statistics like total commits analyzed, number of files, authors, top hotspots, and health score. Run the git-insights-analyzer agent first to populate this data.
 
-Call `mcp__ctx-cloud__get_git_insights_summary` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_git_insights_summary` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -75,7 +75,7 @@ Call `mcp__ctx-cloud__get_git_insights_summary` with parameters:
 
 Get the logical module boundaries in the codebase based on co-change patterns. Identifies which directories form cohesive modules and where there might be coupling issues between modules. Useful for understanding the actual (not just intended) architecture. Run the git-insights-analyzer agent first to populate this data.
 
-Call `mcp__ctx-cloud__get_module_boundaries` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_module_boundaries` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -86,7 +86,7 @@ Call `mcp__ctx-cloud__get_module_boundaries` with parameters:
 
 Get recent activity in the codebase including recently modified files and active directories. Useful for understanding what's currently being worked on and where development effort is focused. Run the git-insights-analyzer agent first to populate this data.
 
-Call `mcp__ctx-cloud__get_recent_activity` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_recent_activity` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -98,7 +98,7 @@ Call `mcp__ctx-cloud__get_recent_activity` with parameters:
 
 Get files that frequently change together with the specified file based on git history co-change analysis. Useful for understanding ripple effects - "if I change X, what else might need to change?" Run the git-insights-analyzer agent first to populate this data.
 
-Call `mcp__ctx-cloud__get_related_files` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_related_files` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|

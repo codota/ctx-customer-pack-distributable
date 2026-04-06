@@ -22,7 +22,7 @@ mcp-tools:
 
 Add a footer comment to a Confluence page. Requires a connected and enabled Confluence data source. Comments are visible at the bottom of the page.
 
-Call `mcp__ctx-cloud__add_confluence_comment` with parameters:
+Call `mcp__tabnine-ctx-cloud__add_confluence_comment` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -33,7 +33,7 @@ Call `mcp__ctx-cloud__add_confluence_comment` with parameters:
 
 Create a new page in a Confluence space. Requires a connected and enabled Confluence data source. The body should be in Confluence storage format (XHTML). Returns the created page ID, title, and URL.
 
-Call `mcp__ctx-cloud__create_confluence_page` with parameters:
+Call `mcp__tabnine-ctx-cloud__create_confluence_page` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -47,7 +47,7 @@ Call `mcp__ctx-cloud__create_confluence_page` with parameters:
 
 Retrieve a Confluence page's content and metadata. Use this to get page context before updating, including the current version number needed for updates. Requires a connected and enabled Confluence data source.
 
-Call `mcp__ctx-cloud__get_confluence_page` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_confluence_page` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -57,7 +57,7 @@ Call `mcp__ctx-cloud__get_confluence_page` with parameters:
 
 Search for Confluence pages using CQL (Confluence Query Language). Requires a connected and enabled Confluence data source. Example queries: 'title = "Meeting Notes"', 'space = "ENG" AND type = "page"', 'text ~ "deployment"'.
 
-Call `mcp__ctx-cloud__search_confluence_pages` with parameters:
+Call `mcp__tabnine-ctx-cloud__search_confluence_pages` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -68,7 +68,7 @@ Call `mcp__ctx-cloud__search_confluence_pages` with parameters:
 
 Update an existing Confluence page's content. Requires a connected and enabled Confluence data source. You must provide the current version number (incremented by 1). Use get_confluence_page first to retrieve the current version.
 
-Call `mcp__ctx-cloud__update_confluence_page` with parameters:
+Call `mcp__tabnine-ctx-cloud__update_confluence_page` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|

@@ -9,7 +9,7 @@ Input:  JSON-RPC on stdin (from Claude Code)
 Output: JSON-RPC on stdout (to Claude Code)
 Forward: All messages to CTX_API_URL/mcp via HTTP
 
-Credentials: from ctx-settings.yaml in cwd, or CTX_API_URL/CTX_API_KEY env vars.
+Credentials: from .tabnine/ctx/ctx-settings.yaml in cwd, or CTX_API_URL/CTX_API_KEY env vars.
 Never reads secrets from CLI arguments.
 """
 
@@ -21,8 +21,9 @@ import urllib.error
 
 
 def load_settings():
-    """Load ctx-settings.yaml into env if it exists (same convention as CLIs)."""
-    settings_path = os.path.join(os.getcwd(), "ctx-settings.yaml")
+    """Load .tabnine/ctx/ctx-settings.yaml into env if it exists (same convention as CLIs)."""
+    # Must match shared/src/paths.ts CTX_RUNTIME_ROOT
+    settings_path = os.path.join(os.getcwd(), ".tabnine", "ctx", "ctx-settings.yaml")
     if not os.path.exists(settings_path):
         return
     try:
@@ -45,7 +46,7 @@ TIMEOUT = 120  # seconds per request
 
 
 def get_credentials():
-    """Get credentials, re-reading ctx-settings.yaml each time (handles late creation)."""
+    """Get credentials, re-reading settings each time (handles late creation)."""
     load_settings()
     return (
         os.environ.get("CTX_API_URL", "").rstrip("/"),
@@ -68,7 +69,7 @@ def ensure_remote_session():
         "params": {
             "protocolVersion": "2024-11-05",
             "capabilities": {},
-            "clientInfo": {"name": "ctx-cloud-proxy", "version": SERVER_VERSION},
+            "clientInfo": {"name": "tabnine-ctx-cloud-proxy", "version": SERVER_VERSION},
         },
     }
     api_url, api_key = get_credentials()
@@ -99,7 +100,7 @@ def send_to_remote(payload: dict) -> str | None:
         return json.dumps({
             "jsonrpc": "2.0",
             "id": payload.get("id"),
-            "error": {"code": -32600, "message": "CTX_API_URL and CTX_API_KEY must be set. Create ctx-settings.yaml with your credentials."},
+            "error": {"code": -32600, "message": "CTX_API_URL and CTX_API_KEY must be set. Create .tabnine/ctx/ctx-settings.yaml with your credentials."},
         })
 
     # Establish remote session on first tool call
@@ -152,7 +153,7 @@ def send_to_remote(payload: dict) -> str | None:
         })
 
 
-SERVER_NAME = "ctx-cloud"
+SERVER_NAME = "tabnine-ctx-cloud"
 SERVER_VERSION = "0.1.0"
 
 # Static tool schemas as fallback (loaded from file bundled alongside this script).

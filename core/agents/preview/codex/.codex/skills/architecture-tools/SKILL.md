@@ -24,7 +24,7 @@ Get a runbook for a specific service or operational scenario. Returns investigat
 PREFER: Use 'incident_response' during incidents - it includes the runbook plus escalation contacts, similar incidents, and ownership in one call.
 USE THIS WHEN: You need just the runbook steps without the incident context, or when referencing runbooks outside of an active incident.
 
-Call `mcp__ctx-cloud__get_runbook` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_runbook` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -36,7 +36,7 @@ Get security patterns and anti-patterns learned from past incidents. Returns cod
 PREFER: Use 'incident_response' during active incidents - includes relevant security patterns plus runbooks, escalation contacts, and similar incidents.
 USE THIS WHEN: You need to browse security patterns for code review or education, without the context of a specific incident or service.
 
-Call `mcp__ctx-cloud__get_security_patterns` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_security_patterns` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -49,7 +49,7 @@ Search Architecture Decision Records (ADRs) by keyword or topic. Finds ADRs that
 PREFER: Use 'code_migration' when researching ADRs for a specific migration. Use 'understand_flow' when researching ADRs for a specific business flow.
 USE THIS WHEN: You need to browse ADRs by topic without specific migration or flow context, or when researching architectural patterns broadly.
 
-Call `mcp__ctx-cloud__search_adrs` with parameters:
+Call `mcp__tabnine-ctx-cloud__search_adrs` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -62,7 +62,7 @@ Search for documented business flows and workflows by keyword or service. Return
 PREFER: Use 'understand_flow' for complete flow analysis including ownership, runbooks, past incidents, and architectural decisions in one call.
 USE THIS WHEN: You need to search across multiple flows by keyword, or when browsing available flows without full operational context.
 
-Call `mcp__ctx-cloud__search_flows` with parameters:
+Call `mcp__tabnine-ctx-cloud__search_flows` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -74,7 +74,7 @@ Search past incidents by keyword, service, or symptom. Returns incidents with ro
 PREFER: Use 'incident_response' during active incidents - it provides escalation contacts, runbooks, and similar incidents for a specific service.
 USE THIS WHEN: You need to search across all incidents by keyword/symptom, or when researching historical patterns not tied to a specific service.
 
-Call `mcp__ctx-cloud__search_incidents` with parameters:
+Call `mcp__tabnine-ctx-cloud__search_incidents` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|

@@ -17,7 +17,7 @@ Deep-dive into any service registered in the Context Engine to understand its ar
 ## Usage
 
 **Full investigation of a service**
-Call `mcp__ctx-cloud__investigate_service` with service_name=payments-api.
+Call `mcp__tabnine-ctx-cloud__investigate_service` with service_name=payments-api.
 
 The response includes:
 - **Dependencies** — upstream services this service calls.
@@ -29,11 +29,11 @@ The response includes:
 ## Examples
 
 **Investigate before making changes**
-Call `mcp__ctx-cloud__investigate_service` with service_name=user-auth.
+Call `mcp__tabnine-ctx-cloud__investigate_service` with service_name=user-auth.
 **Pipe to jq to extract just dependencies**
-Call `mcp__ctx-cloud__investigate_service` with service_name=order-service.
+Call `mcp__tabnine-ctx-cloud__investigate_service` with service_name=order-service.
 **Get ownership info for an unfamiliar service**
-Call `mcp__ctx-cloud__investigate_service` with service_name=notification-gateway.
+Call `mcp__tabnine-ctx-cloud__investigate_service` with service_name=notification-gateway.
 
 ## When to Use
 

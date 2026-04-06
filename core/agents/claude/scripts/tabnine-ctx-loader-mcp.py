@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-Stdio MCP server for ctx-loader CLI.
+Stdio MCP server for tabnine-ctx-loader CLI.
 
-Exposes ctx-loader commands as MCP tools so agents can call them
+Exposes tabnine-ctx-loader commands as MCP tools so agents can call them
 directly without Bash permission prompts or env var prefixes.
 
-Reads ctx-settings.yaml and injects into env so ctx-loader picks them up.
+Reads .tabnine/ctx/ctx-settings.yaml and injects into env so tabnine-ctx-loader picks them up.
 """
 
 import json
@@ -16,8 +16,9 @@ from datetime import datetime
 
 
 def load_settings():
-    """Load ctx-settings.yaml into env if it exists."""
-    settings_path = os.path.join(os.getcwd(), "ctx-settings.yaml")
+    """Load .tabnine/ctx/ctx-settings.yaml into env if it exists."""
+    # Must match shared/src/paths.ts CTX_RUNTIME_ROOT
+    settings_path = os.path.join(os.getcwd(), ".tabnine", "ctx", "ctx-settings.yaml")
     if not os.path.exists(settings_path):
         return
     try:
@@ -36,31 +37,31 @@ def load_settings():
         pass
 
 
-SERVER_NAME = "ctx-loader"
+SERVER_NAME = "tabnine-ctx-loader"
 SERVER_VERSION = "0.1.0"
 
 TOOLS = [
     {
         "name": "loader_init",
-        "description": "Generate a ctx-loader manifest from a template. Creates ctx-loader.yaml with the project configuration.",
+        "description": "Generate a tabnine-ctx-loader manifest from a template. Creates tabnine-ctx-loader.yaml with the project configuration.",
         "inputSchema": {
             "type": "object",
             "properties": {
                 "template": {"type": "string", "description": "Template name: minimal, github-jira-slack, gitlab-linear-pagerduty", "default": "minimal"},
-                "output": {"type": "string", "description": "Output file path", "default": "ctx-loader.yaml"},
+                "output": {"type": "string", "description": "Output file path", "default": "tabnine-ctx-loader.yaml"},
                 "owner": {"type": "string", "description": "GitHub org/owner (resolves ${GITHUB_ORG} in template)"},
                 "repo": {"type": "string", "description": "GitHub repo name (resolves ${GITHUB_REPO} in template)"},
-                "resolve": {"type": "boolean", "description": "Resolve all env vars and ctx-settings.yaml values in the template"},
+                "resolve": {"type": "boolean", "description": "Resolve all env vars and .tabnine/ctx/ctx-settings.yaml values in the template"},
             },
         },
     },
     {
         "name": "loader_validate",
-        "description": "Validate a ctx-loader manifest (schema check + CTX API connectivity test).",
+        "description": "Validate a tabnine-ctx-loader manifest (schema check + CTX API connectivity test).",
         "inputSchema": {
             "type": "object",
             "properties": {
-                "manifest": {"type": "string", "description": "Manifest file path", "default": "ctx-loader.yaml"},
+                "manifest": {"type": "string", "description": "Manifest file path", "default": "tabnine-ctx-loader.yaml"},
             },
         },
     },
@@ -70,7 +71,7 @@ TOOLS = [
         "inputSchema": {
             "type": "object",
             "properties": {
-                "manifest": {"type": "string", "description": "Manifest file path", "default": "ctx-loader.yaml"},
+                "manifest": {"type": "string", "description": "Manifest file path", "default": "tabnine-ctx-loader.yaml"},
             },
             "required": ["manifest"],
         },
@@ -91,7 +92,7 @@ TOOLS = [
         "inputSchema": {
             "type": "object",
             "properties": {
-                "manifest": {"type": "string", "description": "Manifest file path", "default": "ctx-loader.yaml"},
+                "manifest": {"type": "string", "description": "Manifest file path", "default": "tabnine-ctx-loader.yaml"},
             },
             "required": ["manifest"],
         },
@@ -170,16 +171,17 @@ def slim_loader_status(data: dict) -> dict:
     return summary
 
 
-LOG_DIR = os.path.join(os.getcwd(), ".ctx-logs")
+# Must match shared/src/paths.ts CTX_RUNTIME_ROOT
+LOG_DIR = os.path.join(os.getcwd(), ".tabnine", "ctx", "logs")
 MAX_LOG_FILES = 50
 
 
 def write_log(tool_name: str, cmd: list[str], exit_code: int, stdout: str, stderr: str):
-    """Write full CLI output to .ctx-logs/ for support debugging."""
+    """Write full CLI output to .tabnine/ctx/logs/ for support debugging."""
     try:
         os.makedirs(LOG_DIR, exist_ok=True)
         ts = datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
-        path = os.path.join(LOG_DIR, f"ctx-loader-{tool_name}-{ts}.log")
+        path = os.path.join(LOG_DIR, f"tabnine-ctx-loader-{tool_name}-{ts}.log")
         with open(path, "w") as f:
             f.write(f"timestamp: {datetime.now().isoformat()}\n")
             f.write(f"command: {' '.join(cmd)}\n")
@@ -189,7 +191,7 @@ def write_log(tool_name: str, cmd: list[str], exit_code: int, stdout: str, stder
                 f.write(f"--- stderr ---\n{stderr}\n")
         # Rotate: keep only MAX_LOG_FILES most recent
         files = sorted(
-            [f for f in os.listdir(LOG_DIR) if f.startswith("ctx-loader-")],
+            [f for f in os.listdir(LOG_DIR) if f.startswith("tabnine-ctx-loader-")],
         )
         for old in files[:-MAX_LOG_FILES]:
             os.remove(os.path.join(LOG_DIR, old))
@@ -198,9 +200,9 @@ def write_log(tool_name: str, cmd: list[str], exit_code: int, stdout: str, stder
 
 
 def run_cli(args: list[str], timeout: int = 120) -> dict:
-    """Run ctx-loader with args and return parsed JSON output."""
-    load_settings()  # Re-read each time — ctx-settings.yaml may be created mid-session
-    cmd = ["ctx-loader"] + args + ["--json"]
+    """Run tabnine-ctx-loader with args and return parsed JSON output."""
+    load_settings()  # Re-read each time — settings may be created mid-session
+    cmd = ["tabnine-ctx-loader"] + args + ["--json"]
     try:
         result = subprocess.run(
             cmd, capture_output=True, text=True, timeout=timeout, cwd=os.getcwd()
@@ -215,13 +217,13 @@ def run_cli(args: list[str], timeout: int = 120) -> dict:
     except subprocess.TimeoutExpired:
         return {"error": f"Command timed out after {timeout}s"}
     except FileNotFoundError:
-        return {"error": "ctx-loader not found. Install with: curl -fsSL .../install.sh | bash -s -- --package loader --agent claude"}
+        return {"error": "tabnine-ctx-loader not found. Install with: curl -fsSL .../install.sh | bash -s -- --package loader --agent claude"}
     except Exception as e:
         return {"error": str(e)}
 
 
 def handle_tool_call(name: str, args: dict) -> dict:
-    """Map MCP tool name to ctx-loader CLI invocation."""
+    """Map MCP tool name to tabnine-ctx-loader CLI invocation."""
     if name == "loader_init":
         cmd = ["init"]
         if args.get("template"): cmd += ["--template", args["template"]]
@@ -237,7 +239,7 @@ def handle_tool_call(name: str, args: dict) -> dict:
         return run_cli(cmd)
 
     elif name == "loader_load":
-        cmd = ["load", "--manifest", args.get("manifest", "ctx-loader.yaml")]
+        cmd = ["load", "--manifest", args.get("manifest", "tabnine-ctx-loader.yaml")]
         return run_cli(cmd, timeout=600)
 
     elif name == "loader_status":
@@ -246,7 +248,7 @@ def handle_tool_call(name: str, args: dict) -> dict:
         return slim_loader_status(run_cli(cmd))
 
     elif name == "loader_resume":
-        cmd = ["resume", "--manifest", args.get("manifest", "ctx-loader.yaml")]
+        cmd = ["resume", "--manifest", args.get("manifest", "tabnine-ctx-loader.yaml")]
         return run_cli(cmd, timeout=600)
 
     elif name == "loader_diagnose":

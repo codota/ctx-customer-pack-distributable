@@ -13,7 +13,7 @@ Analyzes your repository and generates a test plan.
 ## Usage
 
 ```bash
-ctx-onboard step-1 --repo-path /path/to/repo --json
+tabnine-ctx-onboard step-1 --repo-path /path/to/repo --json
 ```
 
 ## Output

@@ -22,7 +22,7 @@ mcp-tools:
 
 Get all teams in the organization with their contact information and services/packages they own. Use this to understand team structure and find the right team to contact.
 
-Call `mcp__ctx-cloud__get_all_teams` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_all_teams` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -32,7 +32,7 @@ Call `mcp__ctx-cloud__get_all_teams` with parameters:
 
 Get suggested code reviewers for a service or file path. Combines CODEOWNERS data with git expertise analysis to suggest the best reviewers. Returns team owners, recent contributors, and domain experts.
 
-Call `mcp__ctx-cloud__get_code_reviewers` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_code_reviewers` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -44,7 +44,7 @@ Get escalation contacts for an incident affecting a service or feature. Returns 
 PREFER: Use 'incident_response' for complete incident support - includes contacts, runbooks, past incidents, and ownership details in one call.
 USE THIS WHEN: You need only the contact/escalation info, or when you already have runbook and incident context from other sources.
 
-Call `mcp__ctx-cloud__get_incident_contacts` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_incident_contacts` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -57,7 +57,7 @@ Get comprehensive ownership and contact information for a service. Returns the o
 PREFER: Use 'incident_response' during incidents - it includes ownership plus escalation paths, runbooks, and similar past incidents in one call. Use 'investigate_service' for general investigation - includes ownership context.
 USE THIS WHEN: You specifically need ownership/contact info without incident context, or when building team directory lookups.
 
-Call `mcp__ctx-cloud__get_service_ownership` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_service_ownership` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -67,7 +67,7 @@ Call `mcp__ctx-cloud__get_service_ownership` with parameters:
 
 Get all services and packages owned by a team. Returns services with their tier, packages maintained, and team contacts. Use this to understand a team's scope or find services by team.
 
-Call `mcp__ctx-cloud__get_team_services` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_team_services` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|

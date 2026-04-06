@@ -8,7 +8,7 @@ tags: [onboarding, rollout]
 # Onboard: Rollout Plan (Step 7)
 
 ```bash
-ctx-onboard step-7 --json
+tabnine-ctx-onboard step-7 --json
 ```
 
 Generates a phased adoption plan (pilot → early adopters → GA)

@@ -7,8 +7,8 @@ Context Engine skills, data loader, and onboarding methodology for AI coding age
 | Package | What it includes | Depends on |
 |---------|-----------------|------------|
 | **core** | 37 skills, hooks, MCP proxy for your AI agent | — |
-| **loader** | `ctx-loader` CLI for bulk data loading | core |
-| **onboarder** | `ctx-onboard` CLI + 7-step evaluation methodology | core, loader |
+| **loader** | `tabnine-ctx-loader` CLI for bulk data loading | core |
+| **onboarder** | `tabnine-ctx-onboard` CLI + 7-step evaluation methodology | core, loader |
 
 ## Install
 
@@ -40,7 +40,7 @@ The installer fetches files directly from GitHub — no clone needed. Dependency
 claude plugin install --from https://github.com/codota/ctx-customer-pack-distributable
 ```
 
-Installs the full plugin bundle via the marketplace manifest: 37 skills + hooks (decision-context, change-confidence) + MCP server (ctx-cloud). The loader and onboarder are CLI tools — use the `curl | bash` installer above to add them.
+Installs the full plugin bundle via the marketplace manifest: 37 skills + hooks (decision-context, change-confidence) + MCP server (tabnine-ctx-cloud). The loader and onboarder are CLI tools — use the `curl | bash` installer above to add them.
 
 ## Environment Variables
 
@@ -58,7 +58,7 @@ export CTX_API_KEY=ctx_your_key_here
 
 ## Documentation
 
-- [Customer Pack User Guide](docs/customer-pack-user-guide.md) — tutorials for `ctx-skills`, `ctx-loader`, and `ctx-onboard`
+- [Customer Pack User Guide](docs/customer-pack-user-guide.md) — tutorials for `ctx-skills`, `tabnine-ctx-loader`, and `tabnine-ctx-onboard`
 - [Customer Pack Manual](docs/customer-pack-manual.md) — detailed setup, command reference, and common workflows
 - [Onboarding Guide](docs/onboarding-guide.md) — expanded walkthrough of the 7-step evaluation flow
 - [Context Engine User Guide](docs/context-engine-guide.md) — broader Context Engine workflows and examples
@@ -66,10 +66,10 @@ export CTX_API_KEY=ctx_your_key_here
 ## Data Loader
 
 ```bash
-ctx-loader init --template github-jira-slack --output ctx-loader.yaml
-ctx-loader validate --manifest ctx-loader.yaml --json
-ctx-loader load --manifest ctx-loader.yaml --json
-ctx-loader status --json
+tabnine-ctx-loader init --template github-jira-slack --output tabnine-ctx-loader.yaml
+tabnine-ctx-loader validate --manifest tabnine-ctx-loader.yaml --json
+tabnine-ctx-loader load --manifest tabnine-ctx-loader.yaml --json
+tabnine-ctx-loader status --json
 ```
 
 Templates in `loader/templates/`.
@@ -77,14 +77,14 @@ Templates in `loader/templates/`.
 ## Onboarding
 
 ```bash
-ctx-onboard step-0 --json               # Validate setup
-ctx-onboard step-1 --repo-path . --json  # Generate test plan
-ctx-onboard step-2 --manifest m.yaml     # Load data
-ctx-onboard step-3 --json               # Baseline (no MCP)
-ctx-onboard step-4 --json               # Baseline (with MCP)
-ctx-onboard step-5 --repo-path . --json  # Domain enrichment
-ctx-onboard step-6 --json               # Measure with domain
-ctx-onboard step-7 --json               # Rollout plan
+tabnine-ctx-onboard step-0 --json               # Validate setup
+tabnine-ctx-onboard step-1 --repo-path . --json  # Generate test plan
+tabnine-ctx-onboard step-2 --manifest m.yaml     # Load data
+tabnine-ctx-onboard step-3 --json               # Baseline (no MCP)
+tabnine-ctx-onboard step-4 --json               # Baseline (with MCP)
+tabnine-ctx-onboard step-5 --repo-path . --json  # Domain enrichment
+tabnine-ctx-onboard step-6 --json               # Measure with domain
+tabnine-ctx-onboard step-7 --json               # Rollout plan
 ```
 
 ## Supported Agents
@@ -103,9 +103,9 @@ ctx-onboard step-7 --json               # Rollout plan
 ```
 core/agents/         37 skills × 6 agents + hooks + MCP
 core/tool-schemas.json
-loader/bin/ctx-loader
+loader/bin/tabnine-ctx-loader
 loader/templates/    3 manifest templates
-onboarder/bin/ctx-onboard
+onboarder/bin/tabnine-ctx-onboard
 onboarder/skills/    7 onboarding step skills
 installers/install.sh
 ```

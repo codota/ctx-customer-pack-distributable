@@ -4741,7 +4741,7 @@ var require_merge = __commonJS({
 var require_addPairToJSMap = __commonJS({
   "node_modules/yaml/dist/nodes/addPairToJSMap.js"(exports2) {
     "use strict";
-    var log2 = require_log();
+    var log3 = require_log();
     var merge = require_merge();
     var stringify = require_stringify();
     var identity = require_identity();
@@ -4790,7 +4790,7 @@ var require_addPairToJSMap = __commonJS({
           let jsonStr = JSON.stringify(strKey);
           if (jsonStr.length > 40)
             jsonStr = jsonStr.substring(0, 36) + '..."';
-          log2.warn(ctx.doc.options.logLevel, `Keys with collection values will be stringified due to JS Object restrictions: ${jsonStr}. Set mapAsMap: true to use object keys.`);
+          log3.warn(ctx.doc.options.logLevel, `Keys with collection values will be stringified due to JS Object restrictions: ${jsonStr}. Set mapAsMap: true to use object keys.`);
           ctx.mapKeyWarned = true;
         }
         return strKey;
@@ -10186,7 +10186,7 @@ var require_public_api = __commonJS({
     var composer = require_composer();
     var Document = require_Document();
     var errors = require_errors();
-    var log2 = require_log();
+    var log3 = require_log();
     var identity = require_identity();
     var lineCounter = require_line_counter();
     var parser = require_parser();
@@ -10238,7 +10238,7 @@ var require_public_api = __commonJS({
       const doc = parseDocument(src, options);
       if (!doc)
         return null;
-      doc.warnings.forEach((warning) => log2.warn(doc.options.logLevel, warning));
+      doc.warnings.forEach((warning) => log3.warn(doc.options.logLevel, warning));
       if (doc.errors.length > 0) {
         if (doc.options.logLevel !== "silent")
           throw doc.errors[0];
@@ -10433,7 +10433,7 @@ var init_error_catalog = __esm({
       LOADER_AUTH_001: {
         category: "authentication",
         retryable: false,
-        remediation: "CTX API key is invalid or expired. Check ctx-settings.yaml or CTX_API_KEY environment variable. If no settings file exists, create one: see /onboard skill."
+        remediation: "CTX API key is invalid or expired. Check .tabnine/ctx/ctx-settings.yaml or CTX_API_KEY environment variable. If no settings file exists, create one: see /onboard skill."
       },
       LOADER_AUTH_002: {
         category: "authentication",
@@ -10466,12 +10466,12 @@ var init_error_catalog = __esm({
       LOADER_CFG_001: {
         category: "configuration",
         retryable: false,
-        remediation: "Invalid manifest file. Run `ctx-loader validate` for detailed validation errors."
+        remediation: "Invalid manifest file. Run `tabnine-ctx-loader validate` for detailed validation errors."
       },
       LOADER_CFG_002: {
         category: "configuration",
         retryable: false,
-        remediation: "Required environment variable is not set. Create a ctx-settings.yaml file with your credentials (CTX_API_URL, CTX_API_KEY, GH_PAT, etc.), or set the variables in your environment."
+        remediation: "Required environment variable is not set. Create .tabnine/ctx/ctx-settings.yaml with your credentials (CTX_API_URL, CTX_API_KEY, GH_PAT, etc.), or set the variables in your environment."
       },
       LOADER_CFG_003: {
         category: "configuration",
@@ -10533,12 +10533,33 @@ var init_error_catalog = __esm({
       ONBOARD_STATE_001: {
         category: "validation",
         retryable: false,
-        remediation: "Onboarding state file is corrupted. Delete .ctx-onboarding/state.json and restart."
+        remediation: "Onboarding state file is corrupted. Delete .tabnine/ctx/onboarder/state.json and restart."
       },
       ONBOARD_PREREQ_001: {
         category: "validation",
         retryable: false,
         remediation: "Step prerequisite not met. Run the required earlier steps first."
+      },
+      // Process lock
+      LOCK_HELD_001: {
+        category: "validation",
+        retryable: false,
+        remediation: "Another instance is already running in this directory (PID in lock file). Wait for it to finish, or use --force-lock to override if it crashed."
+      },
+      LOCK_PERM_001: {
+        category: "validation",
+        retryable: false,
+        remediation: "Cannot verify lock-holder liveness (permission denied). Check lock file permissions or remove it manually."
+      },
+      LOCK_IO_001: {
+        category: "unknown",
+        retryable: false,
+        remediation: "Failed to create or read lock file. Check directory permissions and disk space."
+      },
+      LOCK_RACE_001: {
+        category: "validation",
+        retryable: true,
+        remediation: "Multiple processes are racing to acquire the lock. Retry in a moment."
       }
     };
   }
@@ -10563,9 +10584,46 @@ var init_yaml_loader = __esm({
   }
 });
 
+// shared/dist/paths.js
+function onboarderDir(baseDir) {
+  return (0, import_node_path.join)(baseDir, CTX_RUNTIME_ROOT, "onboarder");
+}
+function onboarderLockPath(baseDir) {
+  return (0, import_node_path.join)(onboarderDir(baseDir), "onboarder.lock");
+}
+function onboarderTestPlanPath(baseDir) {
+  return (0, import_node_path.join)(onboarderDir(baseDir), "test-plan.yaml");
+}
+function onboarderDomainModelPath(baseDir) {
+  return (0, import_node_path.join)(onboarderDir(baseDir), "domain-model.yaml");
+}
+function onboarderLoaderOutputPath(baseDir) {
+  return (0, import_node_path.join)(onboarderDir(baseDir), "loader-output.log");
+}
+function onboarderLoaderPidPath(baseDir) {
+  return (0, import_node_path.join)(onboarderDir(baseDir), "loader.pid");
+}
+function onboarderPatchedManifestPath(baseDir) {
+  return (0, import_node_path.join)(onboarderDir(baseDir), "tabnine-ctx-loader-patched.yaml");
+}
+function logsDir(baseDir) {
+  return (0, import_node_path.join)(baseDir, CTX_RUNTIME_ROOT, "logs");
+}
+function settingsFilePath(baseDir) {
+  return (0, import_node_path.join)(baseDir, CTX_RUNTIME_ROOT, "ctx-settings.yaml");
+}
+var import_node_path, CTX_RUNTIME_ROOT;
+var init_paths = __esm({
+  "shared/dist/paths.js"() {
+    "use strict";
+    import_node_path = require("node:path");
+    CTX_RUNTIME_ROOT = ".tabnine/ctx";
+  }
+});
+
 // shared/dist/config/settings.js
 function loadSettings(baseDir) {
-  const settingsPath = (0, import_node_path.join)(baseDir, "ctx-settings.yaml");
+  const settingsPath = settingsFilePath(baseDir);
   if ((0, import_node_fs.existsSync)(settingsPath)) {
     try {
       const raw = (0, import_node_fs.readFileSync)(settingsPath, "utf-8");
@@ -10623,19 +10681,19 @@ function resolveDataVolume(parsed) {
   return { preset: presetName, config };
 }
 function settingsSource(baseDir) {
-  const settingsPath = (0, import_node_path.join)(baseDir, "ctx-settings.yaml");
+  const settingsPath = settingsFilePath(baseDir);
   if ((0, import_node_fs.existsSync)(settingsPath)) {
     return settingsPath;
   }
   return "environment variables";
 }
-var import_node_fs, import_node_path, import_yaml2, DATA_VOLUME_PRESETS;
+var import_node_fs, import_yaml2, DATA_VOLUME_PRESETS;
 var init_settings = __esm({
   "shared/dist/config/settings.js"() {
     "use strict";
     import_node_fs = require("node:fs");
-    import_node_path = require("node:path");
     import_yaml2 = __toESM(require_dist(), 1);
+    init_paths();
     DATA_VOLUME_PRESETS = {
       "ultra-light": {
         sinceDays: 1,
@@ -12654,7 +12712,7 @@ var require_thread_stream = __commonJS({
     var { version } = require_package();
     var { EventEmitter } = require("events");
     var { Worker } = require("worker_threads");
-    var { join: join9 } = require("path");
+    var { join: join6 } = require("path");
     var { pathToFileURL } = require("url");
     var { wait } = require_wait();
     var {
@@ -12690,7 +12748,7 @@ var require_thread_stream = __commonJS({
     function createWorker(stream, opts) {
       const { filename, workerData } = opts;
       const bundlerOverrides = "__bundlerPathsOverrides" in globalThis ? globalThis.__bundlerPathsOverrides : {};
-      const toExecute = bundlerOverrides["thread-stream-worker"] || join9(__dirname, "lib", "worker.js");
+      const toExecute = bundlerOverrides["thread-stream-worker"] || join6(__dirname, "lib", "worker.js");
       const worker = new Worker(toExecute, {
         ...opts.workerOpts,
         trackUnmanagedFds: false,
@@ -12846,7 +12904,7 @@ var require_thread_stream = __commonJS({
         }
         if (this[kImpl].flushing && this[kImpl].buf.length + data.length >= MAX_STRING) {
           try {
-            writeSync(this);
+            writeSync2(this);
             this[kImpl].flushing = true;
           } catch (err) {
             destroy(this, err);
@@ -12856,7 +12914,7 @@ var require_thread_stream = __commonJS({
         this[kImpl].buf += data;
         if (this[kImpl].sync) {
           try {
-            writeSync(this);
+            writeSync2(this);
             return true;
           } catch (err) {
             destroy(this, err);
@@ -12902,7 +12960,7 @@ var require_thread_stream = __commonJS({
         if (this[kImpl].destroyed) {
           return;
         }
-        writeSync(this);
+        writeSync2(this);
         flushSync(this);
       }
       unref() {
@@ -13006,7 +13064,7 @@ var require_thread_stream = __commonJS({
         destroy(stream, err);
       }
     }
-    function writeSync(stream) {
+    function writeSync2(stream) {
       const cb = () => {
         if (stream[kImpl].ending) {
           end(stream);
@@ -13076,7 +13134,7 @@ var require_transport = __commonJS({
     "use strict";
     var { createRequire } = require("module");
     var getCallers = require_caller();
-    var { join: join9, isAbsolute, sep } = require("node:path");
+    var { join: join6, isAbsolute, sep } = require("node:path");
     var sleep = require_atomic_sleep();
     var onExit = require_on_exit_leak_free();
     var ThreadStream = require_thread_stream();
@@ -13139,7 +13197,7 @@ var require_transport = __commonJS({
         throw new Error("only one of target or targets can be specified");
       }
       if (targets) {
-        target = bundlerOverrides["pino-worker"] || join9(__dirname, "worker.js");
+        target = bundlerOverrides["pino-worker"] || join6(__dirname, "worker.js");
         options.targets = targets.filter((dest) => dest.target).map((dest) => {
           return {
             ...dest,
@@ -13157,7 +13215,7 @@ var require_transport = __commonJS({
           });
         });
       } else if (pipeline) {
-        target = bundlerOverrides["pino-worker"] || join9(__dirname, "worker.js");
+        target = bundlerOverrides["pino-worker"] || join6(__dirname, "worker.js");
         options.pipelines = [pipeline.map((dest) => {
           return {
             ...dest,
@@ -13179,7 +13237,7 @@ var require_transport = __commonJS({
           return origin;
         }
         if (origin === "pino/file") {
-          return join9(__dirname, "..", "file.js");
+          return join6(__dirname, "..", "file.js");
         }
         let fixTarget2;
         for (const filePath of callers) {
@@ -13507,11 +13565,11 @@ var require_tools = __commonJS({
         }
       }
     }
-    function buildFormatters(level, bindings, log2) {
+    function buildFormatters(level, bindings, log3) {
       return {
         level,
         bindings,
-        log: log2
+        log: log3
       };
     }
     function normalizeDestFileDescriptor(destination) {
@@ -13894,11 +13952,11 @@ var require_proto = __commonJS({
         }
       } else instance[serializersSym] = serializers;
       if (options.hasOwnProperty("formatters")) {
-        const { level, bindings: chindings, log: log2 } = options.formatters;
+        const { level, bindings: chindings, log: log3 } = options.formatters;
         instance[formattersSym] = buildFormatters(
           level || formatters.level,
           chindings || resetChildingsFormatter,
-          log2 || formatters.log
+          log3 || formatters.log
         );
       } else {
         instance[formattersSym] = buildFormatters(
@@ -14168,7 +14226,7 @@ var require_safe_stable_stringify = __commonJS({
               return circularValue;
             }
             let res = "";
-            let join9 = ",";
+            let join6 = ",";
             const originalIndentation = indentation;
             if (Array.isArray(value)) {
               if (value.length === 0) {
@@ -14182,7 +14240,7 @@ var require_safe_stable_stringify = __commonJS({
                 indentation += spacer;
                 res += `
 ${indentation}`;
-                join9 = `,
+                join6 = `,
 ${indentation}`;
               }
               const maximumValuesToStringify = Math.min(value.length, maximumBreadth);
@@ -14190,13 +14248,13 @@ ${indentation}`;
               for (; i < maximumValuesToStringify - 1; i++) {
                 const tmp2 = stringifyFnReplacer(String(i), value, stack, replacer, spacer, indentation);
                 res += tmp2 !== void 0 ? tmp2 : "null";
-                res += join9;
+                res += join6;
               }
               const tmp = stringifyFnReplacer(String(i), value, stack, replacer, spacer, indentation);
               res += tmp !== void 0 ? tmp : "null";
               if (value.length - 1 > maximumBreadth) {
                 const removedKeys = value.length - maximumBreadth - 1;
-                res += `${join9}"... ${getItemCount(removedKeys)} not stringified"`;
+                res += `${join6}"... ${getItemCount(removedKeys)} not stringified"`;
               }
               if (spacer !== "") {
                 res += `
@@ -14217,7 +14275,7 @@ ${originalIndentation}`;
             let separator = "";
             if (spacer !== "") {
               indentation += spacer;
-              join9 = `,
+              join6 = `,
 ${indentation}`;
               whitespace = " ";
             }
@@ -14231,13 +14289,13 @@ ${indentation}`;
               const tmp = stringifyFnReplacer(key2, value, stack, replacer, spacer, indentation);
               if (tmp !== void 0) {
                 res += `${separator}${strEscape(key2)}:${whitespace}${tmp}`;
-                separator = join9;
+                separator = join6;
               }
             }
             if (keyLength > maximumBreadth) {
               const removedKeys = keyLength - maximumBreadth;
               res += `${separator}"...":${whitespace}"${getItemCount(removedKeys)} not stringified"`;
-              separator = join9;
+              separator = join6;
             }
             if (spacer !== "" && separator.length > 1) {
               res = `
@@ -14278,7 +14336,7 @@ ${originalIndentation}`;
             }
             const originalIndentation = indentation;
             let res = "";
-            let join9 = ",";
+            let join6 = ",";
             if (Array.isArray(value)) {
               if (value.length === 0) {
                 return "[]";
@@ -14291,7 +14349,7 @@ ${originalIndentation}`;
                 indentation += spacer;
                 res += `
 ${indentation}`;
-                join9 = `,
+                join6 = `,
 ${indentation}`;
               }
               const maximumValuesToStringify = Math.min(value.length, maximumBreadth);
@@ -14299,13 +14357,13 @@ ${indentation}`;
               for (; i < maximumValuesToStringify - 1; i++) {
                 const tmp2 = stringifyArrayReplacer(String(i), value[i], stack, replacer, spacer, indentation);
                 res += tmp2 !== void 0 ? tmp2 : "null";
-                res += join9;
+                res += join6;
               }
               const tmp = stringifyArrayReplacer(String(i), value[i], stack, replacer, spacer, indentation);
               res += tmp !== void 0 ? tmp : "null";
               if (value.length - 1 > maximumBreadth) {
                 const removedKeys = value.length - maximumBreadth - 1;
-                res += `${join9}"... ${getItemCount(removedKeys)} not stringified"`;
+                res += `${join6}"... ${getItemCount(removedKeys)} not stringified"`;
               }
               if (spacer !== "") {
                 res += `
@@ -14318,7 +14376,7 @@ ${originalIndentation}`;
             let whitespace = "";
             if (spacer !== "") {
               indentation += spacer;
-              join9 = `,
+              join6 = `,
 ${indentation}`;
               whitespace = " ";
             }
@@ -14327,7 +14385,7 @@ ${indentation}`;
               const tmp = stringifyArrayReplacer(key2, value[key2], stack, replacer, spacer, indentation);
               if (tmp !== void 0) {
                 res += `${separator}${strEscape(key2)}:${whitespace}${tmp}`;
-                separator = join9;
+                separator = join6;
               }
             }
             if (spacer !== "" && separator.length > 1) {
@@ -14385,20 +14443,20 @@ ${originalIndentation}`;
               indentation += spacer;
               let res2 = `
 ${indentation}`;
-              const join10 = `,
+              const join7 = `,
 ${indentation}`;
               const maximumValuesToStringify = Math.min(value.length, maximumBreadth);
               let i = 0;
               for (; i < maximumValuesToStringify - 1; i++) {
                 const tmp2 = stringifyIndent(String(i), value[i], stack, spacer, indentation);
                 res2 += tmp2 !== void 0 ? tmp2 : "null";
-                res2 += join10;
+                res2 += join7;
               }
               const tmp = stringifyIndent(String(i), value[i], stack, spacer, indentation);
               res2 += tmp !== void 0 ? tmp : "null";
               if (value.length - 1 > maximumBreadth) {
                 const removedKeys = value.length - maximumBreadth - 1;
-                res2 += `${join10}"... ${getItemCount(removedKeys)} not stringified"`;
+                res2 += `${join7}"... ${getItemCount(removedKeys)} not stringified"`;
               }
               res2 += `
 ${originalIndentation}`;
@@ -14414,16 +14472,16 @@ ${originalIndentation}`;
               return '"[Object]"';
             }
             indentation += spacer;
-            const join9 = `,
+            const join6 = `,
 ${indentation}`;
             let res = "";
             let separator = "";
             let maximumPropertiesToStringify = Math.min(keyLength, maximumBreadth);
             if (isTypedArrayWithEntries(value)) {
-              res += stringifyTypedArray(value, join9, maximumBreadth);
+              res += stringifyTypedArray(value, join6, maximumBreadth);
               keys = keys.slice(value.length);
               maximumPropertiesToStringify -= value.length;
-              separator = join9;
+              separator = join6;
             }
             if (deterministic) {
               keys = sort(keys, comparator);
@@ -14434,13 +14492,13 @@ ${indentation}`;
               const tmp = stringifyIndent(key2, value[key2], stack, spacer, indentation);
               if (tmp !== void 0) {
                 res += `${separator}${strEscape(key2)}: ${tmp}`;
-                separator = join9;
+                separator = join6;
               }
             }
             if (keyLength > maximumBreadth) {
               const removedKeys = keyLength - maximumBreadth;
               res += `${separator}"...": "${getItemCount(removedKeys)} not stringified"`;
-              separator = join9;
+              separator = join6;
             }
             if (separator !== "") {
               res = `
@@ -14807,7 +14865,7 @@ var require_pino = __commonJS({
     } = symbols;
     var { epochTime, nullTime } = time;
     var { pid } = process;
-    var hostname = os.hostname();
+    var hostname2 = os.hostname();
     var defaultErrorSerializer = stdSerializers.err;
     var defaultOptions = {
       level: "info",
@@ -14817,7 +14875,7 @@ var require_pino = __commonJS({
       errorKey: "err",
       nestedKey: null,
       enabled: true,
-      base: { pid, hostname },
+      base: { pid, hostname: hostname2 },
       serializers: Object.assign(/* @__PURE__ */ Object.create(null), {
         err: defaultErrorSerializer
       }),
@@ -15032,7 +15090,7 @@ var init_logger = __esm({
 
 // shared/dist/logging/crash-handler.js
 function installCrashHandlers(cliName) {
-  const logDir = (0, import_node_path2.join)(process.cwd(), ".ctx-logs");
+  const logDir = logsDir(process.cwd());
   function writeCrashLog(type, err) {
     try {
       (0, import_node_fs2.mkdirSync)(logDir, { recursive: true });
@@ -15061,13 +15119,13 @@ ${stack}
   process.on("uncaughtException", (err) => {
     writeCrashLog("uncaughtException", err);
     const msg = formatErrorMessage(err);
-    console.error(JSON.stringify({ error: msg, type: "crash", details: "Stack trace written to .ctx-logs/" }));
+    console.error(JSON.stringify({ error: msg, type: "crash", details: "Stack trace written to .tabnine/ctx/logs/" }));
     process.exit(1);
   });
   process.on("unhandledRejection", (reason) => {
     writeCrashLog("unhandledRejection", reason);
     const msg = formatErrorMessage(reason);
-    console.error(JSON.stringify({ error: msg, type: "crash", details: "Stack trace written to .ctx-logs/" }));
+    console.error(JSON.stringify({ error: msg, type: "crash", details: "Stack trace written to .tabnine/ctx/logs/" }));
     process.exit(1);
   });
 }
@@ -15077,6 +15135,209 @@ var init_crash_handler = __esm({
     "use strict";
     import_node_fs2 = require("node:fs");
     import_node_path2 = require("node:path");
+    init_paths();
+  }
+});
+
+// shared/dist/process-lock.js
+function formatLockContent(pid, cliName) {
+  return `pid: ${pid}
+cli: ${cliName}
+acquiredAt: ${(/* @__PURE__ */ new Date()).toISOString()}
+hostname: ${(0, import_node_os.hostname)()}
+`;
+}
+function parseLockContent(raw) {
+  const lines = raw.trim().split("\n");
+  const map = /* @__PURE__ */ new Map();
+  for (const line of lines) {
+    const idx = line.indexOf(": ");
+    if (idx > 0) {
+      map.set(line.slice(0, idx), line.slice(idx + 2));
+    }
+  }
+  const pidStr = map.get("pid");
+  if (!pidStr) {
+    return null;
+  }
+  const pid = parseInt(pidStr, 10);
+  if (Number.isNaN(pid)) {
+    return null;
+  }
+  return {
+    pid,
+    cliName: map.get("cli") ?? "unknown",
+    acquiredAt: map.get("acquiredAt") ?? "unknown",
+    hostname: map.get("hostname") ?? "unknown"
+  };
+}
+function isPidAlive(pid) {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (err) {
+    const code = err.code;
+    if (code === "EPERM") {
+      return true;
+    }
+    return false;
+  }
+}
+function safeUnlink(path) {
+  try {
+    (0, import_node_fs3.unlinkSync)(path);
+  } catch {
+  }
+}
+function sleepSync(ms) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
+var import_node_fs3, import_node_path3, import_node_os, log, ProcessLock;
+var init_process_lock = __esm({
+  "shared/dist/process-lock.js"() {
+    "use strict";
+    import_node_fs3 = require("node:fs");
+    import_node_path3 = require("node:path");
+    import_node_os = require("node:os");
+    init_error_catalog();
+    init_logger();
+    log = createLogger({ name: "process-lock" });
+    ProcessLock = class _ProcessLock {
+      lockPath;
+      cliName;
+      maxRetries;
+      retryDelayMs;
+      force;
+      released = false;
+      exitHandler;
+      sigintHandler;
+      sigtermHandler;
+      constructor(options) {
+        this.lockPath = options.lockPath;
+        this.cliName = options.cliName;
+        this.maxRetries = options.maxRetries ?? 3;
+        this.retryDelayMs = options.retryDelayMs ?? 100;
+        this.force = options.force ?? false;
+      }
+      /**
+       * Acquire the lock. Throws CategorizedError if another live instance holds it.
+       * Recovers stale locks from dead PIDs automatically.
+       * Registers cleanup handlers on process exit/signals.
+       */
+      acquire() {
+        (0, import_node_fs3.mkdirSync)((0, import_node_path3.dirname)(this.lockPath), { recursive: true });
+        const content = formatLockContent(process.pid, this.cliName);
+        for (let attempt = 0; attempt <= this.maxRetries; attempt++) {
+          try {
+            const fd = (0, import_node_fs3.openSync)(this.lockPath, "wx");
+            (0, import_node_fs3.writeSync)(fd, content);
+            (0, import_node_fs3.closeSync)(fd);
+            this.registerCleanupHandlers();
+            log.info({ pid: process.pid, lockPath: this.lockPath }, "Lock acquired");
+            return;
+          } catch (err) {
+            const code = err.code;
+            if (code !== "EEXIST") {
+              throw catalogError("LOCK_IO_001", `Failed to create lock file: ${this.lockPath}`, {
+                cause: err instanceof Error ? err : void 0
+              });
+            }
+            const existing = _ProcessLock.readLockInfo(this.lockPath);
+            if (!existing) {
+              log.warn({ lockPath: this.lockPath }, "Removing corrupt lock file");
+              safeUnlink(this.lockPath);
+              continue;
+            }
+            if (isPidAlive(existing.pid)) {
+              if (this.force) {
+                log.warn({ pid: existing.pid, lockPath: this.lockPath }, "Force-overriding lock held by live process");
+                safeUnlink(this.lockPath);
+                continue;
+              }
+              throw catalogError("LOCK_HELD_001", `Another ${existing.cliName} instance is already running (PID ${existing.pid}, started ${existing.acquiredAt})`);
+            }
+            log.info({ stalePid: existing.pid, lockPath: this.lockPath }, "Recovering stale lock from dead process");
+            safeUnlink(this.lockPath);
+          }
+          if (attempt < this.maxRetries) {
+            sleepSync(this.retryDelayMs * (attempt + 1));
+          }
+        }
+        throw catalogError("LOCK_RACE_001", `Failed to acquire lock after ${this.maxRetries} attempts: ${this.lockPath}`);
+      }
+      /**
+       * Release the lock if this process still owns it.
+       * Safe to call multiple times. Never throws.
+       */
+      release() {
+        if (this.released) {
+          return;
+        }
+        this.released = true;
+        try {
+          const info = _ProcessLock.readLockInfo(this.lockPath);
+          if (!info) {
+            return;
+          }
+          if (info.pid !== process.pid) {
+            log.warn({ filePid: info.pid, currentPid: process.pid }, "Lock file PID does not match current process \u2014 skipping cleanup");
+            return;
+          }
+          (0, import_node_fs3.unlinkSync)(this.lockPath);
+          log.info({ pid: process.pid, lockPath: this.lockPath }, "Lock released");
+        } catch (err) {
+          log.warn({ err, lockPath: this.lockPath }, "Failed to release lock file \u2014 proceeding with shutdown");
+        }
+        this.deregisterCleanupHandlers();
+      }
+      /**
+       * Read lock file info without acquiring. Returns null if no lock file or unparseable.
+       */
+      static readLockInfo(lockPath) {
+        try {
+          const raw = (0, import_node_fs3.readFileSync)(lockPath, "utf-8");
+          return parseLockContent(raw);
+        } catch {
+          return null;
+        }
+      }
+      /**
+       * Check if a lock is held by a live process.
+       * Returns LockInfo if held by a live process, null otherwise.
+       */
+      static probe(lockPath) {
+        const info = _ProcessLock.readLockInfo(lockPath);
+        if (!info) {
+          return null;
+        }
+        return isPidAlive(info.pid) ? info : null;
+      }
+      registerCleanupHandlers() {
+        this.exitHandler = () => this.release();
+        this.sigintHandler = () => {
+          this.release();
+          process.exit(130);
+        };
+        this.sigtermHandler = () => {
+          this.release();
+          process.exit(143);
+        };
+        process.on("exit", this.exitHandler);
+        process.on("SIGINT", this.sigintHandler);
+        process.on("SIGTERM", this.sigtermHandler);
+      }
+      deregisterCleanupHandlers() {
+        if (this.exitHandler) {
+          process.removeListener("exit", this.exitHandler);
+        }
+        if (this.sigintHandler) {
+          process.removeListener("SIGINT", this.sigintHandler);
+        }
+        if (this.sigtermHandler) {
+          process.removeListener("SIGTERM", this.sigtermHandler);
+        }
+      }
+    };
   }
 });
 
@@ -15102,6 +15363,8 @@ var init_dist = __esm({
     init_settings();
     init_logger();
     init_crash_handler();
+    init_paths();
+    init_process_lock();
     init_agent_types();
   }
 });
@@ -19681,6 +19944,7 @@ var init_concurrency_pool = __esm({
 var init_run_tracker = __esm({
   "loader/dist/progress/run-tracker.js"() {
     "use strict";
+    init_dist();
   }
 });
 
@@ -19703,7 +19967,7 @@ var init_dependency_resolver = __esm({
 });
 
 // loader/dist/pipeline/orchestrator.js
-var log;
+var log2;
 var init_orchestrator = __esm({
   "loader/dist/pipeline/orchestrator.js"() {
     "use strict";
@@ -19717,7 +19981,7 @@ var init_orchestrator = __esm({
     init_run_tracker();
     init_stage_machine();
     init_dependency_resolver();
-    log = createLogger({ name: "orchestrator" });
+    log2 = createLogger({ name: "orchestrator" });
   }
 });
 
@@ -19794,12 +20058,12 @@ var onboarding_state_exports = {};
 __export(onboarding_state_exports, {
   OnboardingStateManager: () => OnboardingStateManager
 });
-var import_node_fs3, import_node_path3, import_node_crypto2, STEP_NAMES, PREREQUISITES, OnboardingStateManager;
+var import_node_fs4, import_node_path4, import_node_crypto2, STEP_NAMES, PREREQUISITES, OnboardingStateManager;
 var init_onboarding_state = __esm({
   "onboarder/src/state/onboarding-state.ts"() {
     "use strict";
-    import_node_fs3 = require("node:fs");
-    import_node_path3 = require("node:path");
+    import_node_fs4 = require("node:fs");
+    import_node_path4 = require("node:path");
     import_node_crypto2 = require("node:crypto");
     init_dist();
     STEP_NAMES = [
@@ -19827,15 +20091,15 @@ var init_onboarding_state = __esm({
       stateDir;
       stateFile;
       constructor(baseDir) {
-        this.stateDir = (0, import_node_path3.join)(baseDir, ".ctx-onboarding");
-        this.stateFile = (0, import_node_path3.join)(this.stateDir, "state.json");
+        this.stateDir = onboarderDir(baseDir);
+        this.stateFile = (0, import_node_path4.join)(this.stateDir, "state.json");
       }
       async load() {
-        if (!(0, import_node_fs3.existsSync)(this.stateFile)) {
+        if (!(0, import_node_fs4.existsSync)(this.stateFile)) {
           return null;
         }
         try {
-          const content = (0, import_node_fs3.readFileSync)(this.stateFile, "utf-8");
+          const content = (0, import_node_fs4.readFileSync)(this.stateFile, "utf-8");
           return JSON.parse(content);
         } catch {
           return null;
@@ -19847,14 +20111,14 @@ var init_onboarding_state = __esm({
         await this.writeQueue;
       }
       doSave(state) {
-        (0, import_node_fs3.mkdirSync)(this.stateDir, { recursive: true });
+        (0, import_node_fs4.mkdirSync)(this.stateDir, { recursive: true });
         const tempPath = `${this.stateFile}.tmp.${(0, import_node_crypto2.randomUUID)().slice(0, 8)}`;
         const backupPath = `${this.stateFile}.bak`;
-        (0, import_node_fs3.writeFileSync)(tempPath, JSON.stringify(state, null, 2), { mode: 384 });
-        if ((0, import_node_fs3.existsSync)(this.stateFile)) {
-          (0, import_node_fs3.copyFileSync)(this.stateFile, backupPath);
+        (0, import_node_fs4.writeFileSync)(tempPath, JSON.stringify(state, null, 2), { mode: 384 });
+        if ((0, import_node_fs4.existsSync)(this.stateFile)) {
+          (0, import_node_fs4.copyFileSync)(this.stateFile, backupPath);
         }
-        (0, import_node_fs3.renameSync)(tempPath, this.stateFile);
+        (0, import_node_fs4.renameSync)(tempPath, this.stateFile);
       }
       async initialize(projectName, apiUrl) {
         const state = {
@@ -20000,7 +20264,7 @@ var init_step_0_init = __esm({
 function buildTestPlan(repoPath, projectName) {
   const testCases = [];
   let caseId = 1;
-  const name = projectName ?? (0, import_node_path4.basename)(repoPath);
+  const name = projectName ?? (0, import_node_path5.basename)(repoPath);
   const services = detectServices(repoPath);
   if (services.length > 0) {
     testCases.push({
@@ -20077,12 +20341,12 @@ function detectServices(repoPath) {
   const serviceDirs = ["services", "packages", "apps", "modules", "src/services"];
   const services = [];
   for (const dir of serviceDirs) {
-    const fullPath = (0, import_node_path4.join)(repoPath, dir);
-    if ((0, import_node_fs4.existsSync)(fullPath) && (0, import_node_fs4.statSync)(fullPath).isDirectory()) {
+    const fullPath = (0, import_node_path5.join)(repoPath, dir);
+    if ((0, import_node_fs5.existsSync)(fullPath) && (0, import_node_fs5.statSync)(fullPath).isDirectory()) {
       try {
-        const entries = (0, import_node_fs4.readdirSync)(fullPath);
+        const entries = (0, import_node_fs5.readdirSync)(fullPath);
         for (const entry of entries) {
-          if ((0, import_node_fs4.statSync)((0, import_node_path4.join)(fullPath, entry)).isDirectory() && !entry.startsWith(".")) {
+          if ((0, import_node_fs5.statSync)((0, import_node_path5.join)(fullPath, entry)).isDirectory() && !entry.startsWith(".")) {
             services.push(entry);
           }
         }
@@ -20091,16 +20355,16 @@ function detectServices(repoPath) {
     }
   }
   if (services.length === 0) {
-    services.push((0, import_node_path4.basename)(repoPath));
+    services.push((0, import_node_path5.basename)(repoPath));
   }
   return services.slice(0, 10);
 }
 function detectDependencies(repoPath) {
   const deps = [];
-  const pkgPath = (0, import_node_path4.join)(repoPath, "package.json");
-  if ((0, import_node_fs4.existsSync)(pkgPath)) {
+  const pkgPath = (0, import_node_path5.join)(repoPath, "package.json");
+  if ((0, import_node_fs5.existsSync)(pkgPath)) {
     try {
-      const pkg = JSON.parse((0, import_node_fs4.readFileSync)(pkgPath, "utf-8"));
+      const pkg = JSON.parse((0, import_node_fs5.readFileSync)(pkgPath, "utf-8"));
       if (pkg.dependencies) {
         deps.push(...Object.keys(pkg.dependencies));
       }
@@ -20109,12 +20373,12 @@ function detectDependencies(repoPath) {
   }
   return deps;
 }
-var import_node_fs4, import_node_path4;
+var import_node_fs5, import_node_path5;
 var init_test_builder = __esm({
   "onboarder/src/testing/test-builder.ts"() {
     "use strict";
-    import_node_fs4 = require("node:fs");
-    import_node_path4 = require("node:path");
+    import_node_fs5 = require("node:fs");
+    import_node_path5 = require("node:path");
   }
 });
 
@@ -20131,8 +20395,8 @@ async function executeStep1(options) {
   }
   await stateManager.markStepStarted(state, 1);
   const testPlan = buildTestPlan(options.repoPath, state.projectName);
-  const testPlanPath = options.outputPath ?? (0, import_node_path5.join)(options.baseDir, ".ctx-onboarding", "test-plan.yaml");
-  (0, import_node_fs5.writeFileSync)(testPlanPath, (0, import_yaml4.stringify)(testPlan), "utf-8");
+  const testPlanPath = options.outputPath ?? onboarderTestPlanPath(options.baseDir);
+  (0, import_node_fs6.writeFileSync)(testPlanPath, (0, import_yaml4.stringify)(testPlan), "utf-8");
   state.testPlanPath = testPlanPath;
   await stateManager.markStepCompleted(state, 1, {
     testCaseCount: testPlan.testCases.length,
@@ -20144,13 +20408,13 @@ async function executeStep1(options) {
     testCaseCount: testPlan.testCases.length
   };
 }
-var import_node_fs5, import_node_path5, import_yaml4;
+var import_node_fs6, import_yaml4;
 var init_step_1_testing_lab = __esm({
   "onboarder/src/commands/step-1-testing-lab.ts"() {
     "use strict";
-    import_node_fs5 = require("node:fs");
-    import_node_path5 = require("node:path");
+    import_node_fs6 = require("node:fs");
     import_yaml4 = __toESM(require_dist(), 1);
+    init_dist();
     init_onboarding_state();
     init_test_builder();
   }
@@ -20170,14 +20434,14 @@ async function executeStep2(options) {
   if (options.statusOnly) {
     return checkStatus(options.baseDir, stateManager, state);
   }
-  const manifestPath = options.manifestPath ? (0, import_node_path6.resolve)(options.manifestPath) : state.steps[2]?.output?.manifestPath ?? (0, import_node_path6.resolve)("ctx-loader.yaml");
+  const manifestPath = options.manifestPath ? (0, import_node_path6.resolve)(options.manifestPath) : state.steps[2]?.output?.manifestPath ?? (0, import_node_path6.resolve)("tabnine-ctx-loader.yaml");
   await stateManager.markStepStarted(state, 2);
   let effectiveManifest = manifestPath;
   if (options.dataVolume) {
     effectiveManifest = patchManifestWithVolume(manifestPath, options.dataVolume, options.baseDir);
   }
-  const logFile = (0, import_node_path6.join)(options.baseDir, ".ctx-onboarding", "loader-output.log");
-  const pidFile = (0, import_node_path6.join)(options.baseDir, ".ctx-onboarding", "loader.pid");
+  const logFile = onboarderLoaderOutputPath(options.baseDir);
+  const pidFile = onboarderLoaderPidPath(options.baseDir);
   const loaderPath = findLoader();
   const child = (0, import_node_child_process.spawn)(
     loaderPath,
@@ -20189,25 +20453,25 @@ async function executeStep2(options) {
       env: process.env
     }
   );
-  const log2 = (0, import_node_fs6.createWriteStream)(logFile, { flags: "w" });
-  child.stdout?.on("data", (data) => log2.write(data));
+  const log3 = (0, import_node_fs7.createWriteStream)(logFile, { flags: "w" });
+  child.stdout?.on("data", (data) => log3.write(data));
   child.stderr?.on("data", (data) => {
     process.stderr.write(data);
-    log2.write(data);
+    log3.write(data);
   });
   child.on("close", async (code) => {
-    log2.end();
+    log3.end();
     const mgr = new OnboardingStateManager(options.baseDir);
     const st = await mgr.load();
     if (st) {
       if (code === 0) {
         await mgr.markStepCompleted(st, 2, { manifestPath, loaderExitCode: code });
       } else {
-        const detail = (0, import_node_fs6.existsSync)(logFile) ? (0, import_node_fs6.readFileSync)(logFile, "utf-8").slice(-500) : "unknown";
+        const detail = (0, import_node_fs7.existsSync)(logFile) ? (0, import_node_fs7.readFileSync)(logFile, "utf-8").slice(-500) : "unknown";
         await mgr.markStepFailed(st, 2, {
           code: "ONBOARD_LOAD_001",
           category: "server_error",
-          message: `ctx-loader exited with code ${code}`,
+          message: `tabnine-ctx-loader exited with code ${code}`,
           remediation: `Check ${logFile} for details.`,
           retryable: true,
           cause: detail
@@ -20215,27 +20479,27 @@ async function executeStep2(options) {
       }
     }
     try {
-      (0, import_node_fs6.unlinkSync)(pidFile);
+      (0, import_node_fs7.unlinkSync)(pidFile);
     } catch {
     }
   });
-  (0, import_node_fs6.writeFileSync)(pidFile, String(child.pid), "utf-8");
+  (0, import_node_fs7.writeFileSync)(pidFile, String(child.pid), "utf-8");
   child.unref();
   return { status: "loading", pid: child.pid };
 }
 async function checkStatus(baseDir, stateManager, state) {
-  const pidFile = (0, import_node_path6.join)(baseDir, ".ctx-onboarding", "loader.pid");
-  const logFile = (0, import_node_path6.join)(baseDir, ".ctx-onboarding", "loader-output.log");
+  const pidFile = onboarderLoaderPidPath(baseDir);
+  const logFile = onboarderLoaderOutputPath(baseDir);
   const stepStatus = state.steps[2]?.status;
   if (stepStatus === "completed") {
     return { status: "completed" };
   }
   if (stepStatus === "failed") {
-    const detail = (0, import_node_fs6.existsSync)(logFile) ? (0, import_node_fs6.readFileSync)(logFile, "utf-8").slice(-300) : "";
+    const detail = (0, import_node_fs7.existsSync)(logFile) ? (0, import_node_fs7.readFileSync)(logFile, "utf-8").slice(-300) : "";
     return { status: "failed", loaderOutput: detail };
   }
-  if ((0, import_node_fs6.existsSync)(pidFile)) {
-    const pid = parseInt((0, import_node_fs6.readFileSync)(pidFile, "utf-8").trim(), 10);
+  if ((0, import_node_fs7.existsSync)(pidFile)) {
+    const pid = parseInt((0, import_node_fs7.readFileSync)(pidFile, "utf-8").trim(), 10);
     try {
       process.kill(pid, 0);
       let loaderStatus;
@@ -20260,7 +20524,7 @@ async function checkStatus(baseDir, stateManager, state) {
         if (loaderState.status === "completed") {
           await stateManager.markStepCompleted(state, 2, { loaderExitCode: 0 });
           try {
-            (0, import_node_fs6.unlinkSync)(pidFile);
+            (0, import_node_fs7.unlinkSync)(pidFile);
           } catch {
           }
           return { status: "completed" };
@@ -20274,7 +20538,7 @@ async function checkStatus(baseDir, stateManager, state) {
       if (refreshed?.steps[2]?.status === "completed") {
         return { status: "completed" };
       }
-      const detail = (0, import_node_fs6.existsSync)(logFile) ? (0, import_node_fs6.readFileSync)(logFile, "utf-8").slice(-300) : "Process exited unexpectedly";
+      const detail = (0, import_node_fs7.existsSync)(logFile) ? (0, import_node_fs7.readFileSync)(logFile, "utf-8").slice(-300) : "Process exited unexpectedly";
       return { status: "failed", loaderOutput: detail };
     }
   }
@@ -20282,13 +20546,13 @@ async function checkStatus(baseDir, stateManager, state) {
 }
 function findLoader() {
   try {
-    const r = (0, import_node_child_process.spawnSync)("which", ["ctx-loader"], { encoding: "utf-8" });
+    const r = (0, import_node_child_process.spawnSync)("which", ["tabnine-ctx-loader"], { encoding: "utf-8" });
     if (r.status === 0 && r.stdout.trim()) {
       return r.stdout.trim();
     }
   } catch {
   }
-  return "ctx-loader";
+  return "tabnine-ctx-loader";
 }
 function parseAndSummarize(raw) {
   try {
@@ -20302,7 +20566,7 @@ function parseAndSummarize(raw) {
   }
 }
 function patchManifestWithVolume(originalPath, volume, baseDir) {
-  const raw = (0, import_node_fs6.readFileSync)(originalPath, "utf-8");
+  const raw = (0, import_node_fs7.readFileSync)(originalPath, "utf-8");
   const manifest = (0, import_yaml5.parse)(raw);
   const defaults = manifest.defaults ?? {};
   defaults.sinceDays = volume.sinceDays;
@@ -20321,18 +20585,19 @@ function patchManifestWithVolume(originalPath, volume, baseDir) {
       }
     }
   }
-  const patchedPath = (0, import_node_path6.join)(baseDir, ".ctx-onboarding", "ctx-loader-patched.yaml");
-  (0, import_node_fs6.writeFileSync)(patchedPath, (0, import_yaml5.stringify)(manifest), "utf-8");
+  const patchedPath = onboarderPatchedManifestPath(baseDir);
+  (0, import_node_fs7.writeFileSync)(patchedPath, (0, import_yaml5.stringify)(manifest), "utf-8");
   return patchedPath;
 }
-var import_node_child_process, import_node_fs6, import_node_path6, import_yaml5;
+var import_node_child_process, import_node_fs7, import_node_path6, import_yaml5;
 var init_step_2_load_project = __esm({
   "onboarder/src/commands/step-2-load-project.ts"() {
     "use strict";
     import_node_child_process = require("node:child_process");
-    import_node_fs6 = require("node:fs");
+    import_node_fs7 = require("node:fs");
     import_node_path6 = require("node:path");
     import_yaml5 = __toESM(require_dist(), 1);
+    init_dist();
     init_onboarding_state();
     init_dist2();
   }
@@ -20414,7 +20679,7 @@ var init_scorer = __esm({
         return { relevance, depth, actionability, accuracy };
       }
       extractToolUsage(response) {
-        const mcpCallPattern = /ctx-cli mcp call (\S+)/g;
+        const mcpCallPattern = /tabnine-ctx-cli mcp call (\S+)/g;
         const calls = [];
         let match;
         while ((match = mcpCallPattern.exec(response)) !== null) {
@@ -20601,7 +20866,7 @@ function analyzeRepo(repoPath, options) {
   };
   for (const hsf of HIGH_SIGNAL_FILES) {
     const fullPath = (0, import_node_path7.join)(repoPath, hsf);
-    if ((0, import_node_fs7.existsSync)(fullPath)) {
+    if ((0, import_node_fs8.existsSync)(fullPath)) {
       processHighSignalFile(fullPath, hsf, analysis, repoPath);
       analysis.fileStats.totalScanned++;
     }
@@ -20620,7 +20885,7 @@ function analyzeRepo(repoPath, options) {
 }
 function processHighSignalFile(fullPath, relPath, analysis, _repoPath) {
   try {
-    const content = (0, import_node_fs7.readFileSync)(fullPath, "utf-8");
+    const content = (0, import_node_fs8.readFileSync)(fullPath, "utf-8");
     if (relPath === "package.json") {
       const pkg = JSON.parse(content);
       if (pkg.dependencies) {
@@ -20659,13 +20924,13 @@ function detectServices2(repoPath) {
   const services = [];
   for (const dir of serviceDirs) {
     const fullPath = (0, import_node_path7.join)(repoPath, dir);
-    if (!(0, import_node_fs7.existsSync)(fullPath) || !(0, import_node_fs7.statSync)(fullPath).isDirectory()) {
+    if (!(0, import_node_fs8.existsSync)(fullPath) || !(0, import_node_fs8.statSync)(fullPath).isDirectory()) {
       continue;
     }
     try {
-      for (const entry of (0, import_node_fs7.readdirSync)(fullPath)) {
+      for (const entry of (0, import_node_fs8.readdirSync)(fullPath)) {
         const entryPath = (0, import_node_path7.join)(fullPath, entry);
-        if ((0, import_node_fs7.statSync)(entryPath).isDirectory() && !entry.startsWith(".")) {
+        if ((0, import_node_fs8.statSync)(entryPath).isDirectory() && !entry.startsWith(".")) {
           services.push({ name: entry, path: (0, import_node_path7.relative)(repoPath, entryPath) });
         }
       }
@@ -20681,7 +20946,7 @@ function inferArchitecturePattern(services, repoPath) {
   if (services.length >= 1) {
     return "modular-monolith";
   }
-  if ((0, import_node_fs7.existsSync)((0, import_node_path7.join)(repoPath, "src"))) {
+  if ((0, import_node_fs8.existsSync)((0, import_node_path7.join)(repoPath, "src"))) {
     return "monolith";
   }
   return "unknown";
@@ -20697,7 +20962,7 @@ function collectFiles(dir, excludes, maxDepth, maxFiles, smart) {
     }
     let entries;
     try {
-      entries = (0, import_node_fs7.readdirSync)(currentDir);
+      entries = (0, import_node_fs8.readdirSync)(currentDir);
     } catch {
       return;
     }
@@ -20712,7 +20977,7 @@ function collectFiles(dir, excludes, maxDepth, maxFiles, smart) {
       const fullPath = (0, import_node_path7.join)(currentDir, entry);
       let stat;
       try {
-        stat = (0, import_node_fs7.statSync)(fullPath);
+        stat = (0, import_node_fs8.statSync)(fullPath);
       } catch {
         continue;
       }
@@ -20738,7 +21003,7 @@ function collectFiles(dir, excludes, maxDepth, maxFiles, smart) {
 }
 function extractDomainConcepts(filePath, repoPath, analysis) {
   try {
-    const content = (0, import_node_fs7.readFileSync)(filePath, "utf-8");
+    const content = (0, import_node_fs8.readFileSync)(filePath, "utf-8");
     const rel = (0, import_node_path7.relative)(repoPath, filePath);
     const classPattern = /(?:class|interface|type|struct|enum)\s+(\w+)/g;
     let match;
@@ -20777,11 +21042,11 @@ function dedup(items, key) {
     return true;
   });
 }
-var import_node_fs7, import_node_path7, DEFAULT_EXCLUDES, HIGH_SIGNAL_FILES;
+var import_node_fs8, import_node_path7, DEFAULT_EXCLUDES, HIGH_SIGNAL_FILES;
 var init_repo_analyzer = __esm({
   "onboarder/src/domain/repo-analyzer.ts"() {
     "use strict";
-    import_node_fs7 = require("node:fs");
+    import_node_fs8 = require("node:fs");
     import_node_path7 = require("node:path");
     DEFAULT_EXCLUDES = [
       "node_modules",
@@ -21082,8 +21347,8 @@ async function executeStep5(options) {
   state.executionPath = "B";
   const analysis = analyzeRepo(options.repoPath);
   const domainModel = buildDomainModel(analysis, state.projectName);
-  const domainModelPath = (0, import_node_path8.join)(options.baseDir, ".ctx-onboarding", "domain-model.yaml");
-  (0, import_node_fs8.writeFileSync)(domainModelPath, (0, import_yaml6.stringify)(domainModel), "utf-8");
+  const domainModelPath = onboarderDomainModelPath(options.baseDir);
+  (0, import_node_fs9.writeFileSync)(domainModelPath, (0, import_yaml6.stringify)(domainModel), "utf-8");
   state.domainModelPath = domainModelPath;
   const extensionInstallAvailable = state.capabilities?.extensionInstallAvailable ?? false;
   const client = new CtxApiClient({
@@ -21115,13 +21380,13 @@ async function executeStep5(options) {
     }
   };
 }
-var import_node_fs8, import_node_path8, import_yaml6;
+var import_node_fs9, import_yaml6;
 var init_step_5_domain = __esm({
   "onboarder/src/commands/step-5-domain.ts"() {
     "use strict";
-    import_node_fs8 = require("node:fs");
-    import_node_path8 = require("node:path");
+    import_node_fs9 = require("node:fs");
     import_yaml6 = __toESM(require_dist(), 1);
+    init_dist();
     init_dist2();
     init_onboarding_state();
     init_repo_analyzer();
@@ -21159,7 +21424,7 @@ function generateRolloutPlan(comparison, projectName) {
       teams: ["platform-team", "early-adopters"],
       description: "Deploy Context Engine to a small pilot group for initial validation.",
       duration: "2 weeks",
-      prerequisites: ["CTX instance provisioned", "Data sources connected", "ctx-cli installed"],
+      prerequisites: ["CTX instance provisioned", "Data sources connected", "tabnine-ctx-cli installed"],
       successCriteria: [
         "Pilot users report faster investigation times",
         "No critical issues or data quality problems",
@@ -21173,7 +21438,7 @@ function generateRolloutPlan(comparison, projectName) {
       duration: "2 weeks",
       prerequisites: ["Pilot phase completed", "Feedback addressed"],
       successCriteria: [
-        "Teams actively using ctx-cli in daily workflow",
+        "Teams actively using tabnine-ctx-cli in daily workflow",
         "Measurable reduction in time-to-resolve for incidents",
         "No performance degradation reported"
       ]
@@ -21195,7 +21460,7 @@ function generateRolloutPlan(comparison, projectName) {
     {
       description: "Data staleness if sync schedules are not maintained",
       severity: "medium",
-      mitigation: "Set up automated sync schedules via ctx-loader. Monitor staleness reports."
+      mitigation: "Set up automated sync schedules via tabnine-ctx-loader. Monitor staleness reports."
     },
     {
       description: "Low adoption due to unfamiliar tooling",
@@ -21243,7 +21508,7 @@ var {
 } = import_index.default;
 
 // onboarder/src/cli.ts
-var import_node_path9 = require("node:path");
+var import_node_path8 = require("node:path");
 init_dist2();
 init_dist();
 
@@ -21251,10 +21516,18 @@ init_dist();
 init_dist();
 
 // onboarder/src/cli.ts
+function acquireOnboardLock(forceLock) {
+  const lock = new ProcessLock({
+    lockPath: onboarderLockPath(process.cwd()),
+    cliName: "tabnine-ctx-onboard",
+    force: forceLock
+  });
+  lock.acquire();
+}
 function requireSettings(json) {
   const settings = loadSettings(process.cwd());
   if (!settings) {
-    const msg = "No CTX settings found. Create a ctx-settings.yaml in the project root:\n\n  CTX_API_URL: https://ctx.your-company.com\n  CTX_API_KEY: ctx_your_key_here\n\nOr set CTX_API_URL and CTX_API_KEY environment variables.";
+    const msg = "No CTX settings found. Create .tabnine/ctx/ctx-settings.yaml:\n\n  CTX_API_URL: https://ctx.your-company.com\n  CTX_API_KEY: ctx_your_key_here\n\nOr set CTX_API_URL and CTX_API_KEY environment variables.";
     if (json) {
       console.error(JSON.stringify({ error: msg }));
     } else {
@@ -21265,9 +21538,10 @@ function requireSettings(json) {
   return settings;
 }
 var program2 = new Command();
-program2.name("ctx-onboard").description("Context Engine onboarding \u2014 7-step evaluation methodology").version("0.1.0");
-program2.command("step-0").description("Initialize onboarding: validate CTX connectivity and detect capabilities").option("--project <name>", "Project name").option("--json", "Output as JSON").action(async (opts) => {
+program2.name("tabnine-ctx-onboard").description("Context Engine onboarding \u2014 7-step evaluation methodology").version("0.1.0");
+program2.command("step-0").description("Initialize onboarding: validate CTX connectivity and detect capabilities").option("--project <name>", "Project name").option("--json", "Output as JSON").option("--force-lock", "Override existing lock file").action(async (opts) => {
   try {
+    acquireOnboardLock(opts.forceLock);
     const { executeStep0: executeStep02 } = await Promise.resolve().then(() => (init_step_0_init(), step_0_init_exports));
     const settings = requireSettings(opts.json);
     const source = settingsSource(process.cwd());
@@ -21300,13 +21574,14 @@ program2.command("step-0").description("Initialize onboarding: validate CTX conn
     process.exit(1);
   }
 });
-program2.command("step-1").description("Build testing lab: analyze repo and generate test plan").requiredOption("--repo-path <path>", "Path to repository").option("--output <path>", "Output path for test plan").option("--json", "Output as JSON").action(async (opts) => {
+program2.command("step-1").description("Build testing lab: analyze repo and generate test plan").requiredOption("--repo-path <path>", "Path to repository").option("--output <path>", "Output path for test plan").option("--json", "Output as JSON").option("--force-lock", "Override existing lock file").action(async (opts) => {
   try {
+    acquireOnboardLock(opts.forceLock);
     const { executeStep1: executeStep12 } = await Promise.resolve().then(() => (init_step_1_testing_lab(), step_1_testing_lab_exports));
     const result = await executeStep12({
-      repoPath: (0, import_node_path9.resolve)(opts.repoPath),
+      repoPath: (0, import_node_path8.resolve)(opts.repoPath),
       baseDir: process.cwd(),
-      outputPath: opts.output ? (0, import_node_path9.resolve)(opts.output) : void 0
+      outputPath: opts.output ? (0, import_node_path8.resolve)(opts.output) : void 0
     });
     if (opts.json) {
       console.log(JSON.stringify(result, null, 2));
@@ -21324,12 +21599,13 @@ program2.command("step-1").description("Build testing lab: analyze repo and gene
     process.exit(1);
   }
 });
-program2.command("step-2").description("Load project data (runs ctx-loader in background)").option("--manifest <path>", "Path to ctx-loader manifest (optional on retry)").option("--status", "Check if the background loader is still running").option("--json", "Output as JSON").action(async (opts) => {
+program2.command("step-2").description("Load project data (runs tabnine-ctx-loader in background)").option("--manifest <path>", "Path to tabnine-ctx-loader manifest (optional on retry)").option("--status", "Check if the background loader is still running").option("--json", "Output as JSON").option("--force-lock", "Override existing lock file").action(async (opts) => {
   try {
+    acquireOnboardLock(opts.forceLock);
     const { executeStep2: executeStep22 } = await Promise.resolve().then(() => (init_step_2_load_project(), step_2_load_project_exports));
     const settings = requireSettings(opts.json);
     const result = await executeStep22({
-      manifestPath: opts.manifest ? (0, import_node_path9.resolve)(opts.manifest) : void 0,
+      manifestPath: opts.manifest ? (0, import_node_path8.resolve)(opts.manifest) : void 0,
       baseDir: process.cwd(),
       dataVolume: settings.dataVolume,
       statusOnly: opts.status
@@ -21347,7 +21623,7 @@ program2.command("step-2").description("Load project data (runs ctx-loader in ba
           console.log(`  ${src.workspace}/${src.source}: ${src.status}${agentInfo}`);
         }
       }
-      console.log("Check progress: ctx-onboard step-2 --status --json");
+      console.log("Check progress: tabnine-ctx-onboard step-2 --status --json");
     } else if (result.status === "completed") {
       console.log("Step 2: Load completed.");
     } else {
@@ -21367,8 +21643,9 @@ program2.command("step-2").description("Load project data (runs ctx-loader in ba
     process.exit(1);
   }
 });
-program2.command("step-3").description("Score baseline test responses (no MCP)").option("--responses <path>", "JSON file with question/answer pairs").option("--mark-complete", "Mark step 3 as complete (after agent has driven scoring)").option("--json", "Output as JSON").action(async (opts) => {
+program2.command("step-3").description("Score baseline test responses (no MCP)").option("--responses <path>", "JSON file with question/answer pairs").option("--mark-complete", "Mark step 3 as complete (after agent has driven scoring)").option("--json", "Output as JSON").option("--force-lock", "Override existing lock file").action(async (opts) => {
   try {
+    acquireOnboardLock(opts.forceLock);
     const { OnboardingStateManager: OnboardingStateManager2 } = await Promise.resolve().then(() => (init_onboarding_state(), onboarding_state_exports));
     const mgr = new OnboardingStateManager2(process.cwd());
     const state = await mgr.load();
@@ -21386,10 +21663,10 @@ program2.command("step-3").description("Score baseline test responses (no MCP)")
       return;
     }
     if (opts.responses) {
-      const { readFileSync: readFileSync7 } = await import("node:fs");
+      const { readFileSync: readFileSync8 } = await import("node:fs");
       const { Scorer: Scorer2 } = await Promise.resolve().then(() => (init_scorer(), scorer_exports));
       const { aggregateResults: aggregateResults2 } = await Promise.resolve().then(() => (init_aggregator(), aggregator_exports));
-      const responses = JSON.parse(readFileSync7((0, import_node_path9.resolve)(opts.responses), "utf-8"));
+      const responses = JSON.parse(readFileSync8((0, import_node_path8.resolve)(opts.responses), "utf-8"));
       const scorer = new Scorer2();
       const results = await Promise.all(
         responses.map((r) => scorer.score(
@@ -21410,18 +21687,17 @@ program2.command("step-3").description("Score baseline test responses (no MCP)")
       }
       return;
     }
-    const { readFileSync: readFileSync6, existsSync: existsSync6 } = await import("node:fs");
-    const { join: join9 } = await import("node:path");
-    const planPath = state.testPlanPath ?? join9(process.cwd(), ".ctx-onboarding", "test-plan.yaml");
+    const { readFileSync: readFileSync7, existsSync: existsSync6 } = await import("node:fs");
+    const planPath = state.testPlanPath ?? onboarderTestPlanPath(process.cwd());
     if (!existsSync6(planPath)) {
       throw new Error("No test plan found. Run step-1 first.");
     }
     const { parse: parseYaml5 } = await Promise.resolve().then(() => __toESM(require_dist(), 1));
-    const plan = parseYaml5(readFileSync6(planPath, "utf-8"));
+    const plan = parseYaml5(readFileSync7(planPath, "utf-8"));
     if (opts.json) {
       console.log(JSON.stringify({
         mode: "no-mcp",
-        instructions: "Answer each question WITHOUT using ctx-cli or MCP tools. Save answers as JSON array [{id, category, question, answer}] and re-run with --responses <path>.",
+        instructions: "Answer each question WITHOUT using tabnine-ctx-cli or MCP tools. Save answers as JSON array [{id, category, question, answer}] and re-run with --responses <path>.",
         testCases: plan.testCases
       }, null, 2));
     } else {
@@ -21429,7 +21705,7 @@ program2.command("step-3").description("Score baseline test responses (no MCP)")
       for (const tc of plan.testCases) {
         console.log(`  [${tc.id}] ${tc.question}`);
       }
-      console.log("\nSave answers as JSON and run: ctx-onboard step-3 --responses answers.json --json");
+      console.log("\nSave answers as JSON and run: tabnine-ctx-onboard step-3 --responses answers.json --json");
     }
   } catch (err) {
     if (opts.json) {
@@ -21440,8 +21716,9 @@ program2.command("step-3").description("Score baseline test responses (no MCP)")
     process.exit(1);
   }
 });
-program2.command("step-4").description("Score baseline test responses (with MCP) and compare to step 3").option("--responses <path>", "JSON file with question/answer pairs").option("--mark-complete", "Mark step 4 as complete").option("--json", "Output as JSON").action(async (opts) => {
+program2.command("step-4").description("Score baseline test responses (with MCP) and compare to step 3").option("--responses <path>", "JSON file with question/answer pairs").option("--mark-complete", "Mark step 4 as complete").option("--json", "Output as JSON").option("--force-lock", "Override existing lock file").action(async (opts) => {
   try {
+    acquireOnboardLock(opts.forceLock);
     const { OnboardingStateManager: OnboardingStateManager2 } = await Promise.resolve().then(() => (init_onboarding_state(), onboarding_state_exports));
     const mgr = new OnboardingStateManager2(process.cwd());
     const state = await mgr.load();
@@ -21459,11 +21736,11 @@ program2.command("step-4").description("Score baseline test responses (with MCP)
       return;
     }
     if (opts.responses) {
-      const { readFileSync: readFileSync7 } = await import("node:fs");
+      const { readFileSync: readFileSync8 } = await import("node:fs");
       const { Scorer: Scorer2 } = await Promise.resolve().then(() => (init_scorer(), scorer_exports));
       const { aggregateResults: aggregateResults2 } = await Promise.resolve().then(() => (init_aggregator(), aggregator_exports));
       const { compareBaselines: compareBaselines2 } = await Promise.resolve().then(() => (init_comparator(), comparator_exports));
-      const responses = JSON.parse(readFileSync7((0, import_node_path9.resolve)(opts.responses), "utf-8"));
+      const responses = JSON.parse(readFileSync8((0, import_node_path8.resolve)(opts.responses), "utf-8"));
       const scorer = new Scorer2();
       const results = await Promise.all(
         responses.map((r) => scorer.score(
@@ -21492,18 +21769,17 @@ program2.command("step-4").description("Score baseline test responses (with MCP)
       }
       return;
     }
-    const { readFileSync: readFileSync6, existsSync: existsSync6 } = await import("node:fs");
-    const { join: join9 } = await import("node:path");
-    const planPath = state.testPlanPath ?? join9(process.cwd(), ".ctx-onboarding", "test-plan.yaml");
+    const { readFileSync: readFileSync7, existsSync: existsSync6 } = await import("node:fs");
+    const planPath = state.testPlanPath ?? onboarderTestPlanPath(process.cwd());
     if (!existsSync6(planPath)) {
       throw new Error("No test plan found. Run step-1 first.");
     }
     const { parse: parseYaml5 } = await Promise.resolve().then(() => __toESM(require_dist(), 1));
-    const plan = parseYaml5(readFileSync6(planPath, "utf-8"));
+    const plan = parseYaml5(readFileSync7(planPath, "utf-8"));
     if (opts.json) {
       console.log(JSON.stringify({
         mode: "with-mcp",
-        instructions: "Answer each question USING ctx-cli MCP tools. Save answers as JSON array [{id, category, question, answer}] and re-run with --responses <path>.",
+        instructions: "Answer each question USING tabnine-ctx-cli MCP tools. Save answers as JSON array [{id, category, question, answer}] and re-run with --responses <path>.",
         testCases: plan.testCases
       }, null, 2));
     } else {
@@ -21511,7 +21787,7 @@ program2.command("step-4").description("Score baseline test responses (with MCP)
       for (const tc of plan.testCases) {
         console.log(`  [${tc.id}] ${tc.question}`);
       }
-      console.log("\nSave answers as JSON and run: ctx-onboard step-4 --responses answers.json --json");
+      console.log("\nSave answers as JSON and run: tabnine-ctx-onboard step-4 --responses answers.json --json");
     }
   } catch (err) {
     if (opts.json) {
@@ -21522,12 +21798,13 @@ program2.command("step-4").description("Score baseline test responses (with MCP)
     process.exit(1);
   }
 });
-program2.command("step-5").description("Domain enrichment: analyze repo, build domain model, load into CTX").requiredOption("--repo-path <path>", "Path to repository").option("--dry-run", "Validate domain model without loading into CTX").option("--json", "Output as JSON").action(async (opts) => {
+program2.command("step-5").description("Domain enrichment: analyze repo, build domain model, load into CTX").requiredOption("--repo-path <path>", "Path to repository").option("--dry-run", "Validate domain model without loading into CTX").option("--json", "Output as JSON").option("--force-lock", "Override existing lock file").action(async (opts) => {
   try {
+    acquireOnboardLock(opts.forceLock);
     const { executeStep5: executeStep52 } = await Promise.resolve().then(() => (init_step_5_domain(), step_5_domain_exports));
     const settings = requireSettings(opts.json);
     const result = await executeStep52({
-      repoPath: (0, import_node_path9.resolve)(opts.repoPath),
+      repoPath: (0, import_node_path8.resolve)(opts.repoPath),
       baseDir: process.cwd(),
       ctxApiKey: settings.apiKey,
       dryRun: opts.dryRun
@@ -21563,8 +21840,9 @@ program2.command("step-5").description("Domain enrichment: analyze repo, build d
     process.exit(1);
   }
 });
-program2.command("step-6").description("Score test responses with domain enrichment and compare all baselines").option("--responses <path>", "JSON file with question/answer pairs").option("--mark-complete", "Mark step 6 as complete").option("--json", "Output as JSON").action(async (opts) => {
+program2.command("step-6").description("Score test responses with domain enrichment and compare all baselines").option("--responses <path>", "JSON file with question/answer pairs").option("--mark-complete", "Mark step 6 as complete").option("--json", "Output as JSON").option("--force-lock", "Override existing lock file").action(async (opts) => {
   try {
+    acquireOnboardLock(opts.forceLock);
     const { OnboardingStateManager: OnboardingStateManager2 } = await Promise.resolve().then(() => (init_onboarding_state(), onboarding_state_exports));
     const mgr = new OnboardingStateManager2(process.cwd());
     const state = await mgr.load();
@@ -21582,11 +21860,11 @@ program2.command("step-6").description("Score test responses with domain enrichm
       return;
     }
     if (opts.responses) {
-      const { readFileSync: readFileSync6 } = await import("node:fs");
+      const { readFileSync: readFileSync7 } = await import("node:fs");
       const { Scorer: Scorer2 } = await Promise.resolve().then(() => (init_scorer(), scorer_exports));
       const { aggregateResults: aggregateResults2 } = await Promise.resolve().then(() => (init_aggregator(), aggregator_exports));
       const { compareBaselines: compareBaselines2 } = await Promise.resolve().then(() => (init_comparator(), comparator_exports));
-      const responses = JSON.parse(readFileSync6((0, import_node_path9.resolve)(opts.responses), "utf-8"));
+      const responses = JSON.parse(readFileSync7((0, import_node_path8.resolve)(opts.responses), "utf-8"));
       const scorer = new Scorer2();
       const results = await Promise.all(
         responses.map((r) => scorer.score(
@@ -21615,11 +21893,11 @@ program2.command("step-6").description("Score test responses with domain enrichm
     if (opts.json) {
       console.log(JSON.stringify({
         mode: "with-domain",
-        instructions: "Answer test questions USING ctx-cli MCP tools (with domain enrichment active). Save as JSON and re-run with --responses."
+        instructions: "Answer test questions USING tabnine-ctx-cli MCP tools (with domain enrichment active). Save as JSON and re-run with --responses."
       }, null, 2));
     } else {
       console.log("Step 6: Re-answer test questions with domain enrichment active.");
-      console.log("Use ctx-cli MCP tools and save answers, then: ctx-onboard step-6 --responses answers.json --json");
+      console.log("Use tabnine-ctx-cli MCP tools and save answers, then: tabnine-ctx-onboard step-6 --responses answers.json --json");
     }
   } catch (err) {
     if (opts.json) {
@@ -21630,8 +21908,9 @@ program2.command("step-6").description("Score test responses with domain enrichm
     process.exit(1);
   }
 });
-program2.command("step-7").description("Generate phased rollout plan from measured improvements").option("--json", "Output as JSON").action(async (opts) => {
+program2.command("step-7").description("Generate phased rollout plan from measured improvements").option("--json", "Output as JSON").option("--force-lock", "Override existing lock file").action(async (opts) => {
   try {
+    acquireOnboardLock(opts.forceLock);
     const { executeStep7: executeStep72 } = await Promise.resolve().then(() => (init_step_7_rollout(), step_7_rollout_exports));
     const result = await executeStep72({ baseDir: process.cwd() });
     if (opts.json) {
@@ -21683,9 +21962,8 @@ program2.command("reset").description("Reset onboarding state (start over)").opt
     return;
   }
   const { rmSync } = await import("node:fs");
-  const { join: join9 } = await import("node:path");
   try {
-    rmSync(join9(process.cwd(), ".ctx-onboarding"), { recursive: true, force: true });
+    rmSync(onboarderDir(process.cwd()), { recursive: true, force: true });
     if (opts.json) {
       console.log(JSON.stringify({ status: "reset" }));
     } else {
@@ -21727,5 +22005,5 @@ query.command("entity <id>").description("Get a specific entity by ID").action(a
   const result = await client.getEntity(id);
   console.log(JSON.stringify(result, null, 2));
 });
-installCrashHandlers("ctx-onboard");
+installCrashHandlers("tabnine-ctx-onboard");
 program2.parse();

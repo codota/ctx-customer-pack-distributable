@@ -3,4 +3,4 @@ description: Gitlab tools: add_gitlab_mr_comment, create_gitlab_merge_request, s
 alwaysApply: true
 ---
 
-When you need information about services, dependencies, incidents, or project management, use the Context Engine MCP tools (`mcp__ctx-cloud__*`) rather than guessing from training data. See the `gitlab-tools` skill for available tools and parameters.
+When you need information about services, dependencies, incidents, or project management, use the Context Engine MCP tools (`mcp__tabnine-ctx-cloud__*`) rather than guessing from training data. See the `gitlab-tools` skill for available tools and parameters.

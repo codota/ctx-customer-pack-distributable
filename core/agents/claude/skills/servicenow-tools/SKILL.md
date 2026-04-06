@@ -5,11 +5,11 @@ description: >-
   create_servicenow_incident, list_servicenow_incidents,
   update_servicenow_incident
 allowed-tools: >-
-  mcp__ctx-cloud__add_servicenow_work_note,
-  mcp__ctx-cloud__create_servicenow_change_request,
-  mcp__ctx-cloud__create_servicenow_incident,
-  mcp__ctx-cloud__list_servicenow_incidents,
-  mcp__ctx-cloud__update_servicenow_incident
+  mcp__tabnine-ctx-cloud__add_servicenow_work_note,
+  mcp__tabnine-ctx-cloud__create_servicenow_change_request,
+  mcp__tabnine-ctx-cloud__create_servicenow_incident,
+  mcp__tabnine-ctx-cloud__list_servicenow_incidents,
+  mcp__tabnine-ctx-cloud__update_servicenow_incident
 ---
 # Servicenow Tools
 
@@ -19,7 +19,7 @@ allowed-tools: >-
 
 Add a work note to an existing ServiceNow record (incident, change request, or problem). Requires a connected and enabled ServiceNow data source. Work notes are internal comments visible only to IT staff.
 
-Call `mcp__ctx-cloud__add_servicenow_work_note` with parameters:
+Call `mcp__tabnine-ctx-cloud__add_servicenow_work_note` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -31,7 +31,7 @@ Call `mcp__ctx-cloud__add_servicenow_work_note` with parameters:
 
 Create a new ServiceNow change request. Requires a connected and enabled ServiceNow data source. Returns the created change request number and sys_id.
 
-Call `mcp__ctx-cloud__create_servicenow_change_request` with parameters:
+Call `mcp__tabnine-ctx-cloud__create_servicenow_change_request` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -50,7 +50,7 @@ Call `mcp__ctx-cloud__create_servicenow_change_request` with parameters:
 
 Create a new ServiceNow incident. Requires a connected and enabled ServiceNow data source. Returns the created incident number and sys_id.
 
-Call `mcp__ctx-cloud__create_servicenow_incident` with parameters:
+Call `mcp__tabnine-ctx-cloud__create_servicenow_incident` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -66,7 +66,7 @@ Call `mcp__ctx-cloud__create_servicenow_incident` with parameters:
 
 List or search ServiceNow incidents. Requires a connected and enabled ServiceNow data source. Supports filtering by state, priority, assignment group, and encoded query. Returns up to the specified limit of incidents.
 
-Call `mcp__ctx-cloud__list_servicenow_incidents` with parameters:
+Call `mcp__tabnine-ctx-cloud__list_servicenow_incidents` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -80,7 +80,7 @@ Call `mcp__ctx-cloud__list_servicenow_incidents` with parameters:
 
 Update an existing ServiceNow incident. Requires a connected and enabled ServiceNow data source. IMPORTANT: All fields in the request body are sent to ServiceNow — omitted optional parameters are sent as empty strings, which may clear those fields. Only call this tool with ALL fields you want to preserve on the record.
 
-Call `mcp__ctx-cloud__update_servicenow_incident` with parameters:
+Call `mcp__tabnine-ctx-cloud__update_servicenow_incident` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|

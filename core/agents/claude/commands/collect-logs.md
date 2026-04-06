@@ -7,11 +7,11 @@ Packages all debug logs, pipeline checkpoints, and onboarding state into a singl
 
 ## Usage
 
-Call `mcp__ctx-loader__loader_collect_logs`.
+Call `mcp__tabnine-ctx-loader__loader_collect_logs`.
 
 This collects:
-- MCP tool execution logs from `.ctx-logs/`
-- Loader pipeline checkpoints from `.ctx-loader/runs/`
+- MCP tool execution logs from `.tabnine/ctx/logs/`
+- Loader pipeline checkpoints from `.tabnine/ctx/loader/runs/`
 - Onboarding state and loader output logs
 - Manifest files (with secrets redacted)
 
@@ -19,6 +19,6 @@ The output includes the file path and size. Tell the user to email the bundle to
 
 ## When to use
 
-- After a data loading failure that `ctx-loader diagnose` can't resolve
+- After a data loading failure that `tabnine-ctx-loader diagnose` can't resolve
 - When onboarding steps fail unexpectedly
 - When support asks for debug logs

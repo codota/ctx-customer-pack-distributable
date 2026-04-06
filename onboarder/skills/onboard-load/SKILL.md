@@ -1,7 +1,7 @@
 ---
 name: onboard-load
 description: >
-  Load project data into Context Engine using ctx-loader.
+  Load project data into Context Engine using tabnine-ctx-loader.
 tags: [onboarding, data-loading]
 ---
 
@@ -12,25 +12,25 @@ Loads your project data into the Context Engine.
 ## Prerequisite
 
 **Before running step-2**, ensure:
-1. `ctx-settings.yaml` exists with `CTX_API_URL`, `CTX_API_KEY`, `GH_PAT`, `GITHUB_ORG`, and `GITHUB_REPO`. If not, run `/onboard` to create it.
-2. `ctx-loader.yaml` manifest exists. If not, generate it:
+1. `.tabnine/ctx/ctx-settings.yaml` exists with `CTX_API_URL`, `CTX_API_KEY`, `GH_PAT`, `GITHUB_ORG`, and `GITHUB_REPO`. If not, run `/onboard` to create it.
+2. `tabnine-ctx-loader.yaml` manifest exists. If not, generate it:
    ```bash
-   ctx-loader init --template minimal --output ctx-loader.yaml
+   tabnine-ctx-loader init --template minimal --output tabnine-ctx-loader.yaml
    ```
-   With `ctx-settings.yaml` in place, the manifest variables resolve automatically.
+   With `.tabnine/ctx/ctx-settings.yaml` in place, the manifest variables resolve automatically.
 
 ## Usage
 
 ```bash
-ctx-onboard step-2 --manifest ctx-loader.yaml --json
+tabnine-ctx-onboard step-2 --manifest tabnine-ctx-loader.yaml --json
 ```
 
-Wraps ctx-loader as a subprocess. Credentials loaded from `ctx-settings.yaml` or environment.
+Wraps tabnine-ctx-loader as a subprocess. Credentials loaded from `.tabnine/ctx/ctx-settings.yaml` or environment.
 
 ## Diagnosing failures
 
 If agents fail during loading, use:
 ```bash
-ctx-loader diagnose --json
+tabnine-ctx-loader diagnose --json
 ```
 This shows structured failure details with error codes and remediation steps.

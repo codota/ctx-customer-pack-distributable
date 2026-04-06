@@ -4,9 +4,11 @@ description: >-
   Opsgenie tools: acknowledge_opsgenie_alert, add_opsgenie_note,
   close_opsgenie_alert, escalate_opsgenie_alert, get_opsgenie_alert
 allowed-tools: >-
-  mcp__ctx-cloud__acknowledge_opsgenie_alert, mcp__ctx-cloud__add_opsgenie_note,
-  mcp__ctx-cloud__close_opsgenie_alert, mcp__ctx-cloud__escalate_opsgenie_alert,
-  mcp__ctx-cloud__get_opsgenie_alert
+  mcp__tabnine-ctx-cloud__acknowledge_opsgenie_alert,
+  mcp__tabnine-ctx-cloud__add_opsgenie_note,
+  mcp__tabnine-ctx-cloud__close_opsgenie_alert,
+  mcp__tabnine-ctx-cloud__escalate_opsgenie_alert,
+  mcp__tabnine-ctx-cloud__get_opsgenie_alert
 ---
 # Opsgenie Tools
 
@@ -16,7 +18,7 @@ allowed-tools: >-
 
 Acknowledge an Opsgenie alert to stop further escalations. Requires a connected and enabled Opsgenie data source.
 
-Call `mcp__ctx-cloud__acknowledge_opsgenie_alert` with parameters:
+Call `mcp__tabnine-ctx-cloud__acknowledge_opsgenie_alert` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -28,7 +30,7 @@ Call `mcp__ctx-cloud__acknowledge_opsgenie_alert` with parameters:
 
 Add a note to an existing Opsgenie alert for additional context. Requires a connected and enabled Opsgenie data source. Notes are visible on the alert timeline.
 
-Call `mcp__ctx-cloud__add_opsgenie_note` with parameters:
+Call `mcp__tabnine-ctx-cloud__add_opsgenie_note` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -40,7 +42,7 @@ Call `mcp__ctx-cloud__add_opsgenie_note` with parameters:
 
 Close an Opsgenie alert, marking it as resolved. Requires a connected and enabled Opsgenie data source.
 
-Call `mcp__ctx-cloud__close_opsgenie_alert` with parameters:
+Call `mcp__tabnine-ctx-cloud__close_opsgenie_alert` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -52,7 +54,7 @@ Call `mcp__ctx-cloud__close_opsgenie_alert` with parameters:
 
 Escalate an Opsgenie alert to the next escalation level. Requires a connected and enabled Opsgenie data source.
 
-Call `mcp__ctx-cloud__escalate_opsgenie_alert` with parameters:
+Call `mcp__tabnine-ctx-cloud__escalate_opsgenie_alert` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -65,7 +67,7 @@ Call `mcp__ctx-cloud__escalate_opsgenie_alert` with parameters:
 
 Retrieve details of an Opsgenie alert. Use this to get alert context before taking actions like acknowledging or closing. Requires a connected and enabled Opsgenie data source.
 
-Call `mcp__ctx-cloud__get_opsgenie_alert` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_opsgenie_alert` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|

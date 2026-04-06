@@ -8,7 +8,7 @@ Development tools: create_feature_pr, get_feature, merge_feature_pr, start_new_f
 
 Update a Feature entity with Pull Request information. Call this after creating a PR via gh CLI.
 
-Call `mcp__ctx-cloud__create_feature_pr` with parameters:
+Call `mcp__tabnine-ctx-cloud__create_feature_pr` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -23,7 +23,7 @@ Call `mcp__ctx-cloud__create_feature_pr` with parameters:
 
 Retrieve information about a Feature entity by name.
 
-Call `mcp__ctx-cloud__get_feature` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_feature` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -33,7 +33,7 @@ Call `mcp__ctx-cloud__get_feature` with parameters:
 
 Mark a Feature as merged. Call this after successfully merging the PR.
 
-Call `mcp__ctx-cloud__merge_feature_pr` with parameters:
+Call `mcp__tabnine-ctx-cloud__merge_feature_pr` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -44,7 +44,7 @@ Call `mcp__ctx-cloud__merge_feature_pr` with parameters:
 
 Register a new development feature in the Context Engine. Creates a Feature entity to track the feature lifecycle including branch, worktree, decisions, and PR info. Call this after creating the git worktree and feature branch.
 
-Call `mcp__ctx-cloud__start_new_feature` with parameters:
+Call `mcp__tabnine-ctx-cloud__start_new_feature` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -58,7 +58,7 @@ Call `mcp__ctx-cloud__start_new_feature` with parameters:
 
 Add a design decision to an existing Feature entity. Use this to record architectural choices, implementation decisions, and their rationale.
 
-Call `mcp__ctx-cloud__update_feature_decisions` with parameters:
+Call `mcp__tabnine-ctx-cloud__update_feature_decisions` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|

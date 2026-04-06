@@ -27,7 +27,7 @@ mcp-tools:
 
 Find symbols that reference a given symbol. Useful for finding all usages of a class, function, method, or variable across the codebase using semantic analysis. Requires a connected git repository data source.
 
-Call `mcp__ctx-cloud__semantic_find_referencing_symbols` with parameters:
+Call `mcp__tabnine-ctx-cloud__semantic_find_referencing_symbols` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -40,7 +40,7 @@ Call `mcp__ctx-cloud__semantic_find_referencing_symbols` with parameters:
 
 Global symbol search with filtering by kind, depth, and substring matching. Find classes, functions, methods, variables, and other symbols in a codebase using semantic analysis. Requires a connected git repository data source.
 
-Call `mcp__ctx-cloud__semantic_find_symbol` with parameters:
+Call `mcp__tabnine-ctx-cloud__semantic_find_symbol` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -55,7 +55,7 @@ Call `mcp__ctx-cloud__semantic_find_symbol` with parameters:
 
 Get a high-level understanding of code symbols in a file. Returns an overview of classes, functions, methods, and other symbols defined in the file. Requires a connected git repository data source.
 
-Call `mcp__ctx-cloud__semantic_get_symbols_overview` with parameters:
+Call `mcp__tabnine-ctx-cloud__semantic_get_symbols_overview` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -66,7 +66,7 @@ Call `mcp__ctx-cloud__semantic_get_symbols_overview` with parameters:
 
 Insert content after a symbol definition. Uses semantic analysis to find the exact end of a symbol and insert new code. Useful for adding new methods to a class or functions after existing ones. Requires a connected git repository.
 
-Call `mcp__ctx-cloud__semantic_insert_after_symbol` with parameters:
+Call `mcp__tabnine-ctx-cloud__semantic_insert_after_symbol` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -79,7 +79,7 @@ Call `mcp__ctx-cloud__semantic_insert_after_symbol` with parameters:
 
 List directory contents in a connected git repository. Use this to explore the file structure of git-connected data sources. Requires a connected git repository data source.
 
-Call `mcp__ctx-cloud__semantic_list_dir` with parameters:
+Call `mcp__tabnine-ctx-cloud__semantic_list_dir` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -92,7 +92,7 @@ Call `mcp__ctx-cloud__semantic_list_dir` with parameters:
 
 Read file contents from a connected git repository with optional line range. Use this to view source code from git-connected data sources. Requires a connected git repository data source.
 
-Call `mcp__ctx-cloud__semantic_read_file` with parameters:
+Call `mcp__tabnine-ctx-cloud__semantic_read_file` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -105,7 +105,7 @@ Call `mcp__ctx-cloud__semantic_read_file` with parameters:
 
 Replace the full definition/body of a symbol (class, function, method). Uses semantic analysis to find the exact symbol boundaries and replace the entire implementation. Requires a connected git repository data source.
 
-Call `mcp__ctx-cloud__semantic_replace_symbol_body` with parameters:
+Call `mcp__tabnine-ctx-cloud__semantic_replace_symbol_body` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -118,7 +118,7 @@ Call `mcp__ctx-cloud__semantic_replace_symbol_body` with parameters:
 
 Search files for regex patterns within a connected git repository. Use this to find specific code patterns, TODO comments, or text across the codebase. Requires a connected git repository data source.
 
-Call `mcp__ctx-cloud__semantic_search_for_pattern` with parameters:
+Call `mcp__tabnine-ctx-cloud__semantic_search_for_pattern` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|

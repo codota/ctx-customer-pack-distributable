@@ -10,7 +10,7 @@ Find equivalent fields across repositories for a given field name. Given a field
 PREFER: Use 'code_migration' for complete migration guidance including field mappings, migration examples, and ADR context in one call.
 USE THIS WHEN: You need just the field equivalents without the full migration context, or when exploring semantic patterns across repos.
 
-Call `mcp__ctx-cloud__find_equivalent_fields` with parameters:
+Call `mcp__tabnine-ctx-cloud__find_equivalent_fields` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -22,7 +22,7 @@ Call `mcp__ctx-cloud__find_equivalent_fields` with parameters:
 
 Get all implementations of a semantic concept across repositories. Shows how the same abstract concept is implemented with different field names, types, and interfaces in different codebases. Use this for migration guidance or to understand cross-repo field equivalents.
 
-Call `mcp__ctx-cloud__get_concept_implementations` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_concept_implementations` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -35,7 +35,7 @@ Call `mcp__ctx-cloud__get_concept_implementations` with parameters:
 
 Get all semantic concepts within a domain. Shows concepts with their descriptions, implementation counts, and the various names used across different repositories. Use this to understand what abstractions exist within a domain like "rate-limiting" or "authentication".
 
-Call `mcp__ctx-cloud__get_domain_concepts` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_domain_concepts` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -46,7 +46,7 @@ Call `mcp__ctx-cloud__get_domain_concepts` with parameters:
 
 List all semantic domains discovered across repositories. Domains are high-level categories of related functionality (e.g., "rate-limiting", "authentication", "caching"). Use this to understand what cross-cutting concepts exist in your codebase.
 
-Call `mcp__ctx-cloud__list_semantic_domains` with parameters:
+Call `mcp__tabnine-ctx-cloud__list_semantic_domains` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -58,7 +58,7 @@ Call `mcp__ctx-cloud__list_semantic_domains` with parameters:
 
 Search for semantic concepts across all domains by keyword. Finds concepts by name, description, or alternate names used in different repos. Use this to find cross-repo equivalents for a field or configuration option.
 
-Call `mcp__ctx-cloud__search_concepts` with parameters:
+Call `mcp__tabnine-ctx-cloud__search_concepts` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|

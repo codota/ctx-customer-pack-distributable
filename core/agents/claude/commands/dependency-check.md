@@ -7,7 +7,7 @@ Check the health of a service's dependencies, surface known vulnerabilities, and
 ## Usage
 
 **Check dependencies for a service**
-Call `mcp__ctx-cloud__dependency_check` with service_name=payments-api.
+Call `mcp__tabnine-ctx-cloud__dependency_check` with service_name=payments-api.
 
 The response includes:
 - **Dependency health** — status of each upstream dependency.
@@ -18,11 +18,11 @@ The response includes:
 ## Examples
 
 **Check dependencies for user-service**
-Call `mcp__ctx-cloud__dependency_check` with service_name=user-service.
+Call `mcp__tabnine-ctx-cloud__dependency_check` with service_name=user-service.
 **Check dependencies for order-service**
-Call `mcp__ctx-cloud__dependency_check` with service_name=order-service.
+Call `mcp__tabnine-ctx-cloud__dependency_check` with service_name=order-service.
 **Check dependencies for legacy-gateway**
-Call `mcp__ctx-cloud__dependency_check` with service_name=legacy-gateway.
+Call `mcp__tabnine-ctx-cloud__dependency_check` with service_name=legacy-gateway.
 
 ## When to Use
 

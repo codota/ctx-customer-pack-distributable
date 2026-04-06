@@ -1,7 +1,7 @@
 ---
 name: understand-flow
 description: 'Understand a business flow end-to-end — services involved, ADRs, incidents.'
-allowed-tools: mcp__ctx-cloud__understand_flow
+allowed-tools: mcp__tabnine-ctx-cloud__understand_flow
 ---
 # Understand Flow
 
@@ -10,7 +10,7 @@ Trace a business flow end-to-end through the service graph. See every service in
 ## Usage
 
 **Understand a business flow**
-Call `mcp__ctx-cloud__understand_flow` with flow_name=checkout.
+Call `mcp__tabnine-ctx-cloud__understand_flow` with flow_name=checkout.
 
 The response includes:
 - **Services** — ordered list of services the flow traverses.
@@ -21,11 +21,11 @@ The response includes:
 ## Examples
 
 **Trace the full checkout flow**
-Call `mcp__ctx-cloud__understand_flow` with flow_name=checkout.
+Call `mcp__tabnine-ctx-cloud__understand_flow` with flow_name=checkout.
 **Understand the payment processing flow**
-Call `mcp__ctx-cloud__understand_flow` with flow_name=payment-processing.
+Call `mcp__tabnine-ctx-cloud__understand_flow` with flow_name=payment-processing.
 **Understand the user registration flow**
-Call `mcp__ctx-cloud__understand_flow` with flow_name=user-registration.
+Call `mcp__tabnine-ctx-cloud__understand_flow` with flow_name=user-registration.
 
 ## When to Use
 

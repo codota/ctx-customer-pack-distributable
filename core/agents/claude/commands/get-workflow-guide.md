@@ -8,7 +8,7 @@ Get workflow guides for using Context Engine tools effectively. Call this at the
 
 Get workflow guides for using Context Engine tools effectively. Call this at the start of a session to understand which tools to use for common workflows like investigating services, responding to incidents, assessing blast radius, managing dependencies, and exploring architecture. Returns a comprehensive guide covering all major workflows with step-by-step instructions.
 
-Call `mcp__ctx-cloud__get_workflow_guide` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_workflow_guide` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|

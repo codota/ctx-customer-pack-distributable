@@ -17,7 +17,7 @@ mcp-tools:
 
 Post a message to a Slack channel. Requires a connected and enabled Slack data source. Uses the Slack chat.postMessage API. Supports threading via thread_ts parameter.
 
-Call `mcp__ctx-cloud__post_slack_message` with parameters:
+Call `mcp__tabnine-ctx-cloud__post_slack_message` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -29,7 +29,7 @@ Call `mcp__ctx-cloud__post_slack_message` with parameters:
 
 Update an existing Slack message. Requires a connected and enabled Slack data source. Uses the Slack chat.update API.
 
-Call `mcp__ctx-cloud__update_slack_message` with parameters:
+Call `mcp__tabnine-ctx-cloud__update_slack_message` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|

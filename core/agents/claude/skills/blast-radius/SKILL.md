@@ -3,7 +3,7 @@ name: blast-radius
 description: >-
   Assess the blast radius of a change — what services, flows, and teams are
   affected.
-allowed-tools: mcp__ctx-cloud__blast_radius
+allowed-tools: mcp__tabnine-ctx-cloud__blast_radius
 ---
 # Blast Radius
 
@@ -12,7 +12,7 @@ Assess the impact of a change before deploying. Returns the set of services, bus
 ## Usage
 
 **Check blast radius for a service change**
-Call `mcp__ctx-cloud__blast_radius` with service_name=payments-api.
+Call `mcp__tabnine-ctx-cloud__blast_radius` with service_name=payments-api.
 
 The response includes:
 - **Affected services** — direct and transitive dependents.
@@ -23,11 +23,11 @@ The response includes:
 ## Examples
 
 **Assess blast radius before a database migration**
-Call `mcp__ctx-cloud__blast_radius` with service_name=inventory-db.
+Call `mcp__tabnine-ctx-cloud__blast_radius` with service_name=inventory-db.
 **Check blast radius for the auth service**
-Call `mcp__ctx-cloud__blast_radius` with service_name=auth-service.
+Call `mcp__tabnine-ctx-cloud__blast_radius` with service_name=auth-service.
 **Check blast radius for the order service**
-Call `mcp__ctx-cloud__blast_radius` with service_name=order-service.
+Call `mcp__tabnine-ctx-cloud__blast_radius` with service_name=order-service.
 
 ## When to Use
 

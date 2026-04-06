@@ -9,21 +9,21 @@ Review pull requests with full architectural context from the Context Engine. Su
 Get a risk score for changed files. Higher confidence means lower risk.
 
 **Check confidence for a specific file**
-Call `mcp__ctx-cloud__get_change_confidence` with file_path=src/payments/processor.ts.
+Call `mcp__tabnine-ctx-cloud__get_change_confidence` with file_path=src/payments/processor.ts.
 **Check confidence for another changed file**
-Call `mcp__ctx-cloud__get_change_confidence` with file_path=src/checkout/cart.ts.
+Call `mcp__tabnine-ctx-cloud__get_change_confidence` with file_path=src/checkout/cart.ts.
 
 ## Get File Context
 
 Retrieve architectural context for a file: which service it belongs to, relevant ADRs, and whether it is a hotspot.
 
-Call `mcp__ctx-cloud__get_file_context` with file_path=src/payments/processor.ts.
+Call `mcp__tabnine-ctx-cloud__get_file_context` with file_path=src/payments/processor.ts.
 
 ## Check Blast Radius
 
 If the PR modifies a service, check what downstream services and flows are affected.
 
-Call `mcp__ctx-cloud__blast_radius` with service_name=payments-api.
+Call `mcp__tabnine-ctx-cloud__blast_radius` with service_name=payments-api.
 
 ## Recommended Review Workflow
 

@@ -3,4 +3,4 @@ description: Check dependency health, find vulnerabilities, plan migrations.
 alwaysApply: true
 ---
 
-When you need information about services, dependencies, incidents, or project management, use the Context Engine MCP tools (`mcp__ctx-cloud__*`) rather than guessing from training data. See the `dependency-check` skill for available tools and parameters.
+When you need information about services, dependencies, incidents, or project management, use the Context Engine MCP tools (`mcp__tabnine-ctx-cloud__*`) rather than guessing from training data. See the `dependency-check` skill for available tools and parameters.

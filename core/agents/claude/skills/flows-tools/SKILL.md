@@ -2,8 +2,8 @@
 name: flows-tools
 description: 'Flows tools: get_flow_services, get_flow, get_service_flows, list_flows'
 allowed-tools: >-
-  mcp__ctx-cloud__get_flow_services, mcp__ctx-cloud__get_flow,
-  mcp__ctx-cloud__get_service_flows, mcp__ctx-cloud__list_flows
+  mcp__tabnine-ctx-cloud__get_flow_services, mcp__tabnine-ctx-cloud__get_flow,
+  mcp__tabnine-ctx-cloud__get_service_flows, mcp__tabnine-ctx-cloud__list_flows
 ---
 # Flows Tools
 
@@ -15,7 +15,7 @@ Get all services involved in a flow with their roles and order. Shows the orches
 PREFER: Use 'understand_flow' for complete flow analysis including ownership, runbooks, past incidents, and architectural decisions in one call.
 USE THIS WHEN: You need just the service participation list without the full operational context, or when comparing services across multiple flows.
 
-Call `mcp__ctx-cloud__get_flow_services` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_flow_services` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -27,7 +27,7 @@ Get detailed information about a specific flow including all steps, services inv
 PREFER: Use 'understand_flow' for complete flow analysis including ownership, runbooks, past incidents, and architectural decisions in one call.
 USE THIS WHEN: You need just the flow definition and steps without the full operational context, or when listing multiple flows.
 
-Call `mcp__ctx-cloud__get_flow` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_flow` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -39,7 +39,7 @@ Get all flows that involve a specific service. Shows which business processes th
 PREFER: Use 'investigate_service' for comprehensive service analysis including flows, dependencies, documentation, and ownership in one call. Use 'blast_radius' when assessing impact of changes to this service.
 USE THIS WHEN: You need just the flow participation list without the full service context, or when mapping flows for multiple services.
 
-Call `mcp__ctx-cloud__get_service_flows` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_service_flows` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -50,7 +50,7 @@ Call `mcp__ctx-cloud__get_service_flows` with parameters:
 
 List all business flows discovered in the codebase. Includes both CriticalFlow (discovered from code, spanning 3+ services) and Flow (documented in markdown) entities. Use this to understand the major business processes in your system.
 
-Call `mcp__ctx-cloud__list_flows` with parameters:
+Call `mcp__tabnine-ctx-cloud__list_flows` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|

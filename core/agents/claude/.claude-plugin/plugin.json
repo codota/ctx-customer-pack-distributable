@@ -28,10 +28,10 @@
     ]
   },
   "mcpServers": {
-    "ctx-cloud": {
+    "tabnine-ctx-cloud": {
       "command": "python3",
       "args": [
-        "${CLAUDE_PLUGIN_ROOT}/scripts/ctx-mcp-proxy.py"
+        "${CLAUDE_PLUGIN_ROOT}/scripts/tabnine-ctx-mcp-proxy.py"
       ]
     }
   }

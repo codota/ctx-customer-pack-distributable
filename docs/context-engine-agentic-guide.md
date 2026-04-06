@@ -99,13 +99,13 @@ Run these commands to confirm everything is working:
 
 ```bash
 # List all available MCP tools
-ctx-cli mcp list
+tabnine-ctx-cli mcp list
 
 # Test connectivity with a simple search
-ctx-cli mcp call search_knowledge -p query="hello" -o json
+tabnine-ctx-cli mcp call search_knowledge -p query="hello" -o json
 
 # Inspect a specific tool
-ctx-cli mcp describe investigate_service
+tabnine-ctx-cli mcp describe investigate_service
 ```
 
 If `search_knowledge` returns results, your connection is working. If it returns an empty result set, data may not have been loaded yet -- see [Data Loading](#data-loading).
@@ -166,7 +166,7 @@ Common edge types you will encounter when traversing the graph:
 All Context Engine tools are invoked through the MCP (Model Context Protocol) interface. The general pattern is:
 
 ```bash
-ctx-cli mcp call <tool_name> -p <param>=<value> -o json
+tabnine-ctx-cli mcp call <tool_name> -p <param>=<value> -o json
 ```
 
 Your AI agent calls these tools automatically when you ask questions. You can also invoke them directly from the command line for testing or scripting.
@@ -205,7 +205,7 @@ These guides are organized by task. Each shows which tools to use, in what order
 Use `investigate_service` as your starting point whenever you need to understand a service.
 
 ```bash
-ctx-cli mcp call investigate_service -p serviceName=payments-api -o json
+tabnine-ctx-cli mcp call investigate_service -p serviceName=payments-api -o json
 ```
 
 This returns:
@@ -222,19 +222,19 @@ For targeted queries, use the granular tools:
 
 ```bash
 # Quick service overview without full documentation
-ctx-cli mcp call get_service_context -p serviceName=payments-api -o json
+tabnine-ctx-cli mcp call get_service_context -p serviceName=payments-api -o json
 
 # Just the dependencies (what it calls)
-ctx-cli mcp call get_service_dependencies -p serviceName=payments-api -o json
+tabnine-ctx-cli mcp call get_service_dependencies -p serviceName=payments-api -o json
 
 # Just the dependents (what calls it)
-ctx-cli mcp call get_service_dependents -p serviceName=payments-api -o json
+tabnine-ctx-cli mcp call get_service_dependents -p serviceName=payments-api -o json
 
 # Browse all services
-ctx-cli mcp call list_services -o json
+tabnine-ctx-cli mcp call list_services -o json
 
 # Filter by team or tier
-ctx-cli mcp call list_services -p team=Commerce -p tier=critical -o json
+tabnine-ctx-cli mcp call list_services -p team=Commerce -p tier=critical -o json
 ```
 
 ### Reviewing Pull Requests
@@ -244,7 +244,7 @@ Follow this five-step workflow for context-rich PR reviews:
 **Step 1: Check change confidence for each changed file.**
 
 ```bash
-ctx-cli mcp call get_change_confidence -p files='["src/payments/processor.ts", "src/checkout/cart.ts"]' -o json
+tabnine-ctx-cli mcp call get_change_confidence -p files='["src/payments/processor.ts", "src/checkout/cart.ts"]' -o json
 ```
 
 The confidence score tells you where to focus:
@@ -259,7 +259,7 @@ The confidence score tells you where to focus:
 **Step 2: Get architectural context for high-risk files.**
 
 ```bash
-ctx-cli mcp call get_file_context -p filepath=src/payments/processor.ts -o json
+tabnine-ctx-cli mcp call get_file_context -p filepath=src/payments/processor.ts -o json
 ```
 
 Returns the service the file belongs to, relevant ADRs, past incidents, security patterns, code experts, and blast radius.
@@ -267,19 +267,19 @@ Returns the service the file belongs to, relevant ADRs, past incidents, security
 **Step 3: Check blast radius for affected services.**
 
 ```bash
-ctx-cli mcp call blast_radius -p target=payments-api -o json
+tabnine-ctx-cli mcp call blast_radius -p target=payments-api -o json
 ```
 
 **Step 4: Find suggested reviewers.**
 
 ```bash
-ctx-cli mcp call get_code_reviewers -p path=src/payments/processor.ts -o json
+tabnine-ctx-cli mcp call get_code_reviewers -p path=src/payments/processor.ts -o json
 ```
 
 **Step 5: Get detailed risk factors for specific files.**
 
 ```bash
-ctx-cli mcp call get_file_risk_factors -p filepath=src/payments/processor.ts -o json
+tabnine-ctx-cli mcp call get_file_risk_factors -p filepath=src/payments/processor.ts -o json
 ```
 
 Returns churn metrics, bug-fix ratio, author analysis, and coupling data.
@@ -289,7 +289,7 @@ Returns churn metrics, bug-fix ratio, author analysis, and coupling data.
 Before deploying changes to shared or core services, check the blast radius:
 
 ```bash
-ctx-cli mcp call blast_radius -p target=payments-api -o json
+tabnine-ctx-cli mcp call blast_radius -p target=payments-api -o json
 ```
 
 The response includes:
@@ -303,20 +303,20 @@ Use the `changeType` parameter for more specific risk assessment:
 
 ```bash
 # Assess impact of a breaking change
-ctx-cli mcp call blast_radius -p target=auth-service -p changeType=breaking -o json
+tabnine-ctx-cli mcp call blast_radius -p target=auth-service -p changeType=breaking -o json
 
 # Assess impact of a deprecation
-ctx-cli mcp call blast_radius -p target=legacy-gateway -p changeType=deprecation -o json
+tabnine-ctx-cli mcp call blast_radius -p target=legacy-gateway -p changeType=deprecation -o json
 ```
 
 Extract specific sections with jq:
 
 ```bash
 # Just the affected teams
-ctx-cli mcp call blast_radius -p target=auth-service -o json | jq '.affected_teams'
+tabnine-ctx-cli mcp call blast_radius -p target=auth-service -o json | jq '.affected_teams'
 
 # Count affected flows
-ctx-cli mcp call blast_radius -p target=order-service -o json | jq '.affected_flows | length'
+tabnine-ctx-cli mcp call blast_radius -p target=order-service -o json | jq '.affected_flows | length'
 ```
 
 ### Incident Response
@@ -324,7 +324,7 @@ ctx-cli mcp call blast_radius -p target=order-service -o json | jq '.affected_fl
 During an active incident, start with `incident_response`:
 
 ```bash
-ctx-cli mcp call incident_response -p service=checkout-service -o json
+tabnine-ctx-cli mcp call incident_response -p service=checkout-service -o json
 ```
 
 This returns everything you need:
@@ -337,7 +337,7 @@ This returns everything you need:
 Include a symptom for better incident matching:
 
 ```bash
-ctx-cli mcp call incident_response -p service=payments-api -p symptom="5xx errors" -o json
+tabnine-ctx-cli mcp call incident_response -p service=payments-api -p symptom="5xx errors" -o json
 ```
 
 **Follow-up actions during the incident:**
@@ -345,35 +345,35 @@ ctx-cli mcp call incident_response -p service=payments-api -p symptom="5xx error
 Search for similar past incidents:
 
 ```bash
-ctx-cli mcp call search_incidents -p query="timeout" -p service=checkout -o json
+tabnine-ctx-cli mcp call search_incidents -p query="timeout" -p service=checkout -o json
 ```
 
 Acknowledge and add notes to PagerDuty:
 
 ```bash
-ctx-cli mcp call acknowledge_pagerduty_incident -p incidentId=P1234567 -p requesterEmail=you@company.com -o json
+tabnine-ctx-cli mcp call acknowledge_pagerduty_incident -p incidentId=P1234567 -p requesterEmail=you@company.com -o json
 
-ctx-cli mcp call add_pagerduty_note -p incidentId=P1234567 -p content="Investigating database connection pool exhaustion" -p requesterEmail=you@company.com -o json
+tabnine-ctx-cli mcp call add_pagerduty_note -p incidentId=P1234567 -p content="Investigating database connection pool exhaustion" -p requesterEmail=you@company.com -o json
 ```
 
 Or manage Opsgenie alerts:
 
 ```bash
-ctx-cli mcp call acknowledge_opsgenie_alert -p alertId=abc-123 -o json
+tabnine-ctx-cli mcp call acknowledge_opsgenie_alert -p alertId=abc-123 -o json
 
-ctx-cli mcp call add_opsgenie_note -p alertId=abc-123 -p note="Root cause identified: connection pool misconfiguration" -o json
+tabnine-ctx-cli mcp call add_opsgenie_note -p alertId=abc-123 -p note="Root cause identified: connection pool misconfiguration" -o json
 ```
 
 Create follow-up tickets:
 
 ```bash
-ctx-cli mcp call create_jira_issue -p project_key=PAY -p summary="Fix connection pool exhaustion under load" -p description="Root cause from INC-456" -p issue_type=Bug -o json
+tabnine-ctx-cli mcp call create_jira_issue -p project_key=PAY -p summary="Fix connection pool exhaustion under load" -p description="Root cause from INC-456" -p issue_type=Bug -o json
 ```
 
 Resolve the incident:
 
 ```bash
-ctx-cli mcp call resolve_pagerduty_incident -p incidentId=P1234567 -p requesterEmail=you@company.com -p resolution="Connection pool max size increased from 10 to 50" -o json
+tabnine-ctx-cli mcp call resolve_pagerduty_incident -p incidentId=P1234567 -p requesterEmail=you@company.com -p resolution="Connection pool max size increased from 10 to 50" -o json
 ```
 
 ### Understanding Business Flows
@@ -381,7 +381,7 @@ ctx-cli mcp call resolve_pagerduty_incident -p incidentId=P1234567 -p requesterE
 Trace a business flow end-to-end:
 
 ```bash
-ctx-cli mcp call understand_flow -p flowName=checkout -o json
+tabnine-ctx-cli mcp call understand_flow -p flowName=checkout -o json
 ```
 
 Returns:
@@ -395,16 +395,16 @@ Discover available flows:
 
 ```bash
 # List all flows
-ctx-cli mcp call list_flows -o json
+tabnine-ctx-cli mcp call list_flows -o json
 
 # Filter to flows spanning 3+ services
-ctx-cli mcp call list_flows -p minServices=3 -o json
+tabnine-ctx-cli mcp call list_flows -p minServices=3 -o json
 
 # Search by keyword
-ctx-cli mcp call search_flows -p query="payment" -o json
+tabnine-ctx-cli mcp call search_flows -p query="payment" -o json
 
 # Find flows a specific service participates in
-ctx-cli mcp call get_service_flows -p serviceName=order-service -o json
+tabnine-ctx-cli mcp call get_service_flows -p serviceName=order-service -o json
 ```
 
 ### Checking Dependencies
@@ -412,7 +412,7 @@ ctx-cli mcp call get_service_flows -p serviceName=order-service -o json
 Get a complete health assessment for a package:
 
 ```bash
-ctx-cli mcp call dependency_check -p packageName=lodash -o json
+tabnine-ctx-cli mcp call dependency_check -p packageName=lodash -o json
 ```
 
 Returns:
@@ -426,35 +426,35 @@ For deeper security analysis:
 
 ```bash
 # Get vulnerabilities for a specific package
-ctx-cli mcp call get_package_vulnerabilities -p packageName=lodash -o json
+tabnine-ctx-cli mcp call get_package_vulnerabilities -p packageName=lodash -o json
 
 # Check the blast radius of a specific CVE
-ctx-cli mcp call get_cve_blast_radius -p cveId=CVE-2020-8203 -o json
+tabnine-ctx-cli mcp call get_cve_blast_radius -p cveId=CVE-2020-8203 -o json
 
 # List all known vulnerabilities
-ctx-cli mcp call list_all_vulnerabilities -o json
+tabnine-ctx-cli mcp call list_all_vulnerabilities -o json
 
 # Check CVE resolution status
-ctx-cli mcp call get_cve_resolution_status -p cveId=CVE-2020-8203 -o json
+tabnine-ctx-cli mcp call get_cve_resolution_status -p cveId=CVE-2020-8203 -o json
 ```
 
 For upgrade planning:
 
 ```bash
 # Check if past upgrades required code changes
-ctx-cli mcp call get_package_upgrade_history -p packageName=typescript -o json
+tabnine-ctx-cli mcp call get_package_upgrade_history -p packageName=typescript -o json
 
 # Find upgrades that caused code changes (problematic dependencies)
-ctx-cli mcp call get_upgrades_with_code_changes -o json
+tabnine-ctx-cli mcp call get_upgrades_with_code_changes -o json
 
 # Find safe-to-auto-merge upgrades
-ctx-cli mcp call get_upgrades_without_code_changes -o json
+tabnine-ctx-cli mcp call get_upgrades_without_code_changes -o json
 
 # Get major version upgrades with breaking changes
-ctx-cli mcp call get_major_upgrades -o json
+tabnine-ctx-cli mcp call get_major_upgrades -o json
 
 # Find recommended internal alternatives
-ctx-cli mcp call get_recommended_packages -p capability="HTTP client" -o json
+tabnine-ctx-cli mcp call get_recommended_packages -p capability="HTTP client" -o json
 ```
 
 ### Code Migration
@@ -462,7 +462,7 @@ ctx-cli mcp call get_recommended_packages -p capability="HTTP client" -o json
 Get complete migration guidance:
 
 ```bash
-ctx-cli mcp call code_migration -p fromPackage=moment -p toPackage=date-fns -o json
+tabnine-ctx-cli mcp call code_migration -p fromPackage=moment -p toPackage=date-fns -o json
 ```
 
 Returns:
@@ -476,13 +476,13 @@ Track migration progress:
 
 ```bash
 # Check adoption of a replacement package
-ctx-cli mcp call get_adoption_status -p packageName=@acme/http-client -o json
+tabnine-ctx-cli mcp call get_adoption_status -p packageName=@acme/http-client -o json
 
 # Check migration status from a deprecated package
-ctx-cli mcp call get_migration_status -p oldPackage=axios -p newPackage=@acme/http-client -o json
+tabnine-ctx-cli mcp call get_migration_status -p oldPackage=axios -p newPackage=@acme/http-client -o json
 
 # Find equivalent fields across repos
-ctx-cli mcp call find_equivalent_fields -p fieldName=windowMs -o json
+tabnine-ctx-cli mcp call find_equivalent_fields -p fieldName=windowMs -o json
 ```
 
 ### Searching Knowledge
@@ -492,46 +492,46 @@ Three search approaches for different needs:
 **Semantic search** across all knowledge:
 
 ```bash
-ctx-cli mcp call search_knowledge -p query="rate limiting strategy" -o json
+tabnine-ctx-cli mcp call search_knowledge -p query="rate limiting strategy" -o json
 ```
 
 **Entity search** with type filtering:
 
 ```bash
 # Find services by keyword
-ctx-cli mcp call find_entities -p query="payment" -p entityTypes='["Service"]' -o json
+tabnine-ctx-cli mcp call find_entities -p query="payment" -p entityTypes='["Service"]' -o json
 
 # Find code patterns
-ctx-cli mcp call find_entities -p query="retry backoff" -p entityTypes='["CodePattern"]' -o json
+tabnine-ctx-cli mcp call find_entities -p query="retry backoff" -p entityTypes='["CodePattern"]' -o json
 ```
 
 **Documentation search**:
 
 ```bash
 # Search all documentation types
-ctx-cli mcp call search_all_documentation -p query="deployment process" -o json
+tabnine-ctx-cli mcp call search_all_documentation -p query="deployment process" -o json
 
 # Filter to specific doc types
-ctx-cli mcp call search_all_documentation -p query="auth" -p docTypes="ADR,Runbook" -o json
+tabnine-ctx-cli mcp call search_all_documentation -p query="auth" -p docTypes="ADR,Runbook" -o json
 
 # Search ADRs specifically
-ctx-cli mcp call search_adrs -p query="event sourcing" -o json
+tabnine-ctx-cli mcp call search_adrs -p query="event sourcing" -o json
 
 # Filter ADRs by status
-ctx-cli mcp call search_adrs -p query="messaging" -p status=accepted -o json
+tabnine-ctx-cli mcp call search_adrs -p query="messaging" -p status=accepted -o json
 ```
 
 **Structured queries**:
 
 ```bash
 # Query entities by type with name pattern
-ctx-cli mcp call query_entities -p entityType=Service -p namePattern="*payment*" -o json
+tabnine-ctx-cli mcp call query_entities -p entityType=Service -p namePattern="*payment*" -o json
 ```
 
 **Organizational skills** from past agent runs:
 
 ```bash
-ctx-cli mcp call search_skills -p query="database migration" -o json
+tabnine-ctx-cli mcp call search_skills -p query="database migration" -o json
 ```
 
 ### Exploring the Graph
@@ -541,26 +541,26 @@ Walk the knowledge graph step by step:
 **Step 1: Find an entity.**
 
 ```bash
-ctx-cli mcp call find_entities -p query="payment service" -o json
+tabnine-ctx-cli mcp call find_entities -p query="payment service" -o json
 ```
 
 **Step 2: Traverse its relationships.**
 
 ```bash
 # What does it depend on? (outbound edges)
-ctx-cli mcp call traverse_edges -p entityId=<id-from-step-1> -p direction=out -o json
+tabnine-ctx-cli mcp call traverse_edges -p entityId=<id-from-step-1> -p direction=out -o json
 
 # What depends on it? (inbound edges)
-ctx-cli mcp call traverse_edges -p entityId=<id-from-step-1> -p direction=in -o json
+tabnine-ctx-cli mcp call traverse_edges -p entityId=<id-from-step-1> -p direction=in -o json
 
 # Filter by relationship type
-ctx-cli mcp call traverse_edges -p entityId=<id-from-step-1> -p edgeType=calls -o json
+tabnine-ctx-cli mcp call traverse_edges -p entityId=<id-from-step-1> -p edgeType=calls -o json
 ```
 
 **Step 3: Get full details for any entity.**
 
 ```bash
-ctx-cli mcp call get_entity_by_id -p entityId=<id> -o json
+tabnine-ctx-cli mcp call get_entity_by_id -p entityId=<id> -o json
 ```
 
 For multi-hop traversal, call `traverse_edges` repeatedly with the entity IDs returned from each step.
@@ -571,19 +571,19 @@ Find who owns what:
 
 ```bash
 # Get ownership for a specific service
-ctx-cli mcp call get_service_ownership -p serviceName=order-service -o json
+tabnine-ctx-cli mcp call get_service_ownership -p serviceName=order-service -o json
 
 # List all teams
-ctx-cli mcp call get_all_teams -o json
+tabnine-ctx-cli mcp call get_all_teams -o json
 
 # Find all services owned by a team
-ctx-cli mcp call get_team_services -p teamName=Commerce -o json
+tabnine-ctx-cli mcp call get_team_services -p teamName=Commerce -o json
 
 # Find suggested code reviewers
-ctx-cli mcp call get_code_reviewers -p path=src/payments/processor.ts -o json
+tabnine-ctx-cli mcp call get_code_reviewers -p path=src/payments/processor.ts -o json
 
 # Get escalation contacts for an incident
-ctx-cli mcp call get_incident_contacts -p service=checkout -p severity=SEV-1 -o json
+tabnine-ctx-cli mcp call get_incident_contacts -p service=checkout -p severity=SEV-1 -o json
 ```
 
 ### Git Insights
@@ -592,31 +592,31 @@ Analyze your codebase history. These tools require the `git-insights-analyzer` a
 
 ```bash
 # Repository overview
-ctx-cli mcp call get_git_insights_summary -o json
+tabnine-ctx-cli mcp call get_git_insights_summary -o json
 
 # Find frequently-changed files (potential refactoring targets)
-ctx-cli mcp call get_codebase_hotspots -o json
+tabnine-ctx-cli mcp call get_codebase_hotspots -o json
 
 # Get risk assessment for a file
-ctx-cli mcp call get_file_risk -p filePath=src/core/engine.ts -o json
+tabnine-ctx-cli mcp call get_file_risk -p filePath=src/core/engine.ts -o json
 
 # Find who knows a file best
-ctx-cli mcp call get_file_experts -p filePath=src/core/engine.ts -o json
+tabnine-ctx-cli mcp call get_file_experts -p filePath=src/core/engine.ts -o json
 
 # Find developer expertise areas
-ctx-cli mcp call get_author_expertise -p author="Jane Smith" -o json
+tabnine-ctx-cli mcp call get_author_expertise -p author="Jane Smith" -o json
 
 # Detect hidden dependencies (files that change together across module boundaries)
-ctx-cli mcp call get_coupling_issues -o json
+tabnine-ctx-cli mcp call get_coupling_issues -o json
 
 # Discover actual module boundaries from co-change patterns
-ctx-cli mcp call get_module_boundaries -o json
+tabnine-ctx-cli mcp call get_module_boundaries -o json
 
 # Find files that co-change with a specific file
-ctx-cli mcp call get_related_files -p filePath=src/core/engine.ts -o json
+tabnine-ctx-cli mcp call get_related_files -p filePath=src/core/engine.ts -o json
 
 # See what areas are actively being worked on
-ctx-cli mcp call get_recent_activity -o json
+tabnine-ctx-cli mcp call get_recent_activity -o json
 ```
 
 ### Feature Development
@@ -625,7 +625,7 @@ Track a feature through its lifecycle:
 
 ```bash
 # 1. Register a new feature
-ctx-cli mcp call start_new_feature \
+tabnine-ctx-cli mcp call start_new_feature \
   -p featureName=add-retry-logic \
   -p branchName=feature/add-retry-logic \
   -p worktreePath=.worktrees/add-retry-logic \
@@ -633,7 +633,7 @@ ctx-cli mcp call start_new_feature \
   -o json
 
 # 2. Record design decisions
-ctx-cli mcp call update_feature_decisions \
+tabnine-ctx-cli mcp call update_feature_decisions \
   -p featureName=add-retry-logic \
   -p decision="Use exponential backoff with jitter" \
   -p rationale="Prevents thundering herd on payment gateway" \
@@ -641,7 +641,7 @@ ctx-cli mcp call update_feature_decisions \
   -o json
 
 # 3. Link a PR
-ctx-cli mcp call create_feature_pr \
+tabnine-ctx-cli mcp call create_feature_pr \
   -p featureName=add-retry-logic \
   -p prNumber=892 \
   -p prUrl="https://github.com/acme/payments/pull/892" \
@@ -649,20 +649,20 @@ ctx-cli mcp call create_feature_pr \
   -o json
 
 # 4. Mark as merged
-ctx-cli mcp call merge_feature_pr -p featureName=add-retry-logic -o json
+tabnine-ctx-cli mcp call merge_feature_pr -p featureName=add-retry-logic -o json
 
 # Retrieve feature info at any time
-ctx-cli mcp call get_feature -p featureName=add-retry-logic -o json
+tabnine-ctx-cli mcp call get_feature -p featureName=add-retry-logic -o json
 ```
 
 ### Working with Jira
 
 ```bash
 # Get issue details
-ctx-cli mcp call get_jira_issue -p issue_key=PAY-1234 -o json
+tabnine-ctx-cli mcp call get_jira_issue -p issue_key=PAY-1234 -o json
 
 # Create a new issue
-ctx-cli mcp call create_jira_issue \
+tabnine-ctx-cli mcp call create_jira_issue \
   -p project_key=PAY \
   -p summary="Fix timeout in payment retry logic" \
   -p description="The retry loop does not respect the configured backoff interval." \
@@ -670,10 +670,10 @@ ctx-cli mcp call create_jira_issue \
   -o json
 
 # Transition an issue
-ctx-cli mcp call transition_jira_issue -p issue_key=PAY-1234 -p transition="In Progress" -o json
+tabnine-ctx-cli mcp call transition_jira_issue -p issue_key=PAY-1234 -p transition="In Progress" -o json
 
 # Add a comment
-ctx-cli mcp call add_jira_comment \
+tabnine-ctx-cli mcp call add_jira_comment \
   -p issue_key=PAY-1234 \
   -p comment="Root cause identified: missing null check in retry handler. Fix in PR #892." \
   -o json
@@ -683,49 +683,49 @@ ctx-cli mcp call add_jira_comment \
 
 ```bash
 # Post a message to a channel
-ctx-cli mcp call post_slack_message -p channel="#incidents" -p text="Investigating elevated 5xx errors on checkout-service" -o json
+tabnine-ctx-cli mcp call post_slack_message -p channel="#incidents" -p text="Investigating elevated 5xx errors on checkout-service" -o json
 
 # Reply in a thread
-ctx-cli mcp call post_slack_message -p channel=C1234567890 -p text="Root cause identified" -p thread_ts=1234567890.123456 -o json
+tabnine-ctx-cli mcp call post_slack_message -p channel=C1234567890 -p text="Root cause identified" -p thread_ts=1234567890.123456 -o json
 
 # Update a message
-ctx-cli mcp call update_slack_message -p channel=C1234567890 -p ts=1234567890.123456 -p text="RESOLVED: Connection pool misconfiguration" -o json
+tabnine-ctx-cli mcp call update_slack_message -p channel=C1234567890 -p ts=1234567890.123456 -p text="RESOLVED: Connection pool misconfiguration" -o json
 ```
 
 ### Working with Confluence
 
 ```bash
 # Search for pages
-ctx-cli mcp call search_confluence_pages -p query='space = "ENG" AND text ~ "deployment"' -o json
+tabnine-ctx-cli mcp call search_confluence_pages -p query='space = "ENG" AND text ~ "deployment"' -o json
 
 # Get a page
-ctx-cli mcp call get_confluence_page -p pageId=12345 -o json
+tabnine-ctx-cli mcp call get_confluence_page -p pageId=12345 -o json
 
 # Create a page
-ctx-cli mcp call create_confluence_page \
+tabnine-ctx-cli mcp call create_confluence_page \
   -p spaceId=12345 \
   -p title="Incident Postmortem: Checkout Timeout" \
   -p body="<h1>Summary</h1><p>On 2025-03-15...</p>" \
   -o json
 
 # Update a page (get current version first)
-ctx-cli mcp call update_confluence_page -p pageId=12345 -p title="Updated Title" -p body="<p>Updated content</p>" -p version=3 -o json
+tabnine-ctx-cli mcp call update_confluence_page -p pageId=12345 -p title="Updated Title" -p body="<p>Updated content</p>" -p version=3 -o json
 
 # Add a comment
-ctx-cli mcp call add_confluence_comment -p pageId=12345 -p body="<p>Updated the remediation steps.</p>" -o json
+tabnine-ctx-cli mcp call add_confluence_comment -p pageId=12345 -p body="<p>Updated the remediation steps.</p>" -o json
 ```
 
 ### Working with GitLab
 
 ```bash
 # Search issues linked to a service
-ctx-cli mcp call search_gitlab_issues -p serviceName=order-service -p state=opened -o json
+tabnine-ctx-cli mcp call search_gitlab_issues -p serviceName=order-service -p state=opened -o json
 
 # Search issues by keyword
-ctx-cli mcp call search_gitlab_issues -p query="timeout" -o json
+tabnine-ctx-cli mcp call search_gitlab_issues -p query="timeout" -o json
 
 # Create a merge request
-ctx-cli mcp call create_gitlab_merge_request \
+tabnine-ctx-cli mcp call create_gitlab_merge_request \
   -p projectId=123 \
   -p sourceBranch=feature/fix-timeout \
   -p targetBranch=main \
@@ -733,7 +733,7 @@ ctx-cli mcp call create_gitlab_merge_request \
   -o json
 
 # Comment on a merge request
-ctx-cli mcp call add_gitlab_mr_comment -p projectId=123 -p mergeRequestIid=456 -p body="LGTM" -o json
+tabnine-ctx-cli mcp call add_gitlab_mr_comment -p projectId=123 -p mergeRequestIid=456 -p body="LGTM" -o json
 ```
 
 ---
@@ -744,25 +744,25 @@ Data loading populates the knowledge graph with information from your organizati
 
 ### Overview
 
-The `ctx-loader` CLI reads a YAML manifest that defines your data sources, credentials, and sync configuration, then loads everything into the Context Engine.
+The `tabnine-ctx-loader` CLI reads a YAML manifest that defines your data sources, credentials, and sync configuration, then loads everything into the Context Engine.
 
 ### Quick Start
 
 ```bash
 # 1. Create a manifest from a template
-ctx-loader init --template github-jira-slack --output ctx-loader.yaml
+tabnine-ctx-loader init --template github-jira-slack --output tabnine-ctx-loader.yaml
 
 # 2. Edit the manifest to fill in your values
 # (see Manifest Format below)
 
 # 3. Validate the manifest
-ctx-loader validate --manifest ctx-loader.yaml --json
+tabnine-ctx-loader validate --manifest tabnine-ctx-loader.yaml --json
 
 # 4. Load the data
-ctx-loader load --manifest ctx-loader.yaml --json
+tabnine-ctx-loader load --manifest tabnine-ctx-loader.yaml --json
 
 # 5. Check status
-ctx-loader status --json
+tabnine-ctx-loader status --json
 ```
 
 ### Available Templates
@@ -879,23 +879,23 @@ Server-side agents analyze your data and populate the knowledge graph with deriv
 
 ```bash
 # List all available agents
-ctx-cli mcp call list_agent_kinds -o json
+tabnine-ctx-cli mcp call list_agent_kinds -o json
 
 # List only enabled agents
-ctx-cli mcp call list_agent_kinds -p enabled=true -o json
+tabnine-ctx-cli mcp call list_agent_kinds -p enabled=true -o json
 ```
 
 ### Running an Agent
 
 ```bash
 # Invoke an agent
-ctx-cli mcp call invoke_agent -p agentKindName=git-insights-analyzer -o json
+tabnine-ctx-cli mcp call invoke_agent -p agentKindName=git-insights-analyzer -o json
 
 # Check status
-ctx-cli mcp call get_agent_run_status -p agentRunId=<id-from-invoke> -o json
+tabnine-ctx-cli mcp call get_agent_run_status -p agentRunId=<id-from-invoke> -o json
 
 # Get results when complete
-ctx-cli mcp call get_agent_run_output -p agentRunId=<id> -p includeEntities=true -o json
+tabnine-ctx-cli mcp call get_agent_run_output -p agentRunId=<id> -p includeEntities=true -o json
 ```
 
 ### Common Agents
@@ -1205,7 +1205,7 @@ Quick-lookup tables grouped by category. For detailed usage, see the [Workflow G
 
 ### Tools Return Empty Results
 
-- **Data not loaded yet** -- run `ctx-loader` to populate the knowledge graph. See [Data Loading](#data-loading).
+- **Data not loaded yet** -- run `tabnine-ctx-loader` to populate the knowledge graph. See [Data Loading](#data-loading).
 - **Wrong service name** -- use `list_services` to discover available service names. Names support partial matching.
 - **Agent not run** -- some tools require server-side agents. For example, Git Insights tools require `git-insights-analyzer`. See [Running Agents](#running-agents).
 

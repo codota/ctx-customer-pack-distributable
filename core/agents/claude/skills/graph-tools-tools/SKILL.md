@@ -2,8 +2,9 @@
 name: graph-tools-tools
 description: 'Graph tools tools: find_entities, get_entity_by_id, traverse_edges'
 allowed-tools: >-
-  mcp__ctx-cloud__find_entities, mcp__ctx-cloud__get_entity_by_id,
-  mcp__ctx-cloud__traverse_edges
+  mcp__tabnine-ctx-cloud__find_entities,
+  mcp__tabnine-ctx-cloud__get_entity_by_id,
+  mcp__tabnine-ctx-cloud__traverse_edges
 ---
 # Graph tools Tools
 
@@ -16,7 +17,7 @@ Search strategies: - Natural language: "authentication services" finds auth-rela
 Common entity types: Service, CodePattern, Finding, CodeExpert, CodeHotspot, CodeCoupling, Feature, ModuleBoundary, Package, Vulnerability
 Returns entity ID, type, name, data, and similarity score. Use returned IDs with traverse_edges to explore relationships or get_entity_by_id for details.
 
-Call `mcp__ctx-cloud__find_entities` with parameters:
+Call `mcp__tabnine-ctx-cloud__find_entities` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -30,7 +31,7 @@ Call `mcp__ctx-cloud__find_entities` with parameters:
 Get full details of a specific entity by its ID. Use this when you already have an entity ID (e.g., from find_entities or traverse_edges results) and need to see its complete data.
 Returns: id, name, type, data (JSON properties), createdAt, createdBy
 
-Call `mcp__ctx-cloud__get_entity_by_id` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_entity_by_id` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -44,7 +45,7 @@ Common edge types: depends_on, calls, contains, manages, created_together, refer
 Example workflow: 1. find_entities(query="payment service") -> get service ID 2. traverse_edges(entityId="...", direction="out") -> what does it depend on? 3. traverse_edges(entityId="...", direction="in") -> what depends on it? 4. traverse_edges(entityId="...", edgeType="calls") -> what does it call?
 For multi-hop traversal, call this tool repeatedly with the returned entity IDs.
 
-Call `mcp__ctx-cloud__traverse_edges` with parameters:
+Call `mcp__tabnine-ctx-cloud__traverse_edges` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|

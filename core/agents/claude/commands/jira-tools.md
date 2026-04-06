@@ -6,20 +6,20 @@ Interact with Jira from the command line via the Context Engine MCP integration.
 
 ## Get an Issue
 
-Call `mcp__ctx-cloud__get_jira_issue` with issue_key=PAY-1234.
+Call `mcp__tabnine-ctx-cloud__get_jira_issue` with issue_key=PAY-1234.
 
 ## Create an Issue
 
-Call `mcp__ctx-cloud__create_jira_issue`.
+Call `mcp__tabnine-ctx-cloud__create_jira_issue`.
 
 ## Transition an Issue
 
-- **Move an issue to "In Progress"**: Call `mcp__ctx-cloud__transition_jira_issue` with issue_key=PAY-1234, transition="In Progress".
-- **Close an issue**: Call `mcp__ctx-cloud__transition_jira_issue` with issue_key=PAY-1234, transition="Done".
+- **Move an issue to "In Progress"**: Call `mcp__tabnine-ctx-cloud__transition_jira_issue` with issue_key=PAY-1234, transition="In Progress".
+- **Close an issue**: Call `mcp__tabnine-ctx-cloud__transition_jira_issue` with issue_key=PAY-1234, transition="Done".
 
 ## Add a Comment
 
-Call `mcp__ctx-cloud__add_jira_comment`.
+Call `mcp__tabnine-ctx-cloud__add_jira_comment`.
 
 ## When to Use
 

@@ -39,7 +39,7 @@ Check the security and license health of a package dependency. Returns vulnerabi
 PREFER: Use 'dependency_check' for complete health assessment including upgrade history, migration examples, and recommended alternatives in one call.
 USE THIS WHEN: You need just the security/license status without upgrade history context, or when checking multiple packages in a loop.
 
-Call `mcp__ctx-cloud__check_dependency_health` with parameters:
+Call `mcp__tabnine-ctx-cloud__check_dependency_health` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -53,7 +53,7 @@ Get adoption status for a recommended package or migration. Shows which services
 PREFER: Use 'code_migration' for complete migration guidance including adoption status, field mappings, migration examples, and ADR context in one call.
 USE THIS WHEN: You need just the adoption percentages and service lists, or when tracking progress across multiple packages.
 
-Call `mcp__ctx-cloud__get_adoption_status` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_adoption_status` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -67,7 +67,7 @@ Example: If lodash has CVE-2020-8203, finds not only services using lodash direc
 PREFER: Use 'blast_radius' for broader impact analysis that includes affected flows, historical incidents, and complete team notifications.
 USE THIS WHEN: You need just the CVE-specific blast radius without the full incident context, or when analyzing multiple CVEs systematically.
 
-Call `mcp__ctx-cloud__get_cve_blast_radius` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_cve_blast_radius` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -79,7 +79,7 @@ Find examples of services that have migrated from one package to another. Shows 
 PREFER: Use 'code_migration' for complete migration guidance including field mappings, ADR context, and recommended patterns in one call.
 USE THIS WHEN: You need just the list of services that completed a migration, or when tracking migration progress across the organization.
 
-Call `mcp__ctx-cloud__get_migration_examples` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_migration_examples` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -92,7 +92,7 @@ Get migration guidance for upgrading or replacing a package. Shows which service
 PREFER: Use 'code_migration' for complete migration guidance including field mappings, migration examples, ADR context, and adoption status in one call.
 USE THIS WHEN: You need just the dependency graph for a package without the full migration context, or when planning migrations for multiple packages.
 
-Call `mcp__ctx-cloud__get_migration_path` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_migration_path` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -106,7 +106,7 @@ Get the migration status for a deprecated or replaced package. Shows which servi
 PREFER: Use 'code_migration' for complete migration guidance including field mappings, migration examples, and ADR context in one call.
 USE THIS WHEN: You need just the migration progress numbers without the full migration context, or when tracking multiple migrations.
 
-Call `mcp__ctx-cloud__get_migration_status` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_migration_status` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -117,7 +117,7 @@ Call `mcp__ctx-cloud__get_migration_status` with parameters:
 
 Analyze how a package is used across your organization. Shows which services use the package and usage statistics. Helpful for understanding adoption and identifying usage patterns.
 
-Call `mcp__ctx-cloud__get_package_usage_patterns` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_package_usage_patterns` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -130,7 +130,7 @@ Get all vulnerabilities linked to a package.
 PREFER: Use 'dependency_check' for complete package health assessment including vulnerabilities, license status, upgrade history, and blast radius in one call.
 USE THIS WHEN: You need just the vulnerability list for a specific package, or when scanning multiple packages systematically.
 
-Call `mcp__ctx-cloud__get_package_vulnerabilities` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_package_vulnerabilities` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -142,7 +142,7 @@ Find recommended internal packages for a specific capability or use case. Search
 PREFER: Use 'dependency_check' when evaluating a specific package - includes recommended alternatives, security status, and migration guidance in one call.
 USE THIS WHEN: You need to discover what internal packages exist for a capability, without evaluating a specific existing package.
 
-Call `mcp__ctx-cloud__get_recommended_packages` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_recommended_packages` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -155,7 +155,7 @@ Get all services and packages that depend on a package, including transitive dep
 PREFER: Use 'blast_radius' for complete impact analysis including affected flows, teams to notify, and historical incidents in one call.
 USE THIS WHEN: You need just the dependency tree without the broader impact context, or when analyzing package-level dependencies only.
 
-Call `mcp__ctx-cloud__get_transitive_dependents` with parameters:
+Call `mcp__tabnine-ctx-cloud__get_transitive_dependents` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -167,7 +167,7 @@ Call `mcp__ctx-cloud__get_transitive_dependents` with parameters:
 
 Diagnostic tool: List all Package entities in the knowledge graph. Returns all indexed packages to verify entity creation worked.
 
-Call `mcp__ctx-cloud__list_all_packages` with parameters:
+Call `mcp__tabnine-ctx-cloud__list_all_packages` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -177,7 +177,7 @@ Call `mcp__ctx-cloud__list_all_packages` with parameters:
 
 Diagnostic tool: List all Vulnerability entities in the knowledge graph. Returns all indexed vulnerabilities to verify entity creation worked.
 
-Call `mcp__ctx-cloud__list_all_vulnerabilities` with parameters:
+Call `mcp__tabnine-ctx-cloud__list_all_vulnerabilities` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -187,7 +187,7 @@ Call `mcp__ctx-cloud__list_all_vulnerabilities` with parameters:
 
 Search for internal packages in JFrog Artifactory using semantic matching. Finds packages by name, description, or functionality, and enriches results with usage statistics (how many services use each package) and security data. Use this to discover internal libraries before implementing new functionality.
 
-Call `mcp__ctx-cloud__search_internal_packages` with parameters:
+Call `mcp__tabnine-ctx-cloud__search_internal_packages` with parameters:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -199,16 +199,16 @@ Call `mcp__ctx-cloud__search_internal_packages` with parameters:
 
 Test Cypher with tenantId
 
-Call `mcp__ctx-cloud__test_cypher_tenant` with parameters:
+Call `mcp__tabnine-ctx-cloud__test_cypher_tenant` with parameters:
 
 ## test_cypher_type
 
 Test Cypher with type filter
 
-Call `mcp__ctx-cloud__test_cypher_type` with parameters:
+Call `mcp__tabnine-ctx-cloud__test_cypher_type` with parameters:
 
 ## test_cypher
 
 Simple test of Cypher query execution
 
-Call `mcp__ctx-cloud__test_cypher` with parameters:
+Call `mcp__tabnine-ctx-cloud__test_cypher` with parameters:
