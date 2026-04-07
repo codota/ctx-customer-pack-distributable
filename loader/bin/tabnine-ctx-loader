@@ -3241,6 +3241,27 @@ var init_error_catalog = __esm({
         retryable: false,
         remediation: "Step prerequisite not met. Run the required earlier steps first."
       },
+      // Admin
+      ADMIN_AUTH_001: {
+        category: "authentication",
+        retryable: false,
+        remediation: "Admin secret is invalid or missing. Set CTX_ADMIN_SECRET in .tabnine/ctx/ctx-settings.yaml or as an environment variable."
+      },
+      ADMIN_AUTH_002: {
+        category: "authentication",
+        retryable: false,
+        remediation: "API key required for this admin operation. Set CTX_API_KEY in .tabnine/ctx/ctx-settings.yaml or as an environment variable."
+      },
+      ADMIN_CONN_001: {
+        category: "network",
+        retryable: true,
+        remediation: "Cannot reach Context Engine server. Verify CTX_API_URL is correct and the server is reachable."
+      },
+      ADMIN_SMOKE_001: {
+        category: "validation",
+        retryable: false,
+        remediation: "Smoke test phase failed. Check individual test results for details."
+      },
       // Process lock
       LOCK_HELD_001: {
         category: "validation",
@@ -10741,6 +10762,15 @@ function onboarderLoaderPidPath(baseDir) {
 function onboarderPatchedManifestPath(baseDir) {
   return (0, import_node_path.join)(onboarderDir(baseDir), "tabnine-ctx-loader-patched.yaml");
 }
+function adminDir(baseDir) {
+  return (0, import_node_path.join)(baseDir, CTX_RUNTIME_ROOT, "admin");
+}
+function adminLockPath(baseDir) {
+  return (0, import_node_path.join)(adminDir(baseDir), "admin.lock");
+}
+function adminSmokeTestResultPath(baseDir) {
+  return (0, import_node_path.join)(adminDir(baseDir), "smoke-test-result.json");
+}
 function logsDir(baseDir) {
   return (0, import_node_path.join)(baseDir, CTX_RUNTIME_ROOT, "logs");
 }
@@ -10768,6 +10798,7 @@ function loadSettings(baseDir) {
       const parsed = (0, import_yaml2.parse)(raw);
       const apiUrl2 = parsed.CTX_API_URL || parsed.ctx_api_url || parsed.apiUrl;
       const apiKey2 = parsed.CTX_API_KEY || parsed.ctx_api_key || parsed.apiKey;
+      const adminSecret = parsed.CTX_ADMIN_SECRET || parsed.ctx_admin_secret || parsed.adminSecret;
       if (apiUrl2 && apiKey2) {
         for (const [key, value] of Object.entries(parsed)) {
           if (typeof value === "string" && value && !process.env[key]) {
@@ -10778,6 +10809,7 @@ function loadSettings(baseDir) {
         return {
           apiUrl: apiUrl2,
           apiKey: apiKey2,
+          adminSecret,
           projectName: parsed.PROJECT_NAME || parsed.project_name || parsed.projectName,
           dataVolume: config,
           dataVolumePreset: preset,
@@ -10789,10 +10821,12 @@ function loadSettings(baseDir) {
   }
   const apiUrl = process.env.CTX_API_URL;
   const apiKey = process.env.CTX_API_KEY;
+  const adminSecretEnv = process.env.CTX_ADMIN_SECRET;
   if (apiUrl && apiKey) {
     return {
       apiUrl,
       apiKey,
+      adminSecret: adminSecretEnv,
       dataVolume: DATA_VOLUME_PRESETS.standard,
       dataVolumePreset: "standard",
       all: {}
@@ -15499,6 +15533,9 @@ __export(dist_exports, {
   ProcessLock: () => ProcessLock,
   TIER_1_AGENTS: () => TIER_1_AGENTS,
   TIER_2_AGENTS: () => TIER_2_AGENTS,
+  adminDir: () => adminDir,
+  adminLockPath: () => adminLockPath,
+  adminSmokeTestResultPath: () => adminSmokeTestResultPath,
   catalogError: () => catalogError,
   classifyHttpStatus: () => classifyHttpStatus,
   classifyNetworkError: () => classifyNetworkError,
@@ -20114,6 +20151,21 @@ var init_api_client = __esm({
         const resp = await this.post(`/api/agent-runs/${id}/continue`, {});
         return resp.data;
       }
+      async listAgentRuns(params) {
+        const query2 = new URLSearchParams();
+        if (params?.status) query2.set("status", params.status);
+        if (params?.limit) query2.set("limit", String(params.limit));
+        if (params?.offset) query2.set("offset", String(params.offset));
+        const qs = query2.toString();
+        const resp = await this.get(
+          `/api/agent-runs${qs ? "?" + qs : ""}`
+        );
+        return resp.data;
+      }
+      async getAgentRunOutput(id) {
+        const resp = await this.get(`/api/agent-runs/${id}/output`);
+        return resp.data;
+      }
       // ─── Agent Kinds ────────────────────────────────────────
       async listAgentKinds() {
         const resp = await this.get("/api/agent-kinds");
@@ -22249,6 +22301,117 @@ query.command("entity <id>").description("Get a specific entity by ID").option("
   const client = new CtxApiClient(config);
   const result = await client.getEntity(id);
   outputResult(result, opts.fields);
+});
+program2.command("invoke-agent").description("Kick off an agent run").requiredOption("--agent-kind-id <id>", "Agent kind ID").option("--workspace-id <id>", "Workspace (context space) ID").option("--input <json>", "JSON input for the agent").option("--wait", "Wait for the run to complete (polls until terminal state)").option("--poll-interval <ms>", "Poll interval in ms (with --wait)", "5000").option("--timeout <ms>", "Max wait time in ms (with --wait)", "300000").option("--json", "Output as JSON").action(async (opts) => {
+  try {
+    const config = requireApiConfig(opts.json);
+    const client = new CtxApiClient(config);
+    const input = opts.input ? JSON.parse(opts.input) : void 0;
+    const { id: runId } = await client.createAgentRun({
+      agentKindId: opts.agentKindId,
+      input,
+      workspaceId: opts.workspaceId
+    });
+    if (!opts.wait) {
+      if (opts.json) {
+        console.log(JSON.stringify({ runId, status: "started" }, null, 2));
+      } else {
+        console.log(`Agent run started: ${runId}`);
+      }
+      return;
+    }
+    const pollInterval = parseInt(opts.pollInterval, 10);
+    const timeout = parseInt(opts.timeout, 10);
+    const deadline = Date.now() + timeout;
+    while (Date.now() < deadline) {
+      const run = await client.getAgentRun(runId);
+      if (["completed", "failed", "cancelled", "timeout", "budget_exceeded"].includes(run.status)) {
+        if (opts.json) {
+          console.log(JSON.stringify(run, null, 2));
+        } else {
+          console.log(`Agent run ${runId}: ${run.status}`);
+          if (run.error) console.log(`  Error: ${run.error}`);
+        }
+        process.exit(run.status === "completed" ? 0 : 1);
+        return;
+      }
+      await new Promise((r) => setTimeout(r, pollInterval));
+    }
+    if (opts.json) {
+      console.log(JSON.stringify({ runId, status: "poll_timeout", message: "Client-side timeout \u2014 run may still be in progress" }, null, 2));
+    } else {
+      console.log(`Poll timeout after ${timeout}ms \u2014 run ${runId} may still be in progress. Check with: tabnine-ctx-loader run-status ${runId} --json`);
+    }
+    process.exit(1);
+  } catch (err) {
+    if (opts.json) {
+      console.error(JSON.stringify({ error: err instanceof Error ? err.message : String(err) }));
+    } else {
+      console.error(`Invoke agent failed: ${err instanceof Error ? err.message : String(err)}`);
+    }
+    process.exit(1);
+  }
+});
+program2.command("run-status <runId>").description("Get the status of an agent run").option("--json", "Output as JSON").action(async (runId, opts) => {
+  try {
+    const config = requireApiConfig(opts.json);
+    const client = new CtxApiClient(config);
+    const run = await client.getAgentRun(runId);
+    if (opts.json) {
+      console.log(JSON.stringify(run, null, 2));
+    } else {
+      console.log(`Run ${runId}: ${run.status}`);
+      if (run.error) console.log(`  Error: ${run.error}`);
+    }
+  } catch (err) {
+    if (opts.json) {
+      console.error(JSON.stringify({ error: err instanceof Error ? err.message : String(err) }));
+    } else {
+      console.error(`Run status failed: ${err instanceof Error ? err.message : String(err)}`);
+    }
+    process.exit(1);
+  }
+});
+program2.command("run-output <runId>").description("Get the output of a completed agent run").option("--json", "Output as JSON").action(async (runId, opts) => {
+  try {
+    const config = requireApiConfig(opts.json);
+    const client = new CtxApiClient(config);
+    const result = await client.getAgentRunOutput(runId);
+    console.log(JSON.stringify(result, null, 2));
+  } catch (err) {
+    if (opts.json) {
+      console.error(JSON.stringify({ error: err instanceof Error ? err.message : String(err) }));
+    } else {
+      console.error(`Run output failed: ${err instanceof Error ? err.message : String(err)}`);
+    }
+    process.exit(1);
+  }
+});
+program2.command("list-runs").description("List recent agent runs").option("--status <status>", "Filter by status (running, completed, failed)").option("--limit <n>", "Max results", "20").option("--json", "Output as JSON").action(async (opts) => {
+  try {
+    const config = requireApiConfig(opts.json);
+    const client = new CtxApiClient(config);
+    const runs = await client.listAgentRuns({
+      status: opts.status,
+      limit: parseInt(opts.limit, 10)
+    });
+    if (opts.json) {
+      console.log(JSON.stringify(runs, null, 2));
+    } else {
+      console.log(`Agent Runs (${runs.length}):`);
+      for (const r of runs) {
+        const created = r.createdAt ? ` (${r.createdAt})` : "";
+        console.log(`  ${r.id}: ${r.status}${created}`);
+      }
+    }
+  } catch (err) {
+    if (opts.json) {
+      console.error(JSON.stringify({ error: err instanceof Error ? err.message : String(err) }));
+    } else {
+      console.error(`List runs failed: ${err instanceof Error ? err.message : String(err)}`);
+    }
+    process.exit(1);
+  }
 });
 program2.command("reset").description("Reset CTX tenant to factory settings (deletes all data)").option("--json", "Output as JSON").option("-y, --yes", "Skip confirmation prompt").action(async (opts) => {
   const config = requireApiConfig(opts.json);

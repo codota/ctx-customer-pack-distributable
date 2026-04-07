@@ -88,7 +88,9 @@ resolve_packages() {
   case $1 in
     core) echo "core" ;;
     loader) echo "core cli loader" ;;
-    onboarder|all) echo "core cli loader onboarder" ;;
+    onboarder) echo "core cli loader onboarder" ;;
+    admin) echo "core cli loader admin" ;;
+    all) echo "core cli loader onboarder admin" ;;
     *) echo "Unknown package: $1" >&2; exit 1 ;;
   esac
 }
@@ -138,9 +140,11 @@ install_core() {
       "Bash(tabnine-ctx-loader:*)",
       "Bash(tabnine-ctx-onboard:*)",
       "Bash(tabnine-ctx-cli:*)",
+      "Bash(tabnine-ctx-admin:*)",
       "Bash(which tabnine-ctx-onboard:*)",
       "Bash(which tabnine-ctx-loader:*)",
-      "Bash(which tabnine-ctx-cli:*)"
+      "Bash(which tabnine-ctx-cli:*)",
+      "Bash(which tabnine-ctx-admin:*)"
     ]
   },
   "hooks": {
@@ -407,6 +411,36 @@ install_onboarder() {
   echo "[onboarder] ${count} onboarding skills installed."
 }
 
+install_admin() {
+  local agent=$1
+  echo "[admin] Downloading tabnine-ctx-admin CLI..."
+  mkdir -p "$BIN_DIR"
+  if fetch "${RAW_BASE}/admin/bin/tabnine-ctx-admin" "${BIN_DIR}/tabnine-ctx-admin"; then
+    chmod +x "${BIN_DIR}/tabnine-ctx-admin"
+    echo "[admin] Installed → ${BIN_DIR}/tabnine-ctx-admin"
+  else
+    echo "[admin] Failed to download."
+    return
+  fi
+
+  local skill_dir=""
+  case $agent in
+    claude) skill_dir=".claude/skills" ;;
+    cursor) skill_dir=".cursor/skills" ;;
+    gemini) skill_dir=".gemini/skills" ;;
+    *) return ;;
+  esac
+
+  local admin_skills
+  admin_skills=$(list_github_dir "admin/skills")
+  local count=0
+  for skill in $admin_skills; do
+    mkdir -p "${skill_dir}/${skill}"
+    fetch "${RAW_BASE}/admin/skills/${skill}/SKILL.md" "${skill_dir}/${skill}/SKILL.md" && count=$((count + 1))
+  done
+  echo "[admin] ${count} admin skills installed."
+}
+
 # ── Main ─────────────────────────────────────────────────────────
 
 echo "CTX Customer Pack Installer"
@@ -417,9 +451,10 @@ if [ -z "$PACKAGE" ]; then
   echo "Which package?"
   echo "  1) core       — Skills for your AI agent"
   echo "  2) loader     — Data loading CLI (includes core)"
-  echo "  3) all        — Everything"
-  read -rp "Choice [1-3]: " choice
-  case $choice in 1) PACKAGE="core" ;; 2) PACKAGE="loader" ;; 3) PACKAGE="all" ;; *) echo "Invalid."; exit 1 ;; esac
+  echo "  3) admin      — Admin CLI (includes core + loader)"
+  echo "  4) all        — Everything"
+  read -rp "Choice [1-4]: " choice
+  case $choice in 1) PACKAGE="core" ;; 2) PACKAGE="loader" ;; 3) PACKAGE="admin" ;; 4) PACKAGE="all" ;; *) echo "Invalid."; exit 1 ;; esac
 fi
 
 if [ -z "$AGENT" ]; then
@@ -440,6 +475,7 @@ for pkg in $packages; do
     cli) install_cli ;;
     loader) install_loader ;;
     onboarder) install_onboarder "$AGENT" ;;
+    admin) install_admin "$AGENT" ;;
   esac
 done
 
@@ -481,6 +517,7 @@ if [[ "$packages" == *"loader"* || "$packages" == *"onboarder"* ]]; then
   [[ "$packages" == *"cli"* ]] && echo "  tabnine-ctx-cli --version"
   [[ "$packages" == *"loader"* ]] && echo "  tabnine-ctx-loader --version"
   [[ "$packages" == *"onboarder"* ]] && echo "  tabnine-ctx-onboard --version"
+  [[ "$packages" == *"admin"* ]] && echo "  tabnine-ctx-admin --version"
   echo ""
 fi
 

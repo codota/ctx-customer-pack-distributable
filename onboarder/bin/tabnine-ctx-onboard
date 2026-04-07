@@ -10540,6 +10540,27 @@ var init_error_catalog = __esm({
         retryable: false,
         remediation: "Step prerequisite not met. Run the required earlier steps first."
       },
+      // Admin
+      ADMIN_AUTH_001: {
+        category: "authentication",
+        retryable: false,
+        remediation: "Admin secret is invalid or missing. Set CTX_ADMIN_SECRET in .tabnine/ctx/ctx-settings.yaml or as an environment variable."
+      },
+      ADMIN_AUTH_002: {
+        category: "authentication",
+        retryable: false,
+        remediation: "API key required for this admin operation. Set CTX_API_KEY in .tabnine/ctx/ctx-settings.yaml or as an environment variable."
+      },
+      ADMIN_CONN_001: {
+        category: "network",
+        retryable: true,
+        remediation: "Cannot reach Context Engine server. Verify CTX_API_URL is correct and the server is reachable."
+      },
+      ADMIN_SMOKE_001: {
+        category: "validation",
+        retryable: false,
+        remediation: "Smoke test phase failed. Check individual test results for details."
+      },
       // Process lock
       LOCK_HELD_001: {
         category: "validation",
@@ -10630,6 +10651,7 @@ function loadSettings(baseDir) {
       const parsed = (0, import_yaml2.parse)(raw);
       const apiUrl2 = parsed.CTX_API_URL || parsed.ctx_api_url || parsed.apiUrl;
       const apiKey2 = parsed.CTX_API_KEY || parsed.ctx_api_key || parsed.apiKey;
+      const adminSecret = parsed.CTX_ADMIN_SECRET || parsed.ctx_admin_secret || parsed.adminSecret;
       if (apiUrl2 && apiKey2) {
         for (const [key, value] of Object.entries(parsed)) {
           if (typeof value === "string" && value && !process.env[key]) {
@@ -10640,6 +10662,7 @@ function loadSettings(baseDir) {
         return {
           apiUrl: apiUrl2,
           apiKey: apiKey2,
+          adminSecret,
           projectName: parsed.PROJECT_NAME || parsed.project_name || parsed.projectName,
           dataVolume: config,
           dataVolumePreset: preset,
@@ -10651,10 +10674,12 @@ function loadSettings(baseDir) {
   }
   const apiUrl = process.env.CTX_API_URL;
   const apiKey = process.env.CTX_API_KEY;
+  const adminSecretEnv = process.env.CTX_ADMIN_SECRET;
   if (apiUrl && apiKey) {
     return {
       apiUrl,
       apiKey,
+      adminSecret: adminSecretEnv,
       dataVolume: DATA_VOLUME_PRESETS.standard,
       dataVolumePreset: "standard",
       all: {}
@@ -19717,6 +19742,22 @@ var init_api_client = __esm({
       }
       async continueAgentRun(id) {
         const resp = await this.post(`/api/agent-runs/${id}/continue`, {});
+        return resp.data;
+      }
+      async listAgentRuns(params) {
+        const query2 = new URLSearchParams();
+        if (params?.status)
+          query2.set("status", params.status);
+        if (params?.limit)
+          query2.set("limit", String(params.limit));
+        if (params?.offset)
+          query2.set("offset", String(params.offset));
+        const qs = query2.toString();
+        const resp = await this.get(`/api/agent-runs${qs ? "?" + qs : ""}`);
+        return resp.data;
+      }
+      async getAgentRunOutput(id) {
+        const resp = await this.get(`/api/agent-runs/${id}/output`);
         return resp.data;
       }
       // ─── Agent Kinds ────────────────────────────────────────
