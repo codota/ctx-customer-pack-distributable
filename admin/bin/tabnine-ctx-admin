@@ -40723,6 +40723,30 @@ var init_create_agent_kind = __esm({
   }
 });
 
+// admin/src/commands/dev-server.ts
+var dev_server_exports = {};
+__export(dev_server_exports, {
+  executeDevServer: () => executeDevServer
+});
+async function executeDevServer(_options) {
+  return {
+    status: "placeholder",
+    message: "The dev-server command provides guidance for launching a local CTX development server. Use the admin-dev-server skill for step-by-step instructions, or run the commands below from the CTX engine repository root.",
+    quickStart: [
+      "pnpm install",
+      "npm run infra:up",
+      "make create-tenant NAME=dev-tenant",
+      "make dev-all",
+      "pnpm run dev:web  # optional, in a separate terminal"
+    ]
+  };
+}
+var init_dev_server = __esm({
+  "admin/src/commands/dev-server.ts"() {
+    "use strict";
+  }
+});
+
 // node_modules/commander/esm.mjs
 var import_index = __toESM(require_commander(), 1);
 var {
@@ -41098,6 +41122,19 @@ program2.command("create-agent-kind").description("Create a new agent kind").req
       console.error(`Create agent kind failed: ${err instanceof Error ? err.message : String(err)}`);
     }
     process.exit(1);
+  }
+});
+program2.command("dev-server").description("Launch a local CTX development server").option("--json", "Output as JSON").action(async (opts) => {
+  const { executeDevServer: executeDevServer2 } = await Promise.resolve().then(() => (init_dev_server(), dev_server_exports));
+  const result = await executeDevServer2({ json: opts.json });
+  if (opts.json) {
+    console.log(JSON.stringify(result, null, 2));
+  } else {
+    console.log(result.message);
+    console.log("\nQuick start (from CTX repo root):");
+    for (const cmd of result.quickStart) {
+      console.log(`  ${cmd}`);
+    }
   }
 });
 for (const [name, desc, importPath] of [
