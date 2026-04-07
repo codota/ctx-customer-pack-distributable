@@ -1,14 +1,15 @@
 # CTX Customer Pack
 
-Context Engine skills, data loader, and onboarding methodology for AI coding agents.
+Context Engine skills, data loader, onboarding methodology, and admin tools for AI coding agents.
 
 ## Packages
 
 | Package | What it includes | Depends on |
 |---------|-----------------|------------|
-| **core** | 37 skills, hooks, MCP proxy for your AI agent | — |
-| **loader** | `tabnine-ctx-loader` CLI for bulk data loading | core |
+| **core** | 39 skills, hooks, MCP proxy for your AI agent | — |
+| **loader** | `tabnine-ctx-loader` CLI for bulk data loading + agent runs | core |
 | **onboarder** | `tabnine-ctx-onboard` CLI + 7-step evaluation methodology | core, loader |
+| **admin** | `tabnine-ctx-admin` CLI for tenant management, health checks, smoke tests, agent-kind management, dev server | core, loader |
 
 ## Install
 
@@ -26,13 +27,27 @@ curl -fsSL https://raw.githubusercontent.com/codota/ctx-customer-pack-distributa
 curl -fsSL https://raw.githubusercontent.com/codota/ctx-customer-pack-distributable/main/installers/install.sh | bash -s -- --package loader --agent claude
 ```
 
-**Everything** (core + loader + onboarding):
+**Core + loader + admin CLI:**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/codota/ctx-customer-pack-distributable/main/installers/install.sh | bash -s -- --package admin --agent claude
+```
+
+**Everything** (core + loader + onboarding + admin):
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/codota/ctx-customer-pack-distributable/main/installers/install.sh | bash -s -- --package all --agent claude
 ```
 
-The installer fetches files directly from GitHub — no clone needed. Dependency resolution is automatic: `loader` includes `core`, `all` includes everything. Replace `claude` with `cursor`, `gemini`, or `tabnine` for other agents.
+The installer fetches files directly from GitHub — no clone needed. Dependency resolution is automatic: `loader` includes `core`, `admin` includes `core` + `loader`, `all` includes everything. Replace `claude` with `cursor`, `gemini`, or `tabnine` for other agents.
+
+### tabnine-ctx-cli install (if CLI already available)
+
+If `tabnine-ctx-cli` is already installed, you can install skills directly:
+
+```bash
+tabnine-ctx-cli install --skills claude
+```
 
 ### Claude Code plugin (core package)
 
@@ -53,6 +68,7 @@ export CTX_API_KEY=ctx_your_key_here
 |----------|----------|-------------|
 | `CTX_API_URL` | Yes | Context Engine server URL |
 | `CTX_API_KEY` | Yes | API key (never pass as CLI flag) |
+| `CTX_ADMIN_SECRET` | No | Admin secret for tenant management (admin package only) |
 | `HTTPS_PROXY` | No | HTTP proxy for corporate networks |
 | `NODE_EXTRA_CA_CERTS` | No | Custom CA certificate path |
 
@@ -61,6 +77,7 @@ export CTX_API_KEY=ctx_your_key_here
 - [Customer Pack User Guide](docs/customer-pack-user-guide.md) — tutorials for `ctx-skills`, `tabnine-ctx-loader`, and `tabnine-ctx-onboard`
 - [Customer Pack Manual](docs/customer-pack-manual.md) — detailed setup, command reference, and common workflows
 - [Onboarding Guide](docs/onboarding-guide.md) — expanded walkthrough of the 7-step evaluation flow
+- [Admin User Guide](docs/admin-user-guide.md) — setup, tenant management, smoke tests, and agent-kind management
 - [Context Engine User Guide](docs/context-engine-guide.md) — broader Context Engine workflows and examples
 
 ## Data Loader
@@ -87,6 +104,25 @@ tabnine-ctx-onboard step-6 --json               # Measure with domain
 tabnine-ctx-onboard step-7 --json               # Rollout plan
 ```
 
+## Admin
+
+```bash
+tabnine-ctx-admin health --json                                    # Server liveness
+tabnine-ctx-admin ready --json                                     # Detailed readiness
+tabnine-ctx-admin status --json                                    # Composite dashboard
+tabnine-ctx-admin create-tenant --name "Engineering" --json        # Create tenant
+tabnine-ctx-admin create-api-key --tenant-id <id> --json           # Create API key
+tabnine-ctx-admin configure-ai --provider anthropic_direct --json  # Configure LLM
+tabnine-ctx-admin configure-embeddings --provider openai \
+  --model text-embedding-3-small --dimensions 1536 --json          # Configure embeddings
+tabnine-ctx-admin list-agent-kinds --json                          # List agent kinds
+tabnine-ctx-admin create-agent-kind --name "my-agent" --json       # Create agent kind
+tabnine-ctx-admin smoke-test --json                                # Full E2E verification
+tabnine-ctx-admin dev-server --json                                # Dev server quick start
+```
+
+18 skills installed. Requires `CTX_ADMIN_SECRET` for tenant management and smoke tests. See [Admin User Guide](docs/admin-user-guide.md).
+
 ## Supported Agents
 
 | Agent | Tier | Core install |
@@ -101,11 +137,13 @@ tabnine-ctx-onboard step-7 --json               # Rollout plan
 ## Structure
 
 ```
-core/agents/         37 skills × 6 agents + hooks + MCP
+core/agents/         39 skills × 6 agents + hooks + MCP
 core/tool-schemas.json
 loader/bin/tabnine-ctx-loader
 loader/templates/    3 manifest templates
 onboarder/bin/tabnine-ctx-onboard
 onboarder/skills/    7 onboarding step skills
+admin/bin/tabnine-ctx-admin
+admin/skills/        18 admin skills
 installers/install.sh
 ```
