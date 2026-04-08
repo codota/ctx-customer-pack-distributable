@@ -41,13 +41,15 @@ curl -fsSL https://raw.githubusercontent.com/codota/ctx-customer-pack-distributa
 
 The installer fetches files directly from GitHub — no clone needed. Dependency resolution is automatic: `loader` includes `core`, `admin` includes `core` + `loader`, `all` includes everything. Replace `claude` with `cursor`, `gemini`, or `tabnine` for other agents.
 
-### tabnine-ctx-cli install (if CLI already available)
+### tabnine-ctx-cli install (minimal — ctx skill only)
 
-If `tabnine-ctx-cli` is already installed, you can install skills directly:
+If `tabnine-ctx-cli` is already installed, you can install just the core `ctx` skill:
 
 ```bash
 tabnine-ctx-cli install --skills claude
 ```
+
+This installs a single ctx skill for querying the knowledge graph. For the **full customer pack** (39 skills, hooks, MCP proxies, loader, onboarder, admin), use the curl installer above.
 
 ### Claude Code plugin (core package)
 
