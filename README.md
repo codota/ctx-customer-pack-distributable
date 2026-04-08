@@ -2,6 +2,28 @@
 
 Context Engine skills, data loader, onboarding methodology, and admin tools for AI coding agents.
 
+## Agent-First Onboarding
+
+Start in your agent, not at the CLI. In Claude Code, install the full pack and ask the agent to use the built-in `onboard` skill to walk the project through the 7-step evaluation flow.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/codota/ctx-customer-pack-distributable/main/installers/install.sh | bash -s -- --package all --agent claude
+```
+
+In Claude Code, prompt the agent with:
+
+```text
+Use the onboard skill to walk me through onboarding this project.
+```
+
+Or simply:
+
+```text
+Walk me through onboarding this project.
+```
+
+The agent-led flow validates `.tabnine/ctx/ctx-settings.yaml`, runs the onboarding steps through MCP tools, loads project data, measures baseline vs. Context Engine-assisted answers, and produces a rollout plan. If you prefer to drive each step yourself, the manual CLI path is listed in [Onboarding](#onboarding).
+
 ## Packages
 
 | Package | What it includes | Depends on |
@@ -14,6 +36,12 @@ Context Engine skills, data loader, onboarding methodology, and admin tools for 
 ## Install
 
 ### curl | bash (recommended)
+
+**Everything** (core + loader + onboarding + admin; best choice for agent-led onboarding):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/codota/ctx-customer-pack-distributable/main/installers/install.sh | bash -s -- --package all --agent claude
+```
 
 **Core only** — skills for your AI agent:
 
@@ -33,13 +61,7 @@ curl -fsSL https://raw.githubusercontent.com/codota/ctx-customer-pack-distributa
 curl -fsSL https://raw.githubusercontent.com/codota/ctx-customer-pack-distributable/main/installers/install.sh | bash -s -- --package admin --agent claude
 ```
 
-**Everything** (core + loader + onboarding + admin):
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/codota/ctx-customer-pack-distributable/main/installers/install.sh | bash -s -- --package all --agent claude
-```
-
-The installer fetches files directly from GitHub — no clone needed. Dependency resolution is automatic: `loader` includes `core`, `admin` includes `core` + `loader`, `all` includes everything. Replace `claude` with `cursor`, `gemini`, or `tabnine` for other agents.
+The installer fetches files directly from GitHub — no clone needed. Dependency resolution is automatic: `loader` includes `core`, `admin` includes `core` + `loader`, `all` includes everything. Replace `claude` with `cursor`, `gemini`, or `tabnine` for other agents. For onboarding in an agent, start with `--package all`.
 
 ### tabnine-ctx-cli install (minimal — ctx skill only)
 
@@ -80,7 +102,7 @@ export CTX_API_KEY=ctx_your_key_here
 - [Customer Pack Manual](docs/customer-pack-manual.md) — detailed setup, command reference, and common workflows
 - [Onboarding Guide](docs/onboarding-guide.md) — expanded walkthrough of the 7-step evaluation flow
 - [Admin User Guide](docs/admin-user-guide.md) — setup, tenant management, smoke tests, and agent-kind management
-- [Context Engine User Guide](docs/context-engine-guide.md) — broader Context Engine workflows and examples
+- [Context Engine User Guide](docs/context-engine-agentic-guide.md) — broader agent workflows and Context Engine examples
 
 ## Data Loader
 
@@ -94,6 +116,18 @@ tabnine-ctx-loader status --json
 Templates in `loader/templates/`.
 
 ## Onboarding
+
+### In Claude Code (recommended)
+
+Install the full pack, then ask Claude to use the `onboard` skill:
+
+```text
+Use the onboard skill to walk me through onboarding this project.
+```
+
+The agent will handle the 7-step flow with the onboarder and loader MCP tools, including setup validation, test-plan generation, data loading, evaluation, and rollout planning.
+
+### Direct CLI (manual)
 
 ```bash
 tabnine-ctx-onboard step-0 --json               # Validate setup
